@@ -19,13 +19,10 @@ public interface DigitalPointsService {
      */
     void issue(Map<String, Object> requestMap) throws Exception;
 
-
     /**
      * 查询商户数字积分信息
      */
     DigitalAssetsCollection getDetailByMerchantNo(Map<String, Object> requestMap);
-
-
 
     /**
      * 铸造数字积分

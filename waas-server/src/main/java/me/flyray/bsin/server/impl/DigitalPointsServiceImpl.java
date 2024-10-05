@@ -15,9 +15,7 @@ import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.facade.service.DigitalAssetsCollectionService;
 import me.flyray.bsin.facade.service.DigitalPointsService;
-import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
-import me.flyray.bsin.infrastructure.biz.DigitalAssetsBiz;
-import me.flyray.bsin.infrastructure.biz.DigitalAssetsItemBiz;
+import me.flyray.bsin.infrastructure.biz.*;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.infrastructure.mapper.TokenParamMapper;
@@ -54,15 +52,22 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
   @Autowired private DigitalAssetsCollectionMapper digitalAssetsCollectionMapper;
   @Autowired private TokenParamMapper tokenParamMapper;
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
+  @Autowired private CrmAccountBiz crmAccountBiz;
   @Autowired private DigitalAssetsCollectionService digitalAssetsCollectionService;
 
   @Value("${bsin.jiujiu.aesKey}")
   private String aesKey;
 
   /**
-   * 开通商户的积分账户，商户可以选择激励的数字资产 1、开通对应数字积分账户，通过币种关联数字资产中心 2、调用数字资产中心发行数字积分资产
-   *
+   * 开通商户的积分账户，商户可以选择激励的数字资产，开通对应数字积分账户，通过币种关联数字资产中心
+   * 1.获取商户信息
+   * 2.账户余额判断
+   * 3.根据protocolCode和chainType 获取 contractProtocol
+   * 4.部署合约
+   * 5.账户扣费
+   * 6. digitalAssetsMapper 数据插入
+   * 7.插入token基础信息
    * @param requestMap
    * @return
    * @throws Exception
@@ -75,17 +80,11 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
     log.info("DigitalPointsService issue 请求参数:{}", JSON.toJSONString(requestMap));
     // 发行的商户
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
-    String merchantNo = MapUtils.getString(requestMap, "merchantNo");
+    String merchantNo = loginUser.getMerchantNo();
     if (merchantNo == null) {
-      merchantNo = loginUser.getMerchantNo();
-      if (merchantNo == null) {
-        throw new BusinessException(ResponseCode.MERCHANT_NO_IS_NULL);
-      }
+      throw new BusinessException(ResponseCode.MERCHANT_NO_IS_NULL);
     }
-    String customerNo = MapUtils.getString(requestMap, "customerNo");
-    if (customerNo == null) {
-      customerNo = loginUser.getCustomerNo();
-    }
+
     String tenantId = loginUser.getTenantId();
     DigitalAssetsIssueReqDTO digitalAssetsIssueReqDTO =
         BsinServiceContext.getReqBodyDto(DigitalAssetsIssueReqDTO.class, requestMap);
@@ -101,13 +100,13 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
 //      throw new BusinessException("100000", "protocolCode为空！！！");
 //    }
 
-    // 1.获取商户的客户信息
-    Map merchantCustomerBase = customerInfoBiz.getMerchantCustomerBase(merchantNo, chainType);
+    // 1.获取商户信息
+    Map merchantCustomerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
     digitalAssetsIssueReqDTO.setPrivateKey((String) merchantCustomerBase.get("privateKey"));
     digitalAssetsIssueReqDTO.setOwnerAddress((String) merchantCustomerBase.get("walletAddress"));
 
     // 2.账户余额判断
-    customerInfoBiz.checkAccountBalance(merchantCustomerBase, chainType, chainEnv);
+    crmAccountBiz.checkAccountBalance(merchantCustomerBase, chainType, chainEnv);
 
     // 3.根据protocolCode和chainType 获取 contractProtocol
     ContractProtocol contractProtocol =
@@ -118,7 +117,7 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
         digitalAssetsBiz.deployContract(digitalAssetsIssueReqDTO);
 
     // 5.账户扣费
-    customerInfoBiz.accountOut(merchantCustomerBase, chainEnv);
+    crmAccountBiz.accountOut(merchantCustomerBase, chainEnv);
 
     // 6. digitalAssetsMapper 数据插入
     DigitalAssetsCollection digitalAssetsColletion = new DigitalAssetsCollection();
@@ -127,7 +126,7 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
     digitalAssetsColletion.setSerialNo(BsinSnowflake.getId());
     digitalAssetsColletion.setContractAddress(contractTransactionResp.getContractAddress());
     digitalAssetsColletion.setSponsorFlag(sponsorFlag);
-    digitalAssetsColletion.setCreateBy(customerNo);
+    digitalAssetsColletion.setCreateBy(merchantNo);
     digitalAssetsColletion.setContractProtocolNo(contractProtocol.getSerialNo());
     digitalAssetsColletion.setName((String) requestMap.get("name"));
 

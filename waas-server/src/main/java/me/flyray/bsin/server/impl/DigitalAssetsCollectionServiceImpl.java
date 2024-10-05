@@ -79,8 +79,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   private AccountService accountService;
 
   /**
-   * 部署数字资产智能合约
-   *
+   * 部署数字资产智能合约：非同质化资产
    * @param requestMap 请求参数 1、品牌商户发行资产类型
    * @see AssetsCollectionType 2、不同资产协议，铸造入参不一样
    * @return
