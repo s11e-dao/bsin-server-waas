@@ -70,7 +70,7 @@ public class DigitalAssetsItemBiz {
 
   @Autowired private AnywebBiz anywebBiz;
 
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
 
   @DubboReference(version = "dev")
   private EquityConfigService equityConfigService;
@@ -97,7 +97,7 @@ public class DigitalAssetsItemBiz {
 
     // 查询发行商户
     Merchant merchant =
-        customerInfoBiz.getMerchantBase(
+            merchantInfoBiz.getMerchantBase(
             digitalAssetsItem.getMerchantNo(), digitalAssetsItem.getChainType());
 
     digitalAssetsItem.setMerchantName(merchant.getMerchantName());

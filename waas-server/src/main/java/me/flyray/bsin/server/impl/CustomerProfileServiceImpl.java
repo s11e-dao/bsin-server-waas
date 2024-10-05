@@ -23,6 +23,7 @@ import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.CustomerProfileService;
 import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
+import me.flyray.bsin.infrastructure.biz.MerchantInfoBiz;
 import me.flyray.bsin.infrastructure.mapper.ContractMapper;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
 import me.flyray.bsin.infrastructure.mapper.CustomerProfileMapper;
@@ -66,7 +67,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
   @Autowired private CustomerProfileMapper customerProfileMapper;
   @Autowired private ContractMapper contractMapper;
   @Autowired private BsinBlockChainEngineFactory bsinBlockChainEngineFactory;
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
   @Autowired private DigitalAssetsCollectionMapper digitalAssetsCollectionMapper;
   @Autowired private ContractProtocolMapper contractProtocolMapper;
 
@@ -127,7 +128,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
     // 2.获取商户的客户信息
     Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(merchantNo, customerProfile.getChainType());
+            merchantInfoBiz.getMerchantIssueWallet(merchantNo, customerProfile.getChainType());
     String privateKey = ((String) merchantCustomerBase.get("privateKey"));
     String owner = ((String) merchantCustomerBase.get("walletAddress"));
     try {
@@ -325,7 +326,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
     // 2.获取商户的客户信息
     Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(merchantNo, customerProfile.getChainType());
+            merchantInfoBiz.getMerchantIssueWallet(merchantNo, customerProfile.getChainType());
     String privateKey = ((String) merchantCustomerBase.get("privateKey"));
     try {
       BsinBlockChainEngine bsinBlockChainEngine =
@@ -483,7 +484,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
     // 2.获取商户的客户信息
     Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(merchantNo, customerProfile.getChainType());
+        merchantInfoBiz.getMerchantIssueWallet(merchantNo, customerProfile.getChainType());
     String privateKey = ((String) merchantCustomerBase.get("privateKey"));
     String walletAddress = ((String) merchantCustomerBase.get("walletAddress"));
 
@@ -674,12 +675,10 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     String customerProfileContractAddress = customerProfile.getContractAddress();
 
     // 2.获取客户信息
-    Map customerBase = customerInfoBiz.getCustomerBase(customerNo, customerProfile.getChainType());
-    String customerBaseAddress = ((String) customerBase.get("walletAddress"));
+    Map merchantCustomerBase = merchantInfoBiz.getMerchantIssueWallet(customerNo, customerProfile.getChainType());
+    String customerBaseAddress = ((String) merchantCustomerBase.get("walletAddress"));
 
     // 3.获取商户的客户信息
-    Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(merchantNo, customerProfile.getChainType());
     String privateKey = ((String) merchantCustomerBase.get("privateKey"));
 
     try {

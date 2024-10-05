@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class MatchHandlerBiz {
+public class TradeMatchHandlerBiz {
 
     /**
      * 交易撮合执行器

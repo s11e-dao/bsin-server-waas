@@ -19,6 +19,7 @@ import me.flyray.bsin.facade.response.DigitalAssetsItemRes;
 import me.flyray.bsin.facade.service.*;
 import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
 import me.flyray.bsin.infrastructure.biz.DigitalAssetsItemBiz;
+import me.flyray.bsin.infrastructure.biz.MerchantInfoBiz;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsItemMapper;
@@ -59,7 +60,7 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
   @Autowired private DigitalAssetsCollectionMapper digitalAssetsCollectionMapper;
   @Autowired private ContractProtocolMapper contractProtocolMapper;
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private CustomerService customerService;
@@ -146,12 +147,12 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
 
     // 5.获取DigitalAssetsItem所属商户的客户信息
     Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(
+            merchantInfoBiz.getMerchantIssueWallet(
             digitalAssetsCollection.getMerchantNo(), digitalAssetsCollection.getChainType());
 
     // 6.获取客户信息
     Map customerBase =
-        customerInfoBiz.getCustomerBase(customerNo, digitalAssetsCollection.getChainType());
+        merchantInfoBiz.getMerchantInfo(customerNo, digitalAssetsCollection.getChainType());
     String phone = (String) customerBase.get("phone");
     if (toAddress == null) {
       toAddress = (String) customerBase.get("walletAddress");

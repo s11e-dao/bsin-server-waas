@@ -18,6 +18,7 @@ import me.flyray.bsin.domain.enums.ProtocolName;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.ContractService;
 import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
+import me.flyray.bsin.infrastructure.biz.MerchantInfoBiz;
 import me.flyray.bsin.infrastructure.mapper.ContractMapper;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
@@ -55,7 +56,7 @@ public class ContractServiceImpl implements ContractService {
   @Autowired private ContractMapper contractMapper;
   @Autowired private ContractProtocolMapper contractProtocolMapper;
   @Autowired private BsinBlockChainEngineFactory bsinBlockChainEngineFactory;
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
 
   @ShenyuDubboClient("/deploy")
   @ApiDoc(desc = "deploy")
@@ -91,8 +92,8 @@ public class ContractServiceImpl implements ContractService {
     String protocolCode = contractProtocol.getProtocolCode();
     String byteCode = contractProtocol.getProtocolBytecode();
 
-    // 2.获取商户的客户信息
-    Map merchantCustomerBase = customerInfoBiz.getMerchantCustomerBase(merchantNo, chainType);
+    // 2.获取商户发行钱包信息
+    Map merchantCustomerBase = merchantInfoBiz.getMerchantIssueWallet(merchantNo, chainType);
     String privateKey = ((String) merchantCustomerBase.get("privateKey"));
 
     Map<String, Object> result = new HashMap<>();

@@ -21,6 +21,7 @@ import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.infrastructure.mapper.TokenParamMapper;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
+import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
@@ -61,7 +62,7 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
 
   /**
    * 开通商户的积分账户，商户可以选择激励的数字资产，开通对应数字积分账户，通过币种关联数字资产中心
-   * 1.获取商户信息
+   * 1.获取发行商信息
    * 2.账户余额判断
    * 3.根据protocolCode和chainType 获取 contractProtocol
    * 4.部署合约
@@ -78,8 +79,9 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
   @Transactional
   public void issue(Map<String, Object> requestMap) throws Exception {
     log.info("DigitalPointsService issue 请求参数:{}", JSON.toJSONString(requestMap));
-    // 发行的商户
+    // 发行商
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+
     String merchantNo = loginUser.getMerchantNo();
     if (merchantNo == null) {
       throw new BusinessException(ResponseCode.MERCHANT_NO_IS_NULL);
@@ -100,13 +102,14 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
 //      throw new BusinessException("100000", "protocolCode为空！！！");
 //    }
 
-    // 1.获取商户信息
-    Map merchantCustomerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
-    digitalAssetsIssueReqDTO.setPrivateKey((String) merchantCustomerBase.get("privateKey"));
-    digitalAssetsIssueReqDTO.setOwnerAddress((String) merchantCustomerBase.get("walletAddress"));
+    // 1.获取发行商信息
+    Map issuerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
 
-    // 2.账户余额判断
-    crmAccountBiz.checkAccountBalance(merchantCustomerBase, chainType, chainEnv);
+    digitalAssetsIssueReqDTO.setPrivateKey((String) issuerBase.get("privateKey"));
+    digitalAssetsIssueReqDTO.setOwnerAddress((String) issuerBase.get("walletAddress"));
+
+    // 2.发行商账户余额判断
+    crmAccountBiz.checkAccountBalance(issuerBase, chainType, chainEnv);
 
     // 3.根据protocolCode和chainType 获取 contractProtocol
     ContractProtocol contractProtocol =
@@ -117,7 +120,7 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
         digitalAssetsBiz.deployContract(digitalAssetsIssueReqDTO);
 
     // 5.账户扣费
-    crmAccountBiz.accountOut(merchantCustomerBase, chainEnv);
+    crmAccountBiz.accountOut(issuerBase, chainEnv);
 
     // 6. digitalAssetsMapper 数据插入
     DigitalAssetsCollection digitalAssetsColletion = new DigitalAssetsCollection();

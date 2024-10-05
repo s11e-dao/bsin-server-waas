@@ -22,9 +22,7 @@ import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.facade.request.DigitalAssetsPutShelvesDTO;
 import me.flyray.bsin.facade.service.AccountService;
 import me.flyray.bsin.facade.service.DigitalAssetsCollectionService;
-import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
-import me.flyray.bsin.infrastructure.biz.DigitalAssetsBiz;
-import me.flyray.bsin.infrastructure.biz.DigitalAssetsItemBiz;
+import me.flyray.bsin.infrastructure.biz.*;
 import me.flyray.bsin.infrastructure.mapper.*;
 import me.flyray.bsin.redis.provider.BsinCacheProvider;
 import me.flyray.bsin.redis.provider.BsinRedisProvider;
@@ -73,7 +71,8 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   @Autowired private DigitalAssetsBiz digitalAssetsBiz;
   @Autowired private MetadataFileMapper metadataFileMapper;
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
-  @Autowired private CustomerInfoBiz customerInfoBiz;
+  @Autowired private MerchantInfoBiz merchantInfoBiz;
+  @Autowired private CrmAccountBiz crmAccountBiz;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private AccountService accountService;
@@ -127,12 +126,12 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     String sponsorFlag = digitalAssetsIssueReqDTO.getSponsorFlag();
 
     // 1.获取商户的客户信息
-    Map merchantCustomerBase = customerInfoBiz.getMerchantCustomerBase(merchantNo, chainType);
+    Map merchantCustomerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
     digitalAssetsIssueReqDTO.setPrivateKey((String) merchantCustomerBase.get("privateKey"));
     digitalAssetsIssueReqDTO.setOwnerAddress((String) merchantCustomerBase.get("walletAddress"));
 
     // 2.账户余额判断
-    customerInfoBiz.checkAccountBalance(merchantCustomerBase, chainType, chainEnv);
+    crmAccountBiz.checkAccountBalance(merchantCustomerBase, chainType, chainEnv);
 
     // 3.根据protocolCode和chainType 获取 contractProtocol
     ContractProtocol contractProtocol =
@@ -144,7 +143,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
         digitalAssetsBiz.deployContract(digitalAssetsIssueReqDTO);
 
     // 5.账户扣费
-    customerInfoBiz.accountOut(merchantCustomerBase, chainEnv);
+    crmAccountBiz.accountOut(merchantCustomerBase, chainEnv);
 
     // 6. digitalAssetsCollectionMapper 数据插入
     DigitalAssetsCollection digitalAssetsColletion = new DigitalAssetsCollection();
@@ -243,11 +242,11 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
 
     // 2.找到资产商户的客户信息
     Map merchantCustomerBase =
-        customerInfoBiz.getMerchantCustomerBase(merchantNo, mintJournal.getChainType());
+            merchantInfoBiz.getMerchantInfo(merchantNo, mintJournal.getChainType());
     String privateKey = (String) merchantCustomerBase.get("privateKey");
 
-    // 3.找到客户信息(目标铸造对象)
-    Map customerBase = customerInfoBiz.getCustomerBase(customerNo, mintJournal.getChainType());
+    // TODO 3.找到商户钱包信息(目标铸造对象)
+    Map customerBase = merchantInfoBiz.getMerchantIssueWallet(customerNo, mintJournal.getChainType());
     String phone = (String) customerBase.get("phone");
     if (toAddress == null) {
       toAddress = (String) customerBase.get("walletAddress");
@@ -302,7 +301,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     String toAddress = transferJournal.getToAddress();
 
     // 1.获取客户信息
-    Map customerBase = customerInfoBiz.getCustomerBase(customerNo, chainType);
+    Map customerBase = merchantInfoBiz.getMerchantIssueWallet(customerNo, chainType);
     String phone = (String) customerBase.get("phone");
     if (toAddress == null) {
       toAddress = (String) customerBase.get("walletAddress");
@@ -319,7 +318,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     }
 
     // 2.账户余额判断
-    customerInfoBiz.checkAccountBalance(customerBase, chainType, chainEnv);
+    crmAccountBiz.checkAccountBalance(customerBase, chainType, chainEnv);
 
     // 3.根据contractAddress 获取 contractProtocol
     ContractProtocol contractProtocol =
@@ -342,7 +341,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
             contract, privateKey, addPrivilege, transferJournal, contractProtocol);
 
     // 6.账户扣费
-    customerInfoBiz.accountOut(customerBase, chainEnv);
+    crmAccountBiz.accountOut(customerBase, chainEnv);
 
     // 7.登记转账记录
     transferJournal.setTokenId(tokenId);
@@ -732,9 +731,9 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     }
     String imageUrl = metadataFile.getIpfsUrl();
 
-    // 1.获取客户信息
+    // 1.获取商户发行钱包信息
     Map customerBase =
-        customerInfoBiz.getCustomerBase(
+        merchantInfoBiz.getMerchantIssueWallet(
             LoginInfoContextHelper.getCustomerNo(), digitalAssetsColletion.getChainType());
     String phone = (String) customerBase.get("phone");
     String toAddress = (String) customerBase.get("walletAddress");

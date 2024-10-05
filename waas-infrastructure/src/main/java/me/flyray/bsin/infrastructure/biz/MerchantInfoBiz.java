@@ -30,12 +30,6 @@ public class MerchantInfoBiz {
     @DubboReference(version = "${dubbo.provider.version}")
     private MerchantService merchantService;
 
-    @DubboReference(version = "${dubbo.provider.version}")
-    private CustomerService customerService;
-
-    @DubboReference(version = "${dubbo.provider.version}")
-    private AccountService accountService;
-
     public Merchant getMerchantBase(String merchantNo, String chainType) {
         // 1.查找资产商户
         Map<String, Object> reqMerchant = new HashMap();
@@ -92,4 +86,13 @@ public class MerchantInfoBiz {
         return merchantDetail;
     }
 
+    /**
+     * 商户发行数字积分的钱包
+     * @param customerNo
+     * @param chainType
+     * @return
+     */
+    public Map getMerchantIssueWallet(String customerNo, String chainType) {
+        return null;
+    }
 }
