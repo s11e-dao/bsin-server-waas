@@ -39,7 +39,7 @@ public class MerchantInfoBiz {
     }
 
     /**
-     * 获取DigitalAssetsItem所属商户的客户信息
+     * 获取DigitalAssetsItem所属商户的信息
      * TODO: 返回 object 非 Map
      * */
     public Map<String, Object> getMerchantInfo(String merchantNo, String chainType) {
@@ -53,6 +53,11 @@ public class MerchantInfoBiz {
         String merchanNo = merchant.getSerialNo();
 
         // TODO 3. 根据商户查询商户的钱包信息
+        merchantDetail = new HashMap<>();
+        merchantDetail.put("walletPrivateKey","walletPrivateKey");
+        merchantDetail.put("walletAddress","walletAddress");
+        merchantDetail.put("evmWalletPrivateKey","evmWalletPrivateKey");
+        merchantDetail.put("walletAddress","walletAddress");
 
         // 4.判断私钥是否设置和正确(此处应该为商户私钥，数字资产由商户发行)
         SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, aesKey.getBytes());

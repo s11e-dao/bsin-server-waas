@@ -61,13 +61,14 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
   private String aesKey;
 
   /**
+   * 注：租户平台通过直属商户发行积分，解决积分商城和功能共用问题
    * 开通商户的积分账户，商户可以选择激励的数字资产，开通对应数字积分账户，通过币种关联数字资产中心
    * 1.获取发行商信息
    * 2.账户余额判断
    * 3.根据protocolCode和chainType 获取 contractProtocol
    * 4.部署合约
    * 5.账户扣费
-   * 6. digitalAssetsMapper 数据插入
+   * 6.写入资产信息
    * 7.插入token基础信息
    * @param requestMap
    * @return
@@ -103,31 +104,31 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
 //    }
 
     // 1.获取发行商信息
-    Map issuerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
+    // Map issuerBase = merchantInfoBiz.getMerchantInfo(merchantNo, chainType);
 
-    digitalAssetsIssueReqDTO.setPrivateKey((String) issuerBase.get("privateKey"));
-    digitalAssetsIssueReqDTO.setOwnerAddress((String) issuerBase.get("walletAddress"));
+//    digitalAssetsIssueReqDTO.setPrivateKey((String) issuerBase.get("privateKey"));
+//    digitalAssetsIssueReqDTO.setOwnerAddress((String) issuerBase.get("walletAddress"));
 
     // 2.发行商账户余额判断
-    crmAccountBiz.checkAccountBalance(issuerBase, chainType, chainEnv);
+    // crmAccountBiz.checkAccountBalance(issuerBase, chainType, chainEnv);
 
     // 3.根据protocolCode和chainType 获取 contractProtocol
     ContractProtocol contractProtocol =
         digitalAssetsItemBiz.getContractProtocol(
             digitalAssetsIssueReqDTO, protocolCode, contractProtocolNo);
     // 4.部署合约
-    ContractTransactionResp contractTransactionResp =
-        digitalAssetsBiz.deployContract(digitalAssetsIssueReqDTO);
-
+//    ContractTransactionResp contractTransactionResp =
+//        digitalAssetsBiz.deployContract(digitalAssetsIssueReqDTO);
+//    log.info("DigitalAssetsService issue 相应结果:{}", JSON.toJSONString(contractTransactionResp));
     // 5.账户扣费
-    crmAccountBiz.accountOut(issuerBase, chainEnv);
+    // crmAccountBiz.accountOut(issuerBase, chainEnv);
 
-    // 6. digitalAssetsMapper 数据插入
+    // 6.写入资产信息
     DigitalAssetsCollection digitalAssetsColletion = new DigitalAssetsCollection();
     BeanUtil.copyProperties(digitalAssetsIssueReqDTO, digitalAssetsColletion);
     digitalAssetsColletion.setMerchantNo(merchantNo);
     digitalAssetsColletion.setSerialNo(BsinSnowflake.getId());
-    digitalAssetsColletion.setContractAddress(contractTransactionResp.getContractAddress());
+    digitalAssetsColletion.setContractAddress("contractTransactionResp.getContractAddress()");
     digitalAssetsColletion.setSponsorFlag(sponsorFlag);
     digitalAssetsColletion.setCreateBy(merchantNo);
     digitalAssetsColletion.setContractProtocolNo(contractProtocol.getSerialNo());
@@ -162,10 +163,11 @@ public class DigitalPointsServiceImpl implements DigitalPointsService {
     digitalAssetsColletion.setChainType(contractProtocol.getChainType());
     digitalAssetsColletion.setCollectionType(digitalAssetsIssueReqDTO.getAssetsCollectionType());
     digitalAssetsCollectionMapper.insert(digitalAssetsColletion);
-    log.info("DigitalAssetsService issue 相应结果:{}", JSON.toJSONString(contractTransactionResp));
+
 
     // 7.插入token基础信息
     TokenParam tokenParam = new TokenParam();
+    tokenParam.setSerialNo(BsinSnowflake.getId());
     tokenParam.setTenantId(loginUser.getTenantId());
     tokenParam.setMerchantNo(merchantNo);
     tokenParam.setDigitalAssetsCollectionNo(digitalAssetsColletion.getSerialNo());

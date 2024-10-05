@@ -34,11 +34,11 @@ public enum AssetsCollectionType {
      */
     ACCOUNT_BC("6", "账户-联合曲线BC"),
     /**
-     * 满减
+     * 优惠券
      */
-    DISCOUNT("7", "满减"),
+    DISCOUNT("7", "优惠券"),
     /**
-     * pass卡
+     * 权限
      */
     AUTHORITY("8", "权限");
 

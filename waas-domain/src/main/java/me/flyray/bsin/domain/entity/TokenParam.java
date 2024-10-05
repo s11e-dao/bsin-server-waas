@@ -23,7 +23,7 @@ public class TokenParam implements Serializable {
      * ID
      */
     @TableId
-    private Integer serialNo;
+    private String serialNo;
 
     /**
      * 租户ID
