@@ -10,6 +10,8 @@ import me.flyray.bsin.domain.entity.ChainCoin;
 import me.flyray.bsin.domain.entity.CustomerChainCoin;
 import me.flyray.bsin.domain.entity.Wallet;
 import me.flyray.bsin.domain.entity.WalletAccount;
+import me.flyray.bsin.domain.enums.WalletStatus;
+import me.flyray.bsin.domain.enums.WalletType;
 import me.flyray.bsin.domain.request.WalletDTO;
 import me.flyray.bsin.domain.response.WalletVO;
 import me.flyray.bsin.exception.BusinessException;
@@ -92,6 +94,7 @@ public class WalletServiceImpl implements WalletService {
   @Transactional(rollbackFor = Exception.class)
   public Wallet createMPCWallet(Wallet walletReq) {
     log.info("请求WalletService.createMPCWallet,参数:{}", walletReq);
+    LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     LoginUser user = LoginInfoContextHelper.getLoginUser();
     Wallet wallet = new Wallet();
     BeanUtils.copyProperties(walletReq, wallet);
@@ -99,18 +102,21 @@ public class WalletServiceImpl implements WalletService {
     // 2、创建钱包
     String serialNo = BsinSnowflake.getId();
     wallet.setSerialNo(serialNo);
-    wallet.setStatus(1);    // 正常
+    wallet.setStatus(WalletStatus.NORMAL.getCode()); // 正常
     wallet.setWalletTag("DEPOSIT");
     wallet.setCreateBy(user.getUserId());
     wallet.setCreateTime(new Date());
-    wallet.setTenantId("1");
-    wallet.setBizRoleTypeNo("1");
-    wallet.setBizRoleType("1");
+    if (wallet.getTenantId() == null) {
+      wallet.setTenantId(loginUser.getTenantId());
+    }
+    if (wallet.getBizRoleTypeNo() == null) {
+      wallet.setBizRoleTypeNo(loginUser.getMerchantNo());
+    }
     walletMapper.insert(wallet);
 
     List<ChainCoin> chainCoinList = new ArrayList<>();
     // 默认EVM钱包
-    if(wallet.getType() == 1){
+    if( WalletType.DEFAULT.getCode().equals(wallet.getType())){
       CustomerChainCoin customerChainCoin = new CustomerChainCoin();
       customerChainCoin.setTenantId(wallet.getTenantId());
       customerChainCoin.setBizRoleType(wallet.getBizRoleType());

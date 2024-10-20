@@ -24,17 +24,17 @@ public class Wallet extends BaseEntity implements Serializable {
      * 类型;1、默认钱包 2、自定义钱包
      */
     @NotBlank(message = "钱包类型不能为空！", groups = AddGroup.class)
-    private Integer type;
+    private String type;
 
     /**
      * 状态;1、正常 2、冻结
      */
-    private Integer status;
+    private String status;
     /**
      * 分类 1、MPC 2、多签
      */
     @NotBlank(message = "钱包分类不能为空！", groups = AddGroup.class)
-    private Integer category;
+    private String category;
     /**
      * 环境 EVM
      */
@@ -58,7 +58,8 @@ public class Wallet extends BaseEntity implements Serializable {
      */
     private String remark;
     /**
-     * 业务角色类型;1、平台 2、商户 3、代理商 4、用户
+     * 业务角色类型
+     * @see me.flyray.bsin.security.enums.BizRoleType
      */
     @NotBlank(message = "业务角色类型不能为空！", groups = AddGroup.class)
     private String bizRoleType;
