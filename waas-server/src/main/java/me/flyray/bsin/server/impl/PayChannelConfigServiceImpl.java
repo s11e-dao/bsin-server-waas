@@ -38,7 +38,6 @@ import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
 @Service
 public class PayChannelConfigServiceImpl implements PayChannelConfigService {
 
-
     @Autowired
     private PayChannelConfigMapper payChannelConfigMapper;
 
