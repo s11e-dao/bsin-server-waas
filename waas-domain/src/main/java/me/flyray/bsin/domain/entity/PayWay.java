@@ -22,6 +22,8 @@ public class PayWay implements Serializable {
     @TableId
     private String payWayCode;
 
+    private String tenantId;
+
     /**
      * 支付渠道名称
      */

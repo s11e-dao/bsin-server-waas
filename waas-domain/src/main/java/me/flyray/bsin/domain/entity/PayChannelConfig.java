@@ -23,6 +23,8 @@ public class PayChannelConfig implements Serializable {
     @TableId
     private String serialNo;
 
+    private String tenantId;
+
     /**
      * 服务商号/商户号/应用ID
      */

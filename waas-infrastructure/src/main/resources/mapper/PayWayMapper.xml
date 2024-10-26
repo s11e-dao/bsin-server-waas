@@ -6,6 +6,7 @@
 
     <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.PayWay">
             <id property="payWayCode" column="pay_way_code" jdbcType="VARCHAR"/>
+            <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
             <result property="payWayName" column="pay_way_name" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
@@ -13,7 +14,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        pay_way_code,pay_way_name,create_time,
+        tenant_id,pay_way_code,pay_way_name,create_time,
         update_time,serial_no
     </sql>
 </mapper>
