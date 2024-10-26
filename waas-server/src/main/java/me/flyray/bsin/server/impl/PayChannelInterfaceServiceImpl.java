@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.Event;
 import me.flyray.bsin.domain.entity.PayChannelInterface;
@@ -15,7 +16,9 @@ import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.server.utils.Pagination;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
+import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,9 @@ import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
 * @description 针对表【waas_pay_channel_interface(支付渠道具体接口定义表)】的数据库操作Service实现
 * @createDate 2024-10-26 10:15:56
 */
+@Slf4j
+@ShenyuDubboService(path = "/payChannelInterface", timeout = 6000)
+@ApiModule(value = "payChannelInterface")
 @Service
 public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceService {
 
