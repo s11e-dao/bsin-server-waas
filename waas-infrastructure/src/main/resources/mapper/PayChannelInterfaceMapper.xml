@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.flyray.bsin.infrastructure.mapper.PayChannelInterfaceMapper">
+
+    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.PayChannelInterface">
+            <id property="payServiceCode" column="pay_service_code" jdbcType="VARCHAR"/>
+            <result property="payServiceName" column="pay_service_name" jdbcType="VARCHAR"/>
+            <result property="configPageType" column="config_page_type" jdbcType="TINYINT"/>
+            <result property="params" column="params" jdbcType="VARCHAR"/>
+            <result property="wayCode" column="way_code" jdbcType="OTHER"/>
+            <result property="icon" column="icon" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        pay_service_code,pay_service_name,config_page_type,
+        params,way_code,icon,
+        status,remark,create_time,
+        update_time,tenant_id
+    </sql>
+</mapper>

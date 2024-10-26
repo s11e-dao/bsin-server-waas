@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper">
+
+    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.PayChannelConfig">
+            <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
+            <result property="bizRoleAppId" column="biz_role_app_id" jdbcType="VARCHAR"/>
+            <result property="payServiceCode" column="pay_service_code" jdbcType="VARCHAR"/>
+            <result property="params" column="params" jdbcType="VARCHAR"/>
+            <result property="feeRatio" column="fee_ratio" jdbcType="DECIMAL"/>
+            <result property="state" column="state" jdbcType="TINYINT"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        serial_no,biz_role_app_id,pay_service_code,
+        params,fee_ratio,state,
+        remark,create_by,create_time,
+        update_by,update_time
+    </sql>
+</mapper>

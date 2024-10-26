@@ -1,0 +1,78 @@
+package me.flyray.bsin.domain.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 支付渠道具体接口定义表
+ * @TableName waas_pay_channel_interface
+ */
+@Data
+@TableName(value ="waas_pay_channel_interface")
+public class PayChannelInterface implements Serializable {
+    /**
+     * 接口代码 全小写  wxpay alipay 
+     */
+    @TableId
+    private String payServiceCode;
+
+    /**
+     * 接口名称
+     */
+    private String payServiceName;
+
+    /**
+     * 支付参数配置页面类型:1-JSON渲染,2-自定义
+     */
+    private Integer configPageType;
+
+    /**
+     * 普通商户接口配置定义描述,json字符串
+     */
+    private String params;
+
+    /**
+     * 支持的支付方式 ["wxpay_jsapi", "wxpay_bar"]
+     */
+    private Object wayCode;
+
+    /**
+     * 页面展示：卡片-图标
+     */
+    private String icon;
+
+    /**
+     * 状态: 0-停用, 1-启用
+     */
+    private Integer status;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 
+     */
+    private String tenantId;
+
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
+
+}
