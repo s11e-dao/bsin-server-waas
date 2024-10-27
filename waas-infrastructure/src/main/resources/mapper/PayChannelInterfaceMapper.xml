@@ -5,8 +5,8 @@
 <mapper namespace="me.flyray.bsin.infrastructure.mapper.PayChannelInterfaceMapper">
 
     <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.PayChannelInterface">
-            <id property="payServiceCode" column="pay_service_code" jdbcType="VARCHAR"/>
-            <result property="payServiceName" column="pay_service_name" jdbcType="VARCHAR"/>
+            <id property="payInterfaceCode" column="pay_interface_code" jdbcType="VARCHAR"/>
+            <result property="payInterfaceName" column="pay_interface_name" jdbcType="VARCHAR"/>
             <result property="configPageType" column="config_page_type" jdbcType="TINYINT"/>
             <result property="params" column="params" jdbcType="VARCHAR"/>
             <result property="wayCode" column="way_code" jdbcType="OTHER"/>
@@ -19,7 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        pay_service_code,pay_service_name,config_page_type,
+        pay_interface_code,pay_interface_name,config_page_type,
         params,way_code,icon,
         status,remark,create_time,
         update_time,tenant_id

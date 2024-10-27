@@ -20,12 +20,12 @@ public class PayChannelInterface implements Serializable {
      * 接口代码 全小写  wxpay alipay 
      */
     @TableId
-    private String payServiceCode;
+    private String payInterfaceCode;
 
     /**
      * 接口名称
      */
-    private String payServiceName;
+    private String payInterfaceName;
 
     /**
      * 支付参数配置页面类型:1-JSON渲染,2-自定义

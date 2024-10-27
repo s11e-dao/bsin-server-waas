@@ -8,7 +8,7 @@
             <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
             <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
             <result property="bizRoleAppId" column="biz_role_app_id" jdbcType="VARCHAR"/>
-            <result property="payServiceCode" column="pay_service_code" jdbcType="VARCHAR"/>
+            <result property="payInterfaceCode" column="pay_interface_code" jdbcType="VARCHAR"/>
             <result property="params" column="params" jdbcType="VARCHAR"/>
             <result property="feeRatio" column="fee_ratio" jdbcType="DECIMAL"/>
             <result property="state" column="state" jdbcType="TINYINT"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        serial_no,tenant_id,biz_role_app_id,pay_service_code,
+        serial_no,tenant_id,biz_role_app_id,pay_interface_code,
         params,fee_ratio,state,
         remark,create_by,create_time,
         update_by,update_time
