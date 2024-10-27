@@ -82,6 +82,12 @@
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
+            <artifactId>oms-facade</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.flyray.bsin</groupId>
             <artifactId>waas-infrastructure</artifactId>
         </dependency>
 
@@ -165,6 +171,18 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>me.flyray.bsin</groupId>
+            <artifactId>bsin-common-payment</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shenyu</groupId>
+            <artifactId>shenyu-spring-boot-starter-client-springmvc</artifactId>
+            <version>${shenyu.version}</version>
         </dependency>
 
     </dependencies>

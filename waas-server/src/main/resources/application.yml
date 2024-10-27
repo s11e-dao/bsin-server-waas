@@ -16,6 +16,10 @@ shenyu:
       props:
         contextPath: /waas
         appName: waas
+    http:
+      props:
+        contextPath: /callback
+        appName: callback
 
 dubbo:
   application:
@@ -45,6 +49,7 @@ wx:
     redisConfig:
       host: 127.0.0.1
       port: 6379
+      password: 6379
     configs:
       - appId: 11 # 第一个公众号的appid
         secret: 11 # 公众号的appsecret
@@ -98,3 +103,5 @@ bsin:
     get-gas:
       address: '0x5d90A41098954fd90eb70805b3E9442AF9E91625'  # 资金归结gas fee账号
       amount: 1000
+  oms:
+    aesKey: 11
