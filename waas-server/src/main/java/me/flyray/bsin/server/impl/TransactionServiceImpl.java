@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.*;
+import me.flyray.bsin.domain.enums.TransactionType;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
 import me.flyray.bsin.domain.response.TransactionVO;
@@ -87,7 +88,7 @@ public class TransactionServiceImpl  implements TransactionService {
             Transaction transaction = new Transaction();
             transaction.setSerialNo(serialNo);
             transaction.setOutSerialNo(transactionRequest.getOutSerialNo());
-            transaction.setTransactionType(2);       // 交易类型 2、转出
+            transaction.setTransactionType(TransactionType.TRANSFER.getCode());       // 交易类型 2、转出
             transaction.setComment(transactionRequest.getComment());
             transaction.setFromAddress(transactionRequest.getFromAddress());
             transaction.setTxAmount(new BigDecimal(transactionRequest.getTxAmount()));

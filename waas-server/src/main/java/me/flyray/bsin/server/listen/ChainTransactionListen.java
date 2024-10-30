@@ -6,6 +6,8 @@ import me.flyray.bsin.domain.entity.ChainCoin;
 import me.flyray.bsin.domain.entity.ContractMethod;
 import me.flyray.bsin.domain.entity.Wallet;
 import me.flyray.bsin.domain.entity.WalletAccount;
+import me.flyray.bsin.domain.enums.TransactionStatus;
+import me.flyray.bsin.domain.enums.TransactionType;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.infrastructure.biz.TransactionBiz;
@@ -227,9 +229,9 @@ public class ChainTransactionListen {
                     transactionDTO.setContractMethod(contractMethod);      // 合约方法
                     transactionDTO.setMethodInvokeWay(methodInvokeWay);     // 合约调用方式
                     if (transactionReceipt.getStatus().equals("0x1")) {
-                        transactionDTO.setTransactionStatus(2);         //‘0x1’ 事务成功
+                        transactionDTO.setTransactionStatus(TransactionStatus.SUCCESS.getCode());         //‘0x1’ 事务成功
                     } else if (transactionReceipt.getStatus().equals("0x0")) {
-                        transactionDTO.setTransactionStatus(3);         // 0x0’ 事务失败
+                        transactionDTO.setTransactionStatus(TransactionStatus.FAIL.getCode());         // 0x0’ 事务失败
                     }
                     transactionDTO.setFromAddress(from);  // 交易发起者地址
                     // 交易数量
@@ -276,9 +278,9 @@ public class ChainTransactionListen {
             // 查询归集账户地址
             WalletAccount gatherAccount = walletAccountBiz.getGatherAccount(wallet.getTenantId(), chainCoinNo);
             if(gatherAccount != null && gatherAccount.getAddress().equals(to)){
-                transactionDTO.setTransactionType(3);     // 交易类型：3、资金归集
+                transactionDTO.setTransactionType(TransactionType.TRANSFER.getCode());     // 交易类型：3、资金归集
             }else {
-                transactionDTO.setTransactionType(1);     // 交易类型：1、转入
+                transactionDTO.setTransactionType(TransactionType.RECHARGE.getCode());     // 交易类型：1、转入
             }
             transactionDTO.setTxAmount(txAmount);     // 交易金额
             transactionDTO.setSerialNo(BsinSnowflake.getId());
@@ -320,7 +322,7 @@ public class ChainTransactionListen {
             if(gatherAccount != null&& gatherAccount.getAddress().equals(to)){
                 return;
             }else {
-                transactionDTO.setTransactionType(2);     // 交易类型：2、转出
+                transactionDTO.setTransactionType(TransactionType.WITHDRAWAL.getCode());     // 交易类型：2、转出
             }
             transactionDTO.setTxAmount(txAmount.multiply(new BigDecimal("-1")));
             transactionDTO.setSerialNo(BsinSnowflake.getId());

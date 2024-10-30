@@ -3,7 +3,10 @@ package me.flyray.bsin.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import me.flyray.bsin.domain.enums.TransactionStatus;
+import me.flyray.bsin.domain.enums.TransactionType;
 import me.flyray.bsin.entity.BaseEntity;
+import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.validate.AddGroup;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -20,9 +23,10 @@ import java.math.BigDecimal;
 public class Transaction extends BaseEntity implements Serializable {
 
     /**
-     * 交易类型;1、转入 2、转出 3、资金归集
+     * 交易类型： 1、充值 2、转账 3、提现 4、退款 5、消费
+     * @see TransactionType
      */
-    private Integer transactionType;
+    private String transactionType;
     /**
      * 交易hash
      */
@@ -41,8 +45,9 @@ public class Transaction extends BaseEntity implements Serializable {
     private Integer methodInvokeWay;
     /**
      * 交易状态; 1、等待 2、成功 3、失败
+     * @see TransactionStatus
      */
-    private Integer transactionStatus;
+    private String transactionStatus;
 
     /**
      * 源地址
@@ -85,7 +90,8 @@ public class Transaction extends BaseEntity implements Serializable {
      */
     private String outSerialNo;
     /**
-     * 业务角色类型;1、平台 2、商户 3、代理商 4、用户
+     * 用户角色类型，1.系统运营 2.平台租户 3.商户 4.代理商 5.客户 6.门店 99.无
+     * @see BizRoleType
      */
     @NotBlank(message = "业务角色类型不能为空！", groups = AddGroup.class)
     private String bizRoleType;

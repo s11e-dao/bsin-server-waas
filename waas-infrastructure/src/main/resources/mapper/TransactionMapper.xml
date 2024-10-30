@@ -10,8 +10,8 @@
             <result property="contractAddress" column="contract_address" jdbcType="VARCHAR"/>
             <result property="contractMethod" column="contract_method" jdbcType="VARCHAR"/>
             <result property="methodInvokeWay" column="method_invoke_way" jdbcType="VARCHAR"/>
-            <result property="transactionType" column="transaction_type" jdbcType="INTEGER"/>
-            <result property="transactionStatus" column="transaction_status" jdbcType="INTEGER"/>
+            <result property="transactionType" column="transaction_type" jdbcType="VARCHAR"/>
+            <result property="transactionStatus" column="transaction_status" jdbcType="VARCHAR"/>
             <result property="fromAddress" column="from_address" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type_no" jdbcType="INTEGER"/>
