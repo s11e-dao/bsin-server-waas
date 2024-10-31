@@ -15,7 +15,7 @@ import me.flyray.bsin.domain.entity.TokenParam;
 import me.flyray.bsin.domain.entity.TokenReleaseJournal;
 import me.flyray.bsin.domain.enums.AccountCategory;
 import me.flyray.bsin.domain.enums.BehaviorCode;
-import me.flyray.bsin.enums.CustomerType;
+import me.flyray.bsin.domain.enums.CustomerType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.AccountService;
 import me.flyray.bsin.facade.service.DigitalPointsService;
@@ -64,7 +64,7 @@ public class TokenParamServiceImpl implements TokenParamService {
 
   @ShenyuDubboClient("/edit")
   @ApiDoc(desc = "edit")
-  @CaptureCustomerBehavior(behaviorCode = BehaviorCode.ISSUE, customerType = CustomerType.MEMBER)
+  @CaptureCustomerBehavior(behaviorCode = BehaviorCode.ISSUE, customerType = CustomerType.PERSONAL)
   @Override
   public TokenParam edit(Map<String, Object> requestMap) {
     TokenParam tokenParam = BsinServiceContext.getReqBodyDto(TokenParam.class, requestMap);
