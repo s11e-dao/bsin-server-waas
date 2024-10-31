@@ -5,25 +5,30 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * @author leonard
  * @date 2024/10/30 00:32
- * @desc 支付方式;1、默认钱包 2、自定义钱包
+ * @desc 交易类型： 1、充值 2、转账 3、提现 4、退款 5、消费
  */
-public enum PayWay {
+public enum TransactionType {
 
-  /** 微信支付 */
-  WX("wx", "微信支付"),
-  /** 微信支付 */
-  DEFAULT("aliPay", "支付宝支付"),
-  /** 品牌积分支付 */
-  BRAND_POINT("brandsPoint", "品牌积分支付"),
+  /** 充值 */
+  RECHARGE("1", "充值"),
 
-  /** 火钻支付 */
-  FIRE_DIAMOND("fireDiamond", "火钻支付");
+  /** 转账 */
+  TRANSFER("2", "转账"),
+
+  /** 提现 */
+  WITHDRAWAL("3", "提现"),
+
+  /** 退款 */
+  REFUND("4", "退款"),
+
+  /** 消费 */
+  CONSUMPTION("5", "消费");
 
   private String code;
 
   private String desc;
 
-  PayWay(String code, String desc) {
+  TransactionType(String code, String desc) {
     this.code = code;
     this.desc = desc;
   }
@@ -38,11 +43,11 @@ public enum PayWay {
 
   /** Json 枚举序列化 */
   @JsonCreator
-  public static PayWay getInstanceById(String id) {
+  public static TransactionType getInstanceById(String id) {
     if (id == null) {
       return null;
     }
-    for (PayWay status : values()) {
+    for (TransactionType status : values()) {
       if (id.equals(status.getCode())) {
         return status;
       }
