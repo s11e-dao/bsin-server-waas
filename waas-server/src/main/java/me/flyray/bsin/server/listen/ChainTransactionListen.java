@@ -322,7 +322,7 @@ public class ChainTransactionListen {
             if(gatherAccount != null&& gatherAccount.getAddress().equals(to)){
                 return;
             }else {
-                transactionDTO.setTransactionType(TransactionType.WITHDRAWAL.getCode());     // 交易类型：2、转出
+                transactionDTO.setTransactionType(TransactionType.WITHDRAW.getCode());     // 交易类型：2、转出
             }
             transactionDTO.setTxAmount(txAmount.multiply(new BigDecimal("-1")));
             transactionDTO.setSerialNo(BsinSnowflake.getId());

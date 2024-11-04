@@ -85,7 +85,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     } else if (transaction == null) {
       transaction.setSerialNo(BsinSnowflake.getId());
       transaction.setOutSerialNo(orderNo);
-      transaction.setTransactionType(TransactionType.CONSUMPTION.getCode());
+      transaction.setTransactionType(TransactionType.PAY.getCode());
       transaction.setComment(mark);
       transaction.setTxAmount(new BigDecimal(payAmount));
       //    transaction.setFromAddress(transactionRequest.getFromAddress());

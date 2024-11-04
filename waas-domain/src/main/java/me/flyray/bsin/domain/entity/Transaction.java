@@ -26,7 +26,7 @@ public class Transaction extends BaseEntity implements Serializable {
      * 交易类型： 1、充值 2、转账 3、提现 4、退款 5、消费
      * @see TransactionType
      */
-    private String transactionType;
+    private Integer transactionType;
     /**
      * 交易hash
      */

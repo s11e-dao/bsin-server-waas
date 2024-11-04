@@ -37,6 +37,7 @@ public class PayChannelConfig implements Serializable {
 
     /**
      * 接口配置参数,json字符串
+     * 根据接口定义的参数具体赋值
      */
     private String params;
 

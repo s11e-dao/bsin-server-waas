@@ -34,6 +34,7 @@ public class PayChannelInterface implements Serializable {
 
     /**
      * 普通商户接口配置定义描述,json字符串
+     * 定义支付接口需要配置的参数，在config里面根据定义赋值具体的值
      */
     private String params;
 
