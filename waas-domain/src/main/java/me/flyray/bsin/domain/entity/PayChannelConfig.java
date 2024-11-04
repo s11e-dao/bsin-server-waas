@@ -49,7 +49,7 @@ public class PayChannelConfig implements Serializable {
     /**
      * 状态: 0-停用, 1-启用
      */
-    private Integer state;
+    private String status;
 
     /**
      * 备注

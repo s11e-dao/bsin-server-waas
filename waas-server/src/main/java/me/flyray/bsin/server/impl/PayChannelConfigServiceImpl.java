@@ -1,6 +1,7 @@
 package me.flyray.bsin.server.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.Event;
 import me.flyray.bsin.domain.entity.PayChannelConfig;
+import me.flyray.bsin.domain.entity.PayChannelInterface;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.PayChannelConfigService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
@@ -23,6 +25,7 @@ import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
@@ -93,9 +96,21 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         return pageList;
     }
 
+    @ApiDoc(desc = "getList")
+    @ShenyuDubboClient("/getList")
+    @Override
+    public List<?> getList(Map<String, Object> requestMap) {
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        PayChannelConfig payChannelConfig = BsinServiceContext.getReqBodyDto(PayChannelConfig.class, requestMap);
+        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(ObjectUtil.isNotNull(payChannelConfig.getPayInterfaceCode()), PayChannelConfig::getPayInterfaceCode, payChannelConfig.getPayInterfaceCode());
+        warapper.orderByDesc(PayChannelConfig::getCreateTime);
+        warapper.eq(PayChannelConfig::getTenantId, loginUser.getTenantId());
+        return payChannelConfigMapper.selectList(warapper);
+    }
 
     /**
-     * 事件详情
+     * 支付配置详情
      * @param requestMap
      * @return
      */
@@ -108,6 +123,22 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         return payChannelConfig;
     }
 
+    /**
+     * 查询应用支付配置详情
+     * @param requestMap
+     * @return
+     */
+    @ApiDoc(desc = "getBizRoleAppPayChannelConfig")
+    @ShenyuDubboClient("/getBizRoleAppPayChannelConfig")
+    @Override
+    public PayChannelConfig getBizRoleAppPayChannelConfig(Map<String, Object> requestMap){
+        String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
+        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
+        warapper.orderByDesc(PayChannelConfig::getCreateTime);
+        PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
+        return payChannelConfig;
+    }
 }
 
 

@@ -11,7 +11,7 @@
             <result property="payInterfaceCode" column="pay_interface_code" jdbcType="VARCHAR"/>
             <result property="params" column="params" jdbcType="VARCHAR"/>
             <result property="feeRatio" column="fee_ratio" jdbcType="DECIMAL"/>
-            <result property="state" column="state" jdbcType="TINYINT"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
             <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -21,7 +21,7 @@
 
     <sql id="Base_Column_List">
         serial_no,tenant_id,biz_role_app_id,pay_interface_code,
-        params,fee_ratio,state,
+        params,fee_ratio,status,
         remark,create_by,create_time,
         update_by,update_time
     </sql>

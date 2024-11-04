@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import me.flyray.bsin.domain.entity.PayChannelConfig;
 import me.flyray.bsin.domain.entity.PayChannelInterface;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,8 +36,13 @@ public interface PayChannelInterfaceService {
     public PayChannelInterface getDetail(Map<String, Object> requestMap);
 
     /**
-     * 租户下所有
+     * 租户下分页所有
      */
     public IPage<?> getPageList(Map<String, Object> requestMap);
+
+    /**
+     * 租户下所有
+     */
+    public List<?> getList(Map<String, Object> requestMap);
 
 }

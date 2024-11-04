@@ -1,6 +1,7 @@
 package me.flyray.bsin.server.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,6 +24,7 @@ import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
@@ -87,12 +89,27 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         Page<PayChannelInterface> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
         PayChannelInterface payChannelInterface = BsinServiceContext.getReqBodyDto(PayChannelInterface.class, requestMap);
         LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceCode()), PayChannelInterface::getPayInterfaceCode, payChannelInterface.getPayInterfaceCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceName()), PayChannelInterface::getPayInterfaceName, payChannelInterface.getPayInterfaceName());
         warapper.orderByDesc(PayChannelInterface::getCreateTime);
         warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
         IPage<PayChannelInterface> pageList = payChannelInterfaceMapper.selectPage(page, warapper);
         return pageList;
     }
 
+    @ApiDoc(desc = "getList")
+    @ShenyuDubboClient("/getList")
+    @Override
+    public List<?> getList(Map<String, Object> requestMap) {
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        PayChannelInterface payChannelInterface = BsinServiceContext.getReqBodyDto(PayChannelInterface.class, requestMap);
+        LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceCode()), PayChannelInterface::getPayInterfaceCode, payChannelInterface.getPayInterfaceCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceName()), PayChannelInterface::getPayInterfaceName, payChannelInterface.getPayInterfaceName());
+        warapper.orderByDesc(PayChannelInterface::getCreateTime);
+        warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
+        return payChannelInterfaceMapper.selectList(warapper);
+    }
 
     /**
      * 事件详情

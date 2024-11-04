@@ -3,6 +3,7 @@ package me.flyray.bsin.facade.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import me.flyray.bsin.domain.entity.PayWay;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,8 +35,13 @@ public interface PayWayService {
     public PayWay getDetail(Map<String, Object> requestMap);
 
     /**
-     * 租户下所有
+     * 租户下分页所有
      */
     public IPage<?> getPageList(Map<String, Object> requestMap);
+
+    /**
+     * 租户下所有
+     */
+    public List<?> getList(Map<String, Object> requestMap);
 
 }

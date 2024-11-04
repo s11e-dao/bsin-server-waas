@@ -1,12 +1,14 @@
 package me.flyray.bsin.server.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.Event;
+import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.PayWayService;
@@ -23,6 +25,7 @@ import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
@@ -94,6 +97,19 @@ public class PayWayServiceImpl implements PayWayService {
         return pageList;
     }
 
+    @ApiDoc(desc = "getList")
+    @ShenyuDubboClient("/getList")
+    @Override
+    public List<?> getList(Map<String, Object> requestMap) {
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        PayWay payWay = BsinServiceContext.getReqBodyDto(PayWay.class, requestMap);
+        LambdaQueryWrapper<PayWay> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(ObjectUtil.isNotNull(payWay.getPayWayName()), PayWay::getPayWayName, payWay.getPayWayName());
+        warapper.eq(ObjectUtil.isNotNull(payWay.getPayWayCode()), PayWay::getPayWayCode, payWay.getPayWayCode());
+        warapper.orderByDesc(PayWay::getCreateTime);
+        warapper.eq(PayWay::getTenantId, loginUser.getTenantId());
+        return payWayMapper.selectList(warapper);
+    }
 
     /**
      * 事件详情
