@@ -1,6 +1,6 @@
 # 企业级的MPC区块链钱包
 
-火源钱包是一款采用先进的前后端分离和云原生微服务架构设计的企业级MPC区块链钱包。以WaaS（Wallet as a Service）为核心理念，旨在为企业提供强大的Web3资产管理能力，确保资产的安全控制和流畅转移。
+火源钱包是一款基于[BsinPaaS开源框架](https://gitee.com/s11e-DAO/bsin-paas-all-in-one)架构设计的企业级MPC区块链钱包。以WaaS（Wallet as a Service）为核心理念，旨在为企业提供强大的Web3资产管理能力，确保资产的安全控制和流畅转移。
 
 一、火源钱包设计方案
 
