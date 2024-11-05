@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import me.flyray.bsin.domain.enums.PayWayCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,7 +18,8 @@ import java.util.Date;
 @TableName(value ="waas_pay_way")
 public class PayWay implements Serializable {
     /**
-     * 支付方式代码  例如： wxpay_jsapi
+     * 支付方式代码： WX_JSAPI(微信小程序)
+     * @see PayWayCode
      */
     @TableId
     private String payWayCode;
