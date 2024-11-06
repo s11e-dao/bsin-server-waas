@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import me.flyray.bsin.domain.enums.PayInterfaceCode;
+import me.flyray.bsin.domain.enums.PayWayCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,7 +19,8 @@ import java.util.Date;
 @TableName(value ="waas_pay_channel_interface")
 public class PayChannelInterface implements Serializable {
     /**
-     * 接口代码 全小写  wxpay alipay 
+     * 接口代码 全小写  wxpay alipay
+     * @see PayInterfaceCode
      */
     @TableId
     private String payInterfaceCode;
@@ -40,6 +43,7 @@ public class PayChannelInterface implements Serializable {
 
     /**
      * 支持的支付方式 ["wxpay_jsapi", "wxpay_bar"]
+     * @see PayWayCode
      */
     private Object wayCode;
 
