@@ -1,5 +1,6 @@
 package me.flyray.bsin.server.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
@@ -7,16 +8,18 @@ import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.constants.ResponseCode;
-import me.flyray.bsin.domain.entity.Account;
-import me.flyray.bsin.domain.entity.Transaction;
-import me.flyray.bsin.domain.entity.TransferJournal;
+import me.flyray.bsin.domain.entity.*;
 import me.flyray.bsin.domain.enums.PayWayEnum;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.domain.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
+import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.PayRoutingService;
+import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.infrastructure.mapper.TransferJournalMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
@@ -24,6 +27,7 @@ import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
@@ -49,6 +53,10 @@ public class PayRoutingServiceImpl implements PayRoutingService {
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
   @Autowired private TransactionMapper transactionMapper;
+  @Autowired private PayChannelConfigMapper payChannelConfigMapper;
+
+  @DubboReference(version = "${dubbo.provider.version}")
+  private BizRoleAppService bizRoleAppService;
 
   /**
    * 根据支付方式判断处理
@@ -68,9 +76,15 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     String tenantId = MapUtils.getString(requestMap, "tenantId");
     String merchantNo = MapUtils.getString(requestMap, "merchantNo");
     String customerNo = MapUtils.getString(requestMap, "customerNo");
+    String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
+    String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
     String mark = MapUtils.getString(requestMap, "mark");
     if (payWay.isEmpty() || payAmount.isEmpty()) {
       throw new BusinessException(ResponseCode.PARAM_ERROR);
+    }
+    BizRoleApp bizRoleApp = bizRoleAppService.getDetail(requestMap);
+    if (bizRoleApp == null) {
+      throw new BusinessException(ResponseCode.APP_NOT_EXISTS);
     }
 
     // 1.创建交易订单
@@ -105,17 +119,27 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       Double deciPrice = Double.parseDouble(payAmount) * 100;
       WxPayMpOrderResult payResult = new WxPayMpOrderResult();
       WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
-      // TODO: 支付配置应用,appId 从商户应用配置的支付应用中获取
-      wxPayRequest.setAppid(appId);
-      wxPayRequest.setMchId("1516165741");
-      wxPayRequest.setBody("飞雷充值");
-      // wxPayRequest.setDetail((String) map.get("detail"));
+      // 支付配置应用: 从商户应用配置的支付应用中获取
+      LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
+      warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
+      warapper.orderByDesc(PayChannelConfig::getCreateTime);
+      PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
+      if (payChannelConfig == null) {
+        throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
+      }
+      JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
 
+      wxPayRequest.setAppid(payChannelConfigParams.getString("appId"));
+      wxPayRequest.setMchId(payChannelConfigParams.getString("mchId"));
+      // ??
+      wxPayRequest.setBody(mark);
+      wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
       wxPayRequest.setOutTradeNo(transaction.getSerialNo());
       wxPayRequest.setTotalFee(deciPrice.intValue());
       wxPayRequest.setSpbillCreateIp("127.0.0.1");
-      //! 微信收到后的回调地址，会自动回调该地址：
-      wxPayRequest.setNotifyUrl(wxCallbackUrl);
+      // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
+      //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
+      wxPayRequest.setNotifyUrl(bizRoleApp.getNotifyUrl());
       wxPayRequest.setTradeType("JSAPI");
       wxPayRequest.setOpenid(openId);
       //      log.info("传递的参数{}", wxPayRequest);
