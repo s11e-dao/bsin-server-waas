@@ -11,11 +11,11 @@ import me.flyray.bsin.domain.entity.BizRoleApp;
 import me.flyray.bsin.domain.entity.Member;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
+import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.facade.service.MemberService;
-import me.flyray.bsin.facade.service.UniflyOrderService;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
@@ -43,8 +43,8 @@ import static me.flyray.bsin.constants.ResponseCode.PAYMENT_STATUS_ERROR;
 @Slf4j
 public class PayCallbackController {
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private UniflyOrderService uniflyOrderService;
+  @Autowired
+  private BsinServiceInvoke bsinServiceInvoke;
 
   @Value("${bsin.oms.aesKey}")
   private String aesKey;
@@ -104,8 +104,8 @@ public class PayCallbackController {
       //        transaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
       //      }
       transactionMapper.updateById(transaction);
-      // 调用订单完成方法统一处理： 根据订单类型后续处理
-      uniflyOrderService.completePay(requestMap);
+      // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
+      bsinServiceInvoke.genericInvoke("UniflyOrderService","completePay",null,requestMap);
 
     } catch (Exception e) {
       return WxPayNotifyResponse.fail("支付失败");
