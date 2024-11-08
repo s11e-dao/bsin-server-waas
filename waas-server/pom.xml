@@ -82,12 +82,6 @@
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
-            <artifactId>oms-facade</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>me.flyray.bsin</groupId>
             <artifactId>waas-infrastructure</artifactId>
         </dependency>
 
