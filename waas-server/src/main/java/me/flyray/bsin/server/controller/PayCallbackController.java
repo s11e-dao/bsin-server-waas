@@ -74,38 +74,39 @@ public class PayCallbackController {
    * @throws Exception
    */
   @PostMapping("/wxpay")
-  @ShenyuSpringMvcClient("/wechat")
-  @ApiDoc(desc = "wechat")
+  @ShenyuSpringMvcClient("/wxpay")
+  @ApiDoc(desc = "wxpay")
   public Object wxpay(@RequestBody String body) throws Exception {
     WxPayOrderNotifyResult result = null;
     try {
       // 解析回调包文
-      BizRoleApp bizRoleApp = new BizRoleApp();
-      WxPayService wxPayService = getWxService(bizRoleApp);
-      result = wxPayService.parseOrderNotifyResult(body);
-      log.info("处理腾讯支付平台的订单支付");
-      log.info(JSONObject.toJSONString(result));
+//      BizRoleApp bizRoleApp = new BizRoleApp();
+//      WxPayService wxPayService = getWxService(bizRoleApp);
+//      result = wxPayService.parseOrderNotifyResult(body);
+//      log.info("处理腾讯支付平台的订单支付");
+//      log.info(JSONObject.toJSONString(result));
       // 处理微信支付成功回调
       Map<String, Object> requestMap = new HashMap<>();
-      requestMap.put("resultCode", result.getResultCode());
-      // getOutTradeNo 是 创建订单时候的订单号
-      requestMap.put("transactionNo", result.getOutTradeNo());
-      requestMap.put("cashFee", result.getCashFee());
-      requestMap.put("payId", result.getTransactionId());
-      // 根据 transactionNo 查询交易订单 更新
-      Transaction transaction = transactionMapper.selectById(result.getOutTradeNo());
+      requestMap.put("resultCode", "成功");
 
-      // 根据回调结果更新 交易订单
-//      if (result.getResultCode())
-      {
-        transaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
-      }
-      //      else {
-      //        transaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
-      //      }
-      transactionMapper.updateById(transaction);
+//      requestMap.put("resultCode", result.getResultCode());
+//      // getOutTradeNo 是 创建订单时候的订单号
+//      requestMap.put("transactionNo", result.getOutTradeNo());
+//      requestMap.put("cashFee", result.getCashFee());
+//      requestMap.put("payId", result.getTransactionId());
+//      // 根据 transactionNo 查询交易订单 更新
+//      Transaction transaction = transactionMapper.selectById(result.getOutTradeNo());
+//
+//      // 根据回调结果更新 交易订单
+//      if (true){
+////      if (result.getResultCode()){
+//        transaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
+//      }else {
+//        transaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
+//      }
+//      transactionMapper.updateById(transaction);
       // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
-      bsinServiceInvoke.genericInvoke("UniflyOrderService","completePay",null,requestMap);
+      bsinServiceInvoke.genericInvoke("UniflyOrderService","completePay","dev", requestMap);
 
     } catch (Exception e) {
       return WxPayNotifyResponse.fail("支付失败");
