@@ -1,11 +1,9 @@
 package me.flyray.bsin.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import me.flyray.bsin.domain.enums.PayWayCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -19,7 +17,7 @@ import java.util.Date;
 public class PayWay implements Serializable {
     /**
      * 支付方式代码： WX_JSAPI(微信小程序)
-     * @see PayWayCode
+     * @see me.flyray.bsin.domain.enums.PayWayEnum
      */
     @TableId
     private String payWayCode;

@@ -1,12 +1,9 @@
 package me.flyray.bsin.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import me.flyray.bsin.domain.enums.PayInterfaceCode;
-import me.flyray.bsin.domain.enums.PayWayCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -43,7 +40,7 @@ public class PayChannelInterface implements Serializable {
 
     /**
      * 支持的支付方式 ["wxpay_jsapi", "wxpay_bar"]
-     * @see PayWayCode
+     * @see me.flyray.bsin.domain.enums.PayWayEnum
      */
     private Object wayCode;
 

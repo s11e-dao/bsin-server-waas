@@ -114,7 +114,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     // 2、创建支付流水
 
     // 3、支付
-    if (PayWayEnum.WX_MP.getCode().equals(payWay)) {
+    if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
       String openId = MapUtils.getString(requestMap, "openId");
       Double deciPrice = Double.parseDouble(payAmount) * 100;
       WxPayMpOrderResult payResult = new WxPayMpOrderResult();

@@ -10,13 +10,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public enum PayWayEnum {
 
   /** 微信支付
-   * mp
-   *
    */
-  WX_MP("wxMp", "微信小程序支付"),
+  WXPAY("wxpay", "微信支付"),
 
-  /** 微信支付 */
-  DEFAULT("aliPay", "支付宝支付"),
+  /** 支付宝支付 */
+  ALIPAY("aliPay", "支付宝支付"),
 
   /** 品牌积分支付 */
   BRAND_POINT("brandsPoint", "品牌积分支付"),
