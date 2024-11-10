@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
@@ -138,7 +139,6 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       String openId = MapUtils.getString(requestMap, "openId");
       Double deciPrice = Double.parseDouble(payAmount) * 100;
       WxPayMpOrderResult payResult = new WxPayMpOrderResult();
-      WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
       // 支付配置应用: 从商户应用配置的支付应用中获取
       LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
       warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
@@ -148,11 +148,14 @@ public class PayRoutingServiceImpl implements PayRoutingService {
         throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
       }
       JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
-
+      // 统一下单
+      WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
       appId = payChannelConfigParams.getString("appId");
       wxPayRequest.setAppid(appId);
       String mchId = payChannelConfigParams.getString("mchId");
       wxPayRequest.setMchId(mchId);
+      String key = payChannelConfigParams.getString("key");
+      String keyPath = payChannelConfigParams.getString("keyPath");
       // 订单备注
       wxPayRequest.setBody(remark);
       wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
@@ -163,6 +166,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
       notifyUrl = payChannelConfigParams.getString("notifyUrl");
       wxPayRequest.setNotifyUrl(notifyUrl);
+      // 小程序支付统一下单接口：
       wxPayRequest.setTradeType("JSAPI");
       wxPayRequest.setOpenid(openId);
       log.info("传递的参数{}", wxPayRequest);
@@ -170,9 +174,12 @@ public class PayRoutingServiceImpl implements PayRoutingService {
         WxPayConfig wxPayConfig = new WxPayConfig();
         wxPayConfig.setAppId(appId);
         wxPayConfig.setMchId(mchId);
+        wxPayConfig.setMchKey(key);
         String apiV3Key = payChannelConfigParams.getString("apiV3Key");
         wxPayConfig.setApiV3Key(apiV3Key);
         wxPayConfig.setNotifyUrl(notifyUrl);
+        wxPayConfig.setKeyPath(keyPath);
+        wxPayConfig.setUseSandboxEnv(false);
         WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
         payResult = wxPayService.createOrder(wxPayRequest);
         requestMap.put("payResult", payResult);
@@ -225,6 +232,34 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       //      uniflyOrder.setPayStatus("20");
       //      orderMapper.updateById(uniflyOrder);
     }
+    return requestMap;
+  }
+
+  /**
+   * 根据支付方式判断处理
+   *
+   * @param requestMap
+   * @return
+   */
+  @ApiDoc(desc = "queryOrder")
+  @ShenyuDubboClient("/queryOrder")
+  @Override
+  @Transactional
+  public Map<String, Object> queryOrder(Map<String, Object> requestMap) {
+    //    WxPayConfig wxPayConfig = new WxPayConfig();
+    //    wxPayConfig.setAppId(appId);
+    //    wxPayConfig.setMchId(mchId);
+    //    wxPayConfig.setMchKey(key);
+    //    String apiV3Key = payChannelConfigParams.getString("apiV3Key");
+    //    wxPayConfig.setApiV3Key(apiV3Key);
+    //    wxPayConfig.setNotifyUrl(notifyUrl);
+    //    wxPayConfig.setKeyPath(keyPath);
+    //    wxPayConfig.setUseSandboxEnv(false);
+    //    String outTradeNo = MapUtils.getString(requestMap, "outTradeNo");
+    //    WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
+    //    WxPayOrderQueryResult wxPayOrderQueryResult = wxPayService.queryOrder(null, outTradeNo);
+    //    log.info(wxPayOrderQueryResult.toString());
+    //    requestMap.put("orderResult", wxPayOrderQueryResult);
     return requestMap;
   }
 }
