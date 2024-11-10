@@ -61,7 +61,7 @@ import java.util.Map;
 @Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
 
-  @Value("${bsin.s11edao.ipfs.gateway}")
+  @Value("${bsin.oss.ipfs.gateway}")
   private String ipfsGateway;
 
   @Autowired private CustomerProfileMapper customerProfileMapper;

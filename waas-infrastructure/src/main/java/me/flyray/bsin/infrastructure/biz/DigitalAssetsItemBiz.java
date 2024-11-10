@@ -47,7 +47,7 @@ public class DigitalAssetsItemBiz {
   @Value("${bsin.jiujiu.aesKey}")
   private String aesKey;
 
-  @Value("${bsin.s11edao.ipfs.gateway}")
+  @Value("${bsin.oss.ipfs.gateway}")
   private String ipfsGateway;
 
   @Autowired private DigitalAssetsItemMapper digitalAssetsItemMapper;

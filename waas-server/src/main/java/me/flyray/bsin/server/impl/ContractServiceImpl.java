@@ -50,7 +50,7 @@ import java.util.Map;
 @Service
 public class ContractServiceImpl implements ContractService {
 
-  @Value("${bsin.s11edao.ipfs.gateway}")
+  @Value("${bsin.oss.ipfs.gateway}")
   private String ipfsGateway;
 
   @Autowired private ContractMapper contractMapper;
