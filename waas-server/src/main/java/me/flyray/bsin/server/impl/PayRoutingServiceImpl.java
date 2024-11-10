@@ -1,5 +1,6 @@
 package me.flyray.bsin.server.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +57,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
   @Autowired private TransactionMapper transactionMapper;
   @Autowired private PayChannelConfigMapper payChannelConfigMapper;
+  @Autowired private TransferJournalMapper transferJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private BizRoleAppService bizRoleAppService;
@@ -78,7 +81,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     String merchantNo = MapUtils.getString(requestMap, "merchantNo");
     String customerNo = MapUtils.getString(requestMap, "customerNo");
     String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
-    //    String appId = MapUtils.getString(requestMap, "appId");
+    String appId = MapUtils.getString(requestMap, "appId");
     String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
     String remark = MapUtils.getString(requestMap, "remark");
     if (payWay.isEmpty() || payAmount.isEmpty()) {
@@ -112,6 +115,23 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       transactionMapper.insert(transaction);
     }
     // 2、创建支付流水
+    TransferJournal transferJournal =
+        transferJournalMapper.selectOne(
+            new LambdaQueryWrapper<TransferJournal>().eq(TransferJournal::getTxHash, orderNo));
+    if (transferJournal == null) {
+      transferJournal = new TransferJournal();
+      //    transferJournal.setToAddress(toAddress);
+      //    transferJournal.setFromCustomerNo(fromCustomerNo);
+      transferJournal.setToCustomerNo(customerNo);
+      transferJournal.setMerchantNo(merchantNo);
+      //    transferJournal.setFromAddress((String) merchantCustomerBase.get("walletAddress"));
+      //    transferJournal.setTokenId(digitalAssetsItem.getTokenId());
+      //      transferJournal.setAmount(new BigInteger(payAmount));
+      //    transferJournal.setMetadataImage();
+      transferJournal.setTxHash(orderNo);
+      transferJournal.setSerialNo(BsinSnowflake.getId());
+      transferJournalMapper.insert(transferJournal);
+    }
 
     // 3、支付
     if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
@@ -129,8 +149,10 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       }
       JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
 
-      wxPayRequest.setAppid(payChannelConfigParams.getString("appId"));
-      wxPayRequest.setMchId(payChannelConfigParams.getString("mchId"));
+      appId = payChannelConfigParams.getString("appId");
+      wxPayRequest.setAppid(appId);
+      String mchId = payChannelConfigParams.getString("mchId");
+      wxPayRequest.setMchId(mchId);
       // 订单备注
       wxPayRequest.setBody(remark);
       wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
@@ -138,21 +160,27 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       wxPayRequest.setTotalFee(deciPrice.intValue());
       wxPayRequest.setSpbillCreateIp("127.0.0.1");
       // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
-      wxPayRequest.setNotifyUrl(wxCallbackUrl);
-      //      wxPayRequest.setNotifyUrl(notifyUrl);
+      //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
+      notifyUrl = payChannelConfigParams.getString("notifyUrl");
+      wxPayRequest.setNotifyUrl(notifyUrl);
       wxPayRequest.setTradeType("JSAPI");
       wxPayRequest.setOpenid(openId);
       log.info("传递的参数{}", wxPayRequest);
       try {
         WxPayConfig wxPayConfig = new WxPayConfig();
+        wxPayConfig.setAppId(appId);
+        wxPayConfig.setMchId(mchId);
+        String apiV3Key = payChannelConfigParams.getString("apiV3Key");
+        wxPayConfig.setApiV3Key(apiV3Key);
+        wxPayConfig.setNotifyUrl(notifyUrl);
         WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
         payResult = wxPayService.createOrder(wxPayRequest);
-        requestMap.put("PayResult", payResult);
+        requestMap.put("payResult", payResult);
 
       } catch (WxPayException e) {
         e.printStackTrace();
         //        log.info("支付异常{}", e);
-        throw new BusinessException(ResponseCode.FAIL);
+        throw new BusinessException("100000", "微信支付创建订单失败：" + e.getMessage());
       }
       // 火源支付
     } else if (PayWayEnum.FIRE_DIAMOND.getCode().equals(payWay)) {

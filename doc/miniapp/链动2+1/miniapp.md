@@ -97,6 +97,7 @@
   "serialNo": "序列号（V3接口必填）",
   "cert": "API证书(apiclient_cert.p12)",
   "apiClientCert": "证书文件(apiclient_cert.pem) ",
-  "apiClientKey": "私钥文件(apiclient_key.pem)"
+  "apiClientKey": "私钥文件(apiclient_key.pem)",
+  "notifyUrl": "https://5p33041l87.vicp.fun/wxpay"
 }
 ~~~
