@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
+import static me.flyray.bsin.constants.ResponseCode.SERIAL_NO_NOT_EXIST;
 
 /**
 * @author rednet
@@ -63,7 +64,7 @@ public class PayWayServiceImpl implements PayWayService {
     public void delete(Map<String, Object> requestMap) {
         String serialNo = MapUtils.getString(requestMap, "serialNo");
         if (payWayMapper.deleteById(serialNo) == 0){
-            throw new BusinessException(GRADE_NOT_EXISTS);
+            throw new BusinessException(SERIAL_NO_NOT_EXIST);
         }
     }
 
@@ -75,7 +76,7 @@ public class PayWayServiceImpl implements PayWayService {
         PayWay payWay = BsinServiceContext.getReqBodyDto(PayWay.class, requestMap);
         payWay.setTenantId(loginUser.getTenantId());
         if (payWayMapper.updateById(payWay) == 0){
-            throw new BusinessException(GRADE_NOT_EXISTS);
+            throw new BusinessException(SERIAL_NO_NOT_EXIST);
         }
         return payWay;
     }

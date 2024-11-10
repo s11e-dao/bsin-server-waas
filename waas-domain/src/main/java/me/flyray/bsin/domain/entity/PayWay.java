@@ -19,7 +19,6 @@ public class PayWay implements Serializable {
      * 支付方式代码： WX_JSAPI(微信小程序)
      * @see me.flyray.bsin.domain.enums.PayWayEnum
      */
-    @TableId
     private String payWayCode;
 
     private String tenantId;
@@ -42,6 +41,7 @@ public class PayWay implements Serializable {
     /**
      * 
      */
+    @TableId
     private String serialNo;
 
     @TableField(exist = false)
