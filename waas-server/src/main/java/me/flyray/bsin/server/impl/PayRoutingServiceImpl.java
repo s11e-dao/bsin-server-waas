@@ -35,6 +35,7 @@ import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -67,6 +68,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   @ApiDoc(desc = "pay")
   @ShenyuDubboClient("/pay")
   @Override
+  @Transactional
   public Map<String, Object> pay(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String payWay = MapUtils.getString(requestMap, "payWay");
@@ -78,29 +80,24 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     String customerNo = MapUtils.getString(requestMap, "customerNo");
     String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
     String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
-    String mark = MapUtils.getString(requestMap, "mark");
+    String remark = MapUtils.getString(requestMap, "remark");
     if (payWay.isEmpty() || payAmount.isEmpty()) {
       throw new BusinessException(ResponseCode.PARAM_ERROR);
     }
-    BizRoleApp bizRoleApp = bizRoleAppService.getDetail(requestMap);
-    if (bizRoleApp == null) {
-      throw new BusinessException(ResponseCode.APP_NOT_EXISTS);
-    }
 
     // 1.创建交易订单
-    Transaction transaction =
-        transactionMapper.selectOne(
-            new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
+    Transaction transaction = transactionMapper.selectOne(new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
     // 订单已支付成功,直接返回
     if (transaction != null
         && TransactionStatus.SUCCESS.getCode().equals(transaction.getTransactionStatus())) {
       requestMap.put("payResult", "success");
       return requestMap;
     } else if (transaction == null) {
+      transaction = new Transaction();
       transaction.setSerialNo(BsinSnowflake.getId());
       transaction.setOutSerialNo(orderNo);
       transaction.setTransactionType(TransactionType.PAY.getCode());
-      transaction.setComment(mark);
+      transaction.setComment(remark);
       transaction.setTxAmount(new BigDecimal(payAmount));
       //    transaction.setFromAddress(transactionRequest.getFromAddress());
       //    transaction.setToAddress(transactionRequest.getToAddress());
@@ -108,6 +105,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       //    transaction.setBizRoleTypeNo(user.getBizRoleTypeNo());
       transaction.setTenantId(tenantId);
       transaction.setCreateTime(new Date());
+      transaction.setFromAddress(customerNo);
       transaction.setCreateBy(customerNo);
       transactionMapper.insert(transaction);
     }
@@ -132,18 +130,18 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       wxPayRequest.setAppid(payChannelConfigParams.getString("appId"));
       wxPayRequest.setMchId(payChannelConfigParams.getString("mchId"));
       // ??
-      wxPayRequest.setBody(mark);
+      wxPayRequest.setBody(remark);
       wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
       wxPayRequest.setOutTradeNo(transaction.getSerialNo());
       wxPayRequest.setTotalFee(deciPrice.intValue());
       wxPayRequest.setSpbillCreateIp("127.0.0.1");
       // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
       //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
-      wxPayRequest.setNotifyUrl(bizRoleApp.getNotifyUrl());
+      wxPayRequest.setNotifyUrl(notifyUrl);
       wxPayRequest.setTradeType("JSAPI");
       wxPayRequest.setOpenid(openId);
       //      log.info("传递的参数{}", wxPayRequest);
-      // 添加支付流水
+
       try {
         WxPayConfig wxPayConfig = new WxPayConfig();
         WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);

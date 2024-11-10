@@ -11,7 +11,7 @@ public enum PayWayEnum {
 
   /** 微信支付
    */
-  WXPAY("wxpay", "微信支付"),
+  WXPAY("wxPay", "微信支付"),
 
   /** 支付宝支付 */
   ALIPAY("aliPay", "支付宝支付"),
