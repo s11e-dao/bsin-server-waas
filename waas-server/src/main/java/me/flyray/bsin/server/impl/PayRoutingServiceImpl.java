@@ -1,6 +1,7 @@
 package me.flyray.bsin.server.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.NOT_SUPPORTED_PAY_WAY;
+import static me.flyray.bsin.utils.Utils.ObjectToMapConverter;
 
 /** 第三方支付路由处理 */
 @Slf4j
@@ -140,6 +142,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       transferJournalMapper.insert(transferJournal);
     }
 
+    WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
     // 3、支付
     if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
       String openId = MapUtils.getString(requestMap, "openId");
@@ -147,7 +150,6 @@ public class PayRoutingServiceImpl implements PayRoutingService {
         throw new BusinessException(ResponseCode.OPEN_ID_NOT_EXISTS);
       }
       Double deciPrice = Double.parseDouble(payAmount) * 100;
-      WxPayMpOrderResult payResult = new WxPayMpOrderResult();
       // 支付配置应用: 从商户应用配置的支付应用中获取
       LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
       warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
@@ -183,8 +185,10 @@ public class PayRoutingServiceImpl implements PayRoutingService {
         if ("V3".equals(apiVersion)) {
           // 统一下单 V3
           WxPayUnifiedOrderV3Request wxPayUnifiedOrderV3Request = new WxPayUnifiedOrderV3Request();
-          payResult = wxPayService.createOrderV3(TradeTypeEnum.APP, wxPayUnifiedOrderV3Request);
+          wxPayMpOrderResult =
+              wxPayService.createOrderV3(TradeTypeEnum.APP, wxPayUnifiedOrderV3Request);
           log.info("传递的参数{}", wxPayUnifiedOrderV3Request);
+          return ObjectToMapConverter(wxPayMpOrderResult);
         } else {
           // 统一下单 V2
           WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
@@ -203,9 +207,9 @@ public class PayRoutingServiceImpl implements PayRoutingService {
           // 小程序支付统一下单接口：
           wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);
           wxPayRequest.setOpenid(openId);
-          payResult = wxPayService.createOrder(wxPayRequest);
-          requestMap.put("payResult", payResult);
+          wxPayMpOrderResult = wxPayService.createOrder(wxPayRequest);
           log.info("传递的参数{}", wxPayRequest);
+          return ObjectToMapConverter(wxPayMpOrderResult);
         }
       } catch (WxPayException e) {
         e.printStackTrace();
