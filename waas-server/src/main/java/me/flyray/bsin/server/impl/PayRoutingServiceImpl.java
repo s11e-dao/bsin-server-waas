@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
 import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryResult;
+import com.github.binarywang.wxpay.bean.result.enums.TradeTypeEnum;
 import com.github.binarywang.wxpay.config.WxPayConfig;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.gson.JsonElement;
@@ -41,9 +44,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static me.flyray.bsin.constants.ResponseCode.NOT_SUPPORTED_PAY_WAY;
 
 /** 第三方支付路由处理 */
 @Slf4j
@@ -137,6 +143,9 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     // 3、支付
     if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
       String openId = MapUtils.getString(requestMap, "openId");
+      if (openId.isEmpty()) {
+        throw new BusinessException(ResponseCode.OPEN_ID_NOT_EXISTS);
+      }
       Double deciPrice = Double.parseDouble(payAmount) * 100;
       WxPayMpOrderResult payResult = new WxPayMpOrderResult();
       // 支付配置应用: 从商户应用配置的支付应用中获取
@@ -148,42 +157,56 @@ public class PayRoutingServiceImpl implements PayRoutingService {
         throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
       }
       JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
-      // 统一下单
-      WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
-      appId = payChannelConfigParams.getString("appId");
-      wxPayRequest.setAppid(appId);
-      String mchId = payChannelConfigParams.getString("mchId");
-      wxPayRequest.setMchId(mchId);
+
+      String apiVersion = payChannelConfigParams.getString("apiVersion");
       String key = payChannelConfigParams.getString("key");
       String keyPath = payChannelConfigParams.getString("keyPath");
-      // 订单备注
-      wxPayRequest.setBody(remark);
-      wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
-      wxPayRequest.setOutTradeNo(transaction.getSerialNo());
-      wxPayRequest.setTotalFee(deciPrice.intValue());
-      wxPayRequest.setSpbillCreateIp("127.0.0.1");
-      // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
-      //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
-      notifyUrl = payChannelConfigParams.getString("notifyUrl");
-      wxPayRequest.setNotifyUrl(notifyUrl);
-      // 小程序支付统一下单接口：
-      wxPayRequest.setTradeType("JSAPI");
-      wxPayRequest.setOpenid(openId);
-      log.info("传递的参数{}", wxPayRequest);
-      try {
-        WxPayConfig wxPayConfig = new WxPayConfig();
-        wxPayConfig.setAppId(appId);
-        wxPayConfig.setMchId(mchId);
-        wxPayConfig.setMchKey(key);
-        String apiV3Key = payChannelConfigParams.getString("apiV3Key");
-        wxPayConfig.setApiV3Key(apiV3Key);
-        wxPayConfig.setNotifyUrl(notifyUrl);
-        wxPayConfig.setKeyPath(keyPath);
-        wxPayConfig.setUseSandboxEnv(false);
-        WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
-        payResult = wxPayService.createOrder(wxPayRequest);
-        requestMap.put("payResult", payResult);
+      appId = payChannelConfigParams.getString("appId");
+      String mchId = payChannelConfigParams.getString("mchId");
 
+      WxPayConfig wxPayConfig = new WxPayConfig();
+      wxPayConfig.setAppId(appId);
+      wxPayConfig.setMchId(mchId);
+      wxPayConfig.setMchKey(key);
+      wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
+      String apiV3Key = payChannelConfigParams.getString("apiV3Key");
+      wxPayConfig.setApiV3Key(apiV3Key);
+      wxPayConfig.setNotifyUrl(notifyUrl);
+      wxPayConfig.setKeyPath(keyPath);
+      //      wxPayConfig.setCertSerialNo(certSerialNo);
+      //      wxPayConfig.setPrivateKeyContent(
+      //          payChannelConfigParams.getString("privateKey").getBytes(StandardCharsets.UTF_8));
+      //      wxPayConfig.setPrivateCertString(payChannelConfigParams.getString("privateCert"));
+      wxPayConfig.setUseSandboxEnv(false);
+      WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
+      try {
+        if ("V3".equals(apiVersion)) {
+          // 统一下单 V3
+          WxPayUnifiedOrderV3Request wxPayUnifiedOrderV3Request = new WxPayUnifiedOrderV3Request();
+          payResult = wxPayService.createOrderV3(TradeTypeEnum.APP, wxPayUnifiedOrderV3Request);
+          log.info("传递的参数{}", wxPayUnifiedOrderV3Request);
+        } else {
+          // 统一下单 V2
+          WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
+          wxPayRequest.setAppid(appId);
+          wxPayRequest.setMchId(mchId);
+          // 订单备注
+          wxPayRequest.setBody(remark);
+          wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
+          wxPayRequest.setOutTradeNo(transaction.getSerialNo());
+          wxPayRequest.setTotalFee(deciPrice.intValue());
+          wxPayRequest.setSpbillCreateIp("127.0.0.1");
+          // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
+          //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
+          notifyUrl = payChannelConfigParams.getString("notifyUrl");
+          wxPayRequest.setNotifyUrl(notifyUrl);
+          // 小程序支付统一下单接口：
+          wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);
+          wxPayRequest.setOpenid(openId);
+          payResult = wxPayService.createOrder(wxPayRequest);
+          requestMap.put("payResult", payResult);
+          log.info("传递的参数{}", wxPayRequest);
+        }
       } catch (WxPayException e) {
         e.printStackTrace();
         //        log.info("支付异常{}", e);
@@ -231,6 +254,8 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       //      uniflyOrder.setPayTime(new Date());
       //      uniflyOrder.setPayStatus("20");
       //      orderMapper.updateById(uniflyOrder);
+    } else {
+      throw new BusinessException(NOT_SUPPORTED_PAY_WAY);
     }
     return requestMap;
   }

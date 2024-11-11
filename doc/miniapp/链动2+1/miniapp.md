@@ -1,12 +1,13 @@
 ## 接入的小程序
 
-| 小程序名称 |      小程序ID(appId)      |           小程序秘钥(appSecret)           | 微信支付商户号(mchId) | 商户APIv2密钥(mchSecret)                        | 商户APIv3密钥(apiV2Key)                       | 服务商证书序列号(mchSerialNumber) | 服务商API私钥路径(privateKeyPath) | 通知回调地址(notifyUrl)       |  
-|:-----:|:----------------------:|:------------------------------------:|:---------------|:--------------------------------------------|:------------------------------------------|:--------------------------|:---------------------------|:------------------------|        
-| 分销商城  | wxfa99fb352d815a26 | cfb9abaf28c699bcd62b5d98e8184ff9 | 1697497726  | Chenxiucai18853228353chenxiucai1 | Chenxiucai18853228353chenxiucai1 |                           |                            | https://域名/wxpay/wechat |  
-
+| 小程序名称 |    小程序ID(appId)    |     ECS地址     |         域名         |         小程序秘钥(appSecret)         | 微信支付商户号(mchId) | 商户APIv2密钥(mchSecret)             | 商户APIv3密钥(apiV2Key)              | 服务商证书序列号(mchSerialNumber) | 服务商API私钥路径(privateKeyPath) | 通知回调地址(notifyUrl)       |  
+|:-----:|:------------------:|:-------------:|:------------------:|:--------------------------------:|:---------------|:---------------------------------|:---------------------------------|:--------------------------|:---------------------------|:------------------------|        
+| 分销商城  | wxfa99fb352d815a26 | 47.105.63.133 | gateway.iittii.com | cfb9abaf28c699bcd62b5d98e8184ff9 | 1697497726     | Chenxiucai18853228353chenxiucai1 | Chenxiucai18853228353chenxiucai3 |                           |                            | https://域名/wxpay/wechat |  
 
 ### 配置参数
+
 - 字段定义(interface)
+
 ~~~json
 [
   {
@@ -83,42 +84,45 @@
 ]
 ~~~
 
-
 - 配置(config)
+
 ~~~json
 {
   "mchId": "1697497726",
   "appId": "wxfa99fb352d815a26",
   "appSecret": "cfb9abaf28c699bcd62b5d98e8184ff9",
   "oauth2Url": "oauth2地址（置空将使用官方）",
-  "apiVersion": "V3",
+  "apiVersion": "V2",
   "key": "Chenxiucai18853228353chenxiucai1",
-  "apiV3Key": "Chenxiucai18853228353chenxiucai1",
+  "apiV3Key": "Chenxiucai18853228353chenxiucai3",
   "serialNo": "序列号（V3接口必填）",
   "cert": "API证书(apiclient_cert.p12)",
   "apiClientCert": "证书文件(apiclient_cert.pem) ",
   "apiClientKey": "私钥文件(apiclient_key.pem)",
-  "notifyUrl": "https://5p33041l87.vicp.fun/wxpay",
+  "notifyUrl": "https://5p33041l87.vicp.fun/callback/wxPayCallback",
   "keyPath": "/home/leonard/ssd12/bsin-paas/bsin-paas-os/bsin-server-apps/bsin-server-waas/doc/miniapp/链动2+1/1697497726_20241106_cert/apiclient_key.pem"
 }
 ~~~
 
 - yaml配置(yaml)
+
 ~~~yaml
 wx:
   pay:
     appId: wx74862e0dfcf69954
     mchId: 1558950191
     mchKey: 34345964330B66427E0D3D28826C4993C77E631F
-#    subAppId: #服务商模式下的子商户公众账号ID,普通模式请不要配置，请在配置文件中将对应项删除
-#    subMchId: #服务商模式下的子商户号，普通模式请不要配置，最好是请在配置文件中将对应项删除
+    #    subAppId: #服务商模式下的子商户公众账号ID,普通模式请不要配置，请在配置文件中将对应项删除
+    #    subMchId: #服务商模式下的子商户号，普通模式请不要配置，最好是请在配置文件中将对应项删除
     keyPath: apiclient_key.pem  # apiclient_cert.p12文件的绝对路径，或者如果放在项目中，请以classpath:开头指定
 ~~~
+
 - 配置类WxPayConfiguration
+
 ~~~java
 
 package com.github.binarywang.demo.wx.pay.config;
- 
+
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.binarywang.wxpay.service.impl.WxPayServiceImpl;
@@ -130,7 +134,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
- 
+
 /**
  * @author Binary Wang
  */
@@ -139,26 +143,26 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(WxPayProperties.class)
 @AllArgsConstructor
 public class WxPayConfiguration {
-  private WxPayProperties properties;
- 
-  @Bean
-  @ConditionalOnMissingBean
-  public WxPayService wxService() {
-    WxPayConfig payConfig = new WxPayConfig();
-    payConfig.setAppId(StringUtils.trimToNull(this.properties.getAppId()));
-    payConfig.setMchId(StringUtils.trimToNull(this.properties.getMchId()));
-    payConfig.setMchKey(StringUtils.trimToNull(this.properties.getMchKey()));
-    payConfig.setSubAppId(StringUtils.trimToNull(this.properties.getSubAppId()));
-    payConfig.setSubMchId(StringUtils.trimToNull(this.properties.getSubMchId()));
-    payConfig.setKeyPath(StringUtils.trimToNull(this.properties.getKeyPath()));
- 
-    // 可以指定是否使用沙箱环境
-    payConfig.setUseSandboxEnv(false);
- 
-    WxPayService wxPayService = new WxPayServiceImpl();
-    wxPayService.setConfig(payConfig);
-    return wxPayService;
-  }
- 
+    private WxPayProperties properties;
+
+    @Bean
+    @ConditionalOnMissingBean
+    public WxPayService wxService() {
+        WxPayConfig payConfig = new WxPayConfig();
+        payConfig.setAppId(StringUtils.trimToNull(this.properties.getAppId()));
+        payConfig.setMchId(StringUtils.trimToNull(this.properties.getMchId()));
+        payConfig.setMchKey(StringUtils.trimToNull(this.properties.getMchKey()));
+        payConfig.setSubAppId(StringUtils.trimToNull(this.properties.getSubAppId()));
+        payConfig.setSubMchId(StringUtils.trimToNull(this.properties.getSubMchId()));
+        payConfig.setKeyPath(StringUtils.trimToNull(this.properties.getKeyPath()));
+
+        // 可以指定是否使用沙箱环境
+        payConfig.setUseSandboxEnv(false);
+
+        WxPayService wxPayService = new WxPayServiceImpl();
+        wxPayService.setConfig(payConfig);
+        return wxPayService;
+    }
+
 }
 ~~~
