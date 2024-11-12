@@ -2,7 +2,7 @@
 
 | 小程序名称 |    小程序ID(appId)    |     ECS地址     |         域名         |         小程序秘钥(appSecret)         | 微信支付商户号(mchId) | 商户APIv2密钥(mchSecret)             | 商户APIv3密钥(apiV2Key)              | 服务商证书序列号(mchSerialNumber) | 服务商API私钥路径(privateKeyPath) | 通知回调地址(notifyUrl)       |  
 |:-----:|:------------------:|:-------------:|:------------------:|:--------------------------------:|:---------------|:---------------------------------|:---------------------------------|:--------------------------|:---------------------------|:------------------------|        
-| 分销商城  | wxfa99fb352d815a26 | 47.105.63.133 | gateway.iittii.com | cfb9abaf28c699bcd62b5d98e8184ff9 | 1697497726     | Chenxiucai18853228353chenxiucai1 | Chenxiucai18853228353chenxiucai3 |                           |                            | https://域名/wxpay/wechat |  
+| 分销商城  | wxfa99fb352d815a26 | 47.105.63.133 | gateway.iittii.com | ec29c82e7b8e8689e8e0f59ef84de1f4 | 1697497726     | Chenxiucai18853228353chenxiucai1 | Chenxiucai18853228353chenxiucai3 |                           |                            | https://域名/wxpay/wechat |  
 
 ### 配置参数
 
@@ -90,7 +90,7 @@
 {
   "mchId": "1697497726",
   "appId": "wxfa99fb352d815a26",
-  "appSecret": "cfb9abaf28c699bcd62b5d98e8184ff9",
+  "appSecret": "ec29c82e7b8e8689e8e0f59ef84de1f4",
   "oauth2Url": "oauth2地址（置空将使用官方）",
   "apiVersion": "V2",
   "key": "Chenxiucai18853228353chenxiucai1",
