@@ -32,6 +32,7 @@ import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
+import me.flyray.bsin.utils.StringUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
@@ -87,8 +88,17 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     String payAmount = MapUtils.getString(requestMap, "payAmount");
     String orderNo = MapUtils.getString(requestMap, "orderNo");
     String tenantId = MapUtils.getString(requestMap, "tenantId");
+    if (tenantId == null) {
+      tenantId = loginUser.getTenantId();
+    }
     String merchantNo = MapUtils.getString(requestMap, "merchantNo");
+    if (merchantNo == null) {
+      merchantNo = loginUser.getMerchantNo();
+    }
     String customerNo = MapUtils.getString(requestMap, "customerNo");
+    if (customerNo == null) {
+      customerNo = loginUser.getCustomerNo();
+    }
     String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
     String appId = MapUtils.getString(requestMap, "appId");
     String bizRoleAppId = MapUtils.getString(requestMap, "appId");
@@ -113,10 +123,10 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       transaction.setTransactionType(TransactionType.PAY.getCode());
       transaction.setComment(remark);
       transaction.setTxAmount(new BigDecimal(payAmount));
-      //    transaction.setFromAddress(transactionRequest.getFromAddress());
-      //    transaction.setToAddress(transactionRequest.getToAddress());
-      //    transaction.setBizRoleType(user.getBizRoleType());
-      //    transaction.setBizRoleTypeNo(user.getBizRoleTypeNo());
+      transaction.setFromAddress(customerNo);
+      transaction.setToAddress(merchantNo);
+      transaction.setBizRoleType(loginUser.getBizRoleType());
+      transaction.setBizRoleTypeNo(loginUser.getBizRoleTypeNo());
       transaction.setTenantId(tenantId);
       transaction.setCreateTime(new Date());
       transaction.setFromAddress(customerNo);
@@ -146,7 +156,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     // 3、支付
     if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
       String openId = MapUtils.getString(requestMap, "openId");
-      if (openId.isEmpty()) {
+      if (StringUtils.isEmpty(openId)) {
         throw new BusinessException(ResponseCode.OPEN_ID_NOT_EXISTS);
       }
       Double deciPrice = Double.parseDouble(payAmount) * 100;
