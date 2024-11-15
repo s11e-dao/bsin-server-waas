@@ -91,7 +91,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     String customerNo = MapUtils.getString(requestMap, "customerNo");
     String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
     String appId = MapUtils.getString(requestMap, "appId");
-    String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
+    String bizRoleAppId = MapUtils.getString(requestMap, "appId");
     String remark = MapUtils.getString(requestMap, "remark");
     if (payWay.isEmpty() || payAmount.isEmpty()) {
       throw new BusinessException(ResponseCode.PARAM_ERROR);
