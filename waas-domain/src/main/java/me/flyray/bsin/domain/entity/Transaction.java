@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.entity.BaseEntity;
+import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.validate.AddGroup;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,10 +23,9 @@ import java.math.BigDecimal;
 public class Transaction extends BaseEntity implements Serializable {
 
     /**
-     * 交易类型： 1、充值 2、转账 3、提现 4、退款 5、消费
      * @see TransactionType
      */
-    private Integer transactionType;
+    private String transactionType;
     /**
      * 交易hash
      */
