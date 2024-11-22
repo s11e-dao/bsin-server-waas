@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import me.flyray.bsin.domain.enums.TransactionStatus;
-import me.flyray.bsin.domain.enums.TransactionType;
 import me.flyray.bsin.entity.BaseEntity;
 import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.validate.AddGroup;
