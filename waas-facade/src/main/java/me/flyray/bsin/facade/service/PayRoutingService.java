@@ -19,4 +19,5 @@ public interface PayRoutingService {
   public Map<String, Object> pay(Map<String, Object> requestMap);
 
   public Map<String, Object> queryOrder(Map<String, Object> requestMap);
+
 }
