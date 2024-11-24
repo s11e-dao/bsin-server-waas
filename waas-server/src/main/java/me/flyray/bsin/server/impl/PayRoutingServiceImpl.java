@@ -91,7 +91,9 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       customerNo = loginUser.getCustomerNo();
     }
     String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
+    // 小程序ID
     String appId = MapUtils.getString(requestMap, "appId");
+    // 商戶应用ID
     String bizRoleAppId = MapUtils.getString(requestMap, "appId");
     String remark = MapUtils.getString(requestMap, "remark");
     if (payWay.isEmpty() || payAmount.isEmpty()) {
@@ -176,6 +178,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       wxPayConfig.setApiV3Key(apiV3Key);
       wxPayConfig.setNotifyUrl(notifyUrl);
       wxPayConfig.setKeyPath(keyPath);
+      wxPayConfig.setPrivateKeyPath(keyPath);
       //      wxPayConfig.setCertSerialNo(certSerialNo);
       //      wxPayConfig.setPrivateKeyContent(
       //          payChannelConfigParams.getString("privateKey").getBytes(StandardCharsets.UTF_8));

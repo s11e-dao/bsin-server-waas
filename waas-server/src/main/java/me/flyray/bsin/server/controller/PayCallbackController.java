@@ -1,11 +1,14 @@
 package me.flyray.bsin.server.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.BizRoleApp;
+import me.flyray.bsin.domain.entity.WaasTransaction;
+import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppType;
 import me.flyray.bsin.facade.service.MemberService;
@@ -72,34 +75,31 @@ public class PayCallbackController {
     WxPayOrderNotifyResult result = null;
     try {
       // 解析回调包文
-      //      BizRoleApp bizRoleApp = new BizRoleApp();
-      //      WxPayService wxPayService = getWxService(bizRoleApp);
-      //      result = wxPayService.parseOrderNotifyResult(body);
-      //      log.info("处理腾讯支付平台的订单支付");
-      //      log.info(JSONObject.toJSONString(result));
+      BizRoleApp bizRoleApp = new BizRoleApp();
+      bizRoleApp.setAppType(AppType.WX_PAY.getType());
+      // TODO: 获取appId ??????????????????
+      bizRoleApp.setAppId("wxfa99fb352d815a26");
+      WxPayService wxPayService = getWxService(bizRoleApp);
+      result = wxPayService.parseOrderNotifyResult(body);
+      log.info("处理腾讯支付平台的订单支付");
+      log.info(JSONObject.toJSONString(result));
       // 处理微信支付成功回调
       Map<String, Object> requestMap = new HashMap<>();
-      requestMap.put("resultCode", "成功");
-
-      //      requestMap.put("resultCode", result.getResultCode());
-      //      // getOutTradeNo 是 创建订单时候的订单号
-      //      requestMap.put("transactionNo", result.getOutTradeNo());
-      //      requestMap.put("cashFee", result.getCashFee());
-      //      requestMap.put("payId", result.getTransactionId());
-      //      // 根据 transactionNo 查询交易订单 更新
-      //      Transaction transaction = transactionMapper.selectById(result.getOutTradeNo());
-      //
-      //      // 根据回调结果更新 交易订单
-      //      if (true){
-      ////      if (result.getResultCode()){
-      //        transaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
-      //      }else {
-      //        transaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
-      //      }
-      //      transactionMapper.updateById(transaction);
+      requestMap.put("resultCode", result.getResultCode());
+      // getOutTradeNo 是 创建订单时候的订单号
+      requestMap.put("transactionNo", result.getOutTradeNo());
+      requestMap.put("cashFee", result.getCashFee());
+      requestMap.put("payId", result.getTransactionId());
+      // 根据 WaasTransactionNo 查询交易订单并更新交易状态
+      WaasTransaction transaction = transactionMapper.selectById(result.getOutTradeNo());
+      if ("SUCCESS".equals(result.getResultCode())) {
+        transaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
+      } else {
+        transaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
+      }
+      transactionMapper.updateById(transaction);
       // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
-      //      bsinServiceInvoke.genericInvoke("UniflyOrderService","completePay","dev", requestMap);
-
+      bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
     } catch (Exception e) {
       return WxPayNotifyResponse.fail("支付失败");
     }
