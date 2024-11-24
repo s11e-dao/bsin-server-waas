@@ -1,10 +1,10 @@
 package me.flyray.bsin.domain.response;
 
 import lombok.Data;
-import me.flyray.bsin.domain.entity.Transaction;
+import me.flyray.bsin.domain.entity.WaasTransaction;
 
 @Data
-public class TransactionVO extends Transaction {
+public class TransactionVO extends WaasTransaction {
     /**
      * 币种
      */

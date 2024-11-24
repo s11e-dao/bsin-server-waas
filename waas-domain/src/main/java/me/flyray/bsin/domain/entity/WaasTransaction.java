@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  */
 @Data
 @TableName(value ="waas_transaction")
-public class Transaction extends BaseEntity implements Serializable {
+public class WaasTransaction extends BaseEntity implements Serializable {
 
     /**
      * @see TransactionType

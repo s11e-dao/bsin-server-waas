@@ -2,10 +2,7 @@ package me.flyray.bsin.server.listen;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import me.flyray.bsin.domain.entity.ChainCoin;
-import me.flyray.bsin.domain.entity.ContractMethod;
-import me.flyray.bsin.domain.entity.Wallet;
-import me.flyray.bsin.domain.entity.WalletAccount;
+import me.flyray.bsin.domain.entity.*;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.enums.TransactionType;
@@ -59,7 +56,7 @@ public class ChainTransactionListen {
     @Resource
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
-    private TransactionMapper transactionMapper;
+    private WaasTransactionMapper transactionMapper;
     @Autowired
     private WalletAccountMapper walletAccountMapper;
     @Autowired
@@ -154,9 +151,9 @@ public class ChainTransactionListen {
             log.info("交易hash: {}", txHash);
 
             // 判断该交易是否已经处理
-            QueryWrapper<me.flyray.bsin.domain.entity.Transaction> query = Wrappers.query();
+            QueryWrapper<WaasTransaction> query = Wrappers.query();
             query.eq("tx_hash",txHash);
-            List<me.flyray.bsin.domain.entity.Transaction> transactionList = transactionMapper.selectList(query);
+            List<WaasTransaction> transactionList = transactionMapper.selectList(query);
             if(!transactionList.isEmpty()){
                 return;
             }

@@ -1,7 +1,7 @@
 package me.flyray.bsin.facade.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import me.flyray.bsin.domain.entity.Transaction;
+import me.flyray.bsin.domain.entity.WaasTransaction;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
 import me.flyray.bsin.domain.response.TransactionVO;
@@ -10,10 +10,10 @@ import java.util.Map;
 
 /**
 * @author Admin
-* @description 针对表【crm_transaction(交易记录;)】的数据库操作Service
+* @description 针对表【waas_transaction(交易记录;)】的数据库操作Service
 * @createDate 2024-04-24 20:36:00
 */
-public interface TransactionService  {
+public interface WaasTransactionService {
 
     /**
      * 创建交易（转出）
@@ -42,7 +42,7 @@ public interface TransactionService  {
      */
     Page<TransactionVO> getPageList(TransactionDTO transactionDTO);
 
-    public Transaction getDetail(Map<String, Object> requestMap);
+    public WaasTransaction getDetail(Map<String, Object> requestMap);
 
 //    /**
 //     * 转入通知

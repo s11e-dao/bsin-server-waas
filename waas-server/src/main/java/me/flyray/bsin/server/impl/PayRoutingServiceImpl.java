@@ -20,7 +20,7 @@ import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.PayRoutingService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
-import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
+import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
 import me.flyray.bsin.infrastructure.mapper.TransferJournalMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
@@ -56,7 +56,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   private String wxCallbackUrl;
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private TransactionMapper transactionMapper;
+  @Autowired private WaasTransactionMapper transactionMapper;
   @Autowired private PayChannelConfigMapper payChannelConfigMapper;
   @Autowired private TransferJournalMapper transferJournalMapper;
 
@@ -99,16 +99,16 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     }
 
     // 1.创建交易订单
-    Transaction transaction =
+    WaasTransaction transaction =
         transactionMapper.selectOne(
-            new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
+            new LambdaQueryWrapper<WaasTransaction>().eq(WaasTransaction::getOutSerialNo, orderNo));
     // 订单已支付成功,直接返回
     if (transaction != null
         && TransactionStatus.SUCCESS.getCode().equals(transaction.getTransactionStatus())) {
       requestMap.put("payResult", "success");
       return requestMap;
     } else if (transaction == null) {
-      transaction = new Transaction();
+      transaction = new WaasTransaction();
       transaction.setSerialNo(BsinSnowflake.getId());
       transaction.setOutSerialNo(orderNo);
       transaction.setTransactionType(TransactionType.PAY.getCode());

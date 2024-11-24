@@ -1,22 +1,15 @@
 package me.flyray.bsin.server.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.service.WxService;
 import me.flyray.bsin.domain.entity.BizRoleApp;
-import me.flyray.bsin.domain.entity.Member;
-import me.flyray.bsin.domain.entity.Transaction;
-import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppType;
-import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.facade.service.MemberService;
-import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
+import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -33,8 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static me.flyray.bsin.constants.ResponseCode.PAYMENT_STATUS_ERROR;
 
 @RestController
 @RequestMapping("/payCallback")
@@ -60,7 +51,7 @@ public class PayCallbackController {
   private static WxRedisConfig wxRedisConfig;
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private TransactionMapper transactionMapper;
+  @Autowired private WaasTransactionMapper transactionMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private MemberService memberService;
