@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 /**
 * @author Admin
-* @description 针对表【crm_transaction(交易记录;)】的数据库操作Mapper
+* @description 针对表【waas_transaction(交易记录;)】的数据库操作Mapper
 */
 
 @Repository
