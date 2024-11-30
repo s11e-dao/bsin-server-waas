@@ -22,10 +22,7 @@ import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.springmvc.annotation.ShenyuSpringMvcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,17 +65,17 @@ public class PayCallbackController {
    * @return
    * @throws Exception
    */
-  @PostMapping("/wxpay")
-  @ShenyuSpringMvcClient("/wxpay")
+  @PostMapping("/wxpay/{appId}")
+  @ShenyuSpringMvcClient("/wxpay/{appId}")
   @ApiDoc(desc = "wxpay")
-  public Object wxpay(@RequestBody String body) throws Exception {
+  public Object wxpay(@RequestBody(required = false) String body, @PathVariable("appId") String appId) throws Exception {
     WxPayOrderNotifyResult result = null;
     try {
       // 解析回调包文
       BizRoleApp bizRoleApp = new BizRoleApp();
       bizRoleApp.setAppType(AppType.WX_PAY.getType());
       // TODO: 获取appId ??????????????????
-      bizRoleApp.setAppId("wxfa99fb352d815a26");
+      bizRoleApp.setAppId(appId);
       WxPayService wxPayService = getWxService(bizRoleApp);
       result = wxPayService.parseOrderNotifyResult(body);
       log.info("处理腾讯支付平台的订单支付");
