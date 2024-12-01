@@ -29,7 +29,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/payCallback")
-@ShenyuSpringMvcClient("/payCallback")
+@ShenyuSpringMvcClient("/payCallback/**")
 @ApiModule(value = "payCallback")
 @Slf4j
 public class PayCallbackController {
@@ -66,7 +66,6 @@ public class PayCallbackController {
    * @throws Exception
    */
   @PostMapping("/wxpay/{appId}")
-  @ShenyuSpringMvcClient("/wxpay/{appId}")
   @ApiDoc(desc = "wxpay")
   public Object wxpay(@RequestBody(required = false) String body, @PathVariable("appId") String appId) throws Exception {
     WxPayOrderNotifyResult result = null;
