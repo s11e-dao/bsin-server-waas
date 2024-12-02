@@ -1,6 +1,5 @@
 package me.flyray.bsin.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -12,11 +11,11 @@ import lombok.Data;
 
 /**
  * 
- * @TableName da_transfer_journal
+ * @TableName waas_transfer_journal
  */
 @TableName(value ="waas_transfer_journal")
 @Data
-public class TransferJournal implements Serializable {
+public class WaasTransferJournal implements Serializable {
     /**
      * transfer编号
      */

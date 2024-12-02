@@ -33,7 +33,7 @@ import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 import me.flyray.bsin.domain.entity.MetadataFile;
 import me.flyray.bsin.domain.entity.MetadataTemplate;
 import me.flyray.bsin.domain.entity.MintJournal;
-import me.flyray.bsin.domain.entity.TransferJournal;
+import me.flyray.bsin.domain.entity.WaasTransferJournal;
 import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.enums.FileType;
 import me.flyray.bsin.exception.BusinessException;
@@ -382,18 +382,18 @@ public class DigitalAssetsBiz {
       String contract,
       String privateKey,
       boolean addPrivilege,
-      TransferJournal transferJournal,
+      WaasTransferJournal waasTransferJournal,
       ContractProtocol contractProtocol) {
 
-    log.debug("DigitalAssetsBiz transfer 请求参数:{}", JSON.toJSONString(transferJournal));
+    log.debug("DigitalAssetsBiz transfer 请求参数:{}", JSON.toJSONString(waasTransferJournal));
     String chainType = contractProtocol.getChainType();
-    String chainEnv = transferJournal.getChainEnv();
-    String fromAddress = transferJournal.getFromAddress();
-    String toAddress = transferJournal.getToAddress();
+    String chainEnv = waasTransferJournal.getChainEnv();
+    String fromAddress = waasTransferJournal.getFromAddress();
+    String toAddress = waasTransferJournal.getToAddress();
     String protocolStandards = contractProtocol.getProtocolStandards();
     String contractAddress = contract;
-    BigInteger tokenIdInt = transferJournal.getTokenId();
-    BigInteger amount = transferJournal.getAmount();
+    BigInteger tokenIdInt = waasTransferJournal.getTokenId();
+    BigInteger amount = waasTransferJournal.getAmount();
 
     String tokenId = String.valueOf(tokenIdInt);
 

@@ -67,7 +67,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   @Autowired private ContractProtocolMapper contractProtocolMapper;
   @Autowired private DigitalAssetsItemObtainCodeMapper digitalAssetsItemObtainCodeMapper;
   @Autowired private MintJournalMapper mintJournalMapper;
-  @Autowired private TransferJournalMapper transferJournalMapper;
+  @Autowired private WaasTransferJournalMapper waasTransferJournalMapper;
   @Autowired private DigitalAssetsBiz digitalAssetsBiz;
   @Autowired private MetadataFileMapper metadataFileMapper;
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
@@ -284,8 +284,8 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   public void transfer(Map<String, Object> requestMap) throws Exception {
     log.info("AdminBlockChainService transferNft 请求参数:{}", JSON.toJSONString(requestMap));
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
-    TransferJournal transferJournal =
-        BsinServiceContext.getReqBodyDto(TransferJournal.class, requestMap);
+    WaasTransferJournal waasTransferJournal =
+        BsinServiceContext.getReqBodyDto(WaasTransferJournal.class, requestMap);
     String customerNo = MapUtils.getString(requestMap, "customerNo");
     if (customerNo == null) {
       customerNo = loginUser.getCustomerNo();
@@ -298,7 +298,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     Boolean isObtain = (Boolean) requestMap.get("isObtain");
     String privateKey = (String) requestMap.get("privateKey");
     BigInteger tokenId = (BigInteger) requestMap.get("tokenId");
-    String toAddress = transferJournal.getToAddress();
+    String toAddress = waasTransferJournal.getToAddress();
 
     // 1.获取客户信息
     Map customerBase = merchantInfoBiz.getMerchantIssueWallet(customerNo, chainType);
@@ -327,9 +327,9 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     // 4.領取接口才限制
     if (isObtain != null && isObtain == true) {
       BsinRedisProvider.setCacheObject(
-          transferJournal.getDigitalAssetsCollectionNo()
+          waasTransferJournal.getDigitalAssetsCollectionNo()
               + ":"
-              + transferJournal.getToAddress()
+              + waasTransferJournal.getToAddress()
               + "isObtained",
           "true",
               Duration.ofSeconds(120));
@@ -338,19 +338,19 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
     // 5.转账
     ContractTransactionResp contractTransactionResp =
         digitalAssetsBiz.transfer(
-            contract, privateKey, addPrivilege, transferJournal, contractProtocol);
+            contract, privateKey, addPrivilege, waasTransferJournal, contractProtocol);
 
     // 6.账户扣费
     crmAccountBiz.accountOut(customerBase, chainEnv);
 
     // 7.登记转账记录
-    transferJournal.setTokenId(tokenId);
-    transferJournal.setTenantId(tenantId);
-    transferJournal.setTxHash(contractTransactionResp.getTxHash());
-    transferJournal.setChainEnv(chainEnv);
-    transferJournal.setChainType(chainType);
-    transferJournal.setAssetsType(contractProtocol.getType());
-    transferJournalMapper.insert(transferJournal);
+    waasTransferJournal.setTokenId(tokenId);
+    waasTransferJournal.setTenantId(tenantId);
+    waasTransferJournal.setTxHash(contractTransactionResp.getTxHash());
+    waasTransferJournal.setChainEnv(chainEnv);
+    waasTransferJournal.setChainType(chainType);
+    waasTransferJournal.setAssetsType(contractProtocol.getType());
+    waasTransferJournalMapper.insert(waasTransferJournal);
     log.info("trasaction 相应结果:{}", JSON.toJSONString(contractTransactionResp));
   }
 

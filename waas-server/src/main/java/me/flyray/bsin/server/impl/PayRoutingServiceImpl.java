@@ -21,7 +21,7 @@ import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.PayRoutingService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
 import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
-import me.flyray.bsin.infrastructure.mapper.TransferJournalMapper;
+import me.flyray.bsin.infrastructure.mapper.WaasTransferJournalMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Map;
 
@@ -56,9 +57,9 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   private String wxCallbackUrl;
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private WaasTransactionMapper transactionMapper;
+  @Autowired private WaasTransactionMapper waasTransactionMapper;
   @Autowired private PayChannelConfigMapper payChannelConfigMapper;
-  @Autowired private TransferJournalMapper transferJournalMapper;
+  @Autowired private WaasTransferJournalMapper waasTransferJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private BizRoleAppService bizRoleAppService;
@@ -101,52 +102,52 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     }
 
     // 1.创建交易订单
-    WaasTransaction transaction =
-        transactionMapper.selectOne(
+    WaasTransaction waasTransaction =
+        waasTransactionMapper.selectOne(
             new LambdaQueryWrapper<WaasTransaction>().eq(WaasTransaction::getOutSerialNo, orderNo));
     // 订单已支付成功,直接返回
-    if (transaction != null
-        && TransactionStatus.SUCCESS.getCode().equals(transaction.getTransactionStatus())) {
+    if (waasTransaction != null
+        && TransactionStatus.SUCCESS.getCode().equals(waasTransaction.getTransactionStatus())) {
       requestMap.put("payResult", "success");
       return requestMap;
-    } else if (transaction == null) {
-      transaction = new WaasTransaction();
-      transaction.setSerialNo(BsinSnowflake.getId());
-      transaction.setOutSerialNo(orderNo);
-      transaction.setTransactionType(TransactionType.PAY.getCode());
-      transaction.setComment(remark);
-      transaction.setTxAmount(new BigDecimal(payAmount));
-      transaction.setFromAddress(customerNo);
-      transaction.setToAddress(merchantNo);
-      transaction.setBizRoleType(loginUser.getBizRoleType());
-      transaction.setBizRoleTypeNo(loginUser.getBizRoleTypeNo());
-      transaction.setTenantId(tenantId);
-      transaction.setCreateTime(new Date());
-      transaction.setFromAddress(customerNo);
-      transaction.setCreateBy(customerNo);
-      transactionMapper.insert(transaction);
+    } else if (waasTransaction == null) {
+      waasTransaction = new WaasTransaction();
+      waasTransaction.setSerialNo(BsinSnowflake.getId());
+      waasTransaction.setOutSerialNo(orderNo);
+      waasTransaction.setTransactionType(TransactionType.PAY.getCode());
+      waasTransaction.setComment(remark);
+      waasTransaction.setTxAmount(new BigDecimal(payAmount));
+      waasTransaction.setFromAddress(customerNo);
+      waasTransaction.setToAddress(merchantNo);
+      waasTransaction.setBizRoleType(loginUser.getBizRoleType());
+      waasTransaction.setBizRoleTypeNo(loginUser.getBizRoleTypeNo());
+      waasTransaction.setTenantId(tenantId);
+      waasTransaction.setCreateTime(new Date());
+      waasTransaction.setFromAddress(customerNo);
+      waasTransaction.setCreateBy(customerNo);
+      waasTransactionMapper.insert(waasTransaction);
     }
-    // 2、创建支付流水
-    // TODO：
-    //    WaasTransactionJournal waasTransactionJournal =
-    //        transferJournalMapper.selectOne(
-    //            new LambdaQueryWrapper<TransferJournal>().eq(TransferJournal::getTxHash,
-    // orderNo));
-    //    if (transferJournal == null) {
-    //      transferJournal = new TransferJournal();
-    //      //    transferJournal.setToAddress(toAddress);
-    //      //    transferJournal.setFromCustomerNo(fromCustomerNo);
-    //      transferJournal.setToCustomerNo(customerNo);
-    //      transferJournal.setMerchantNo(merchantNo);
-    //      //    transferJournal.setFromAddress((String)
-    // merchantCustomerBase.get("walletAddress"));
-    //      //    transferJournal.setTokenId(digitalAssetsItem.getTokenId());
-    //      //      transferJournal.setAmount(new BigInteger(payAmount));
-    //      //    transferJournal.setMetadataImage();
-    //      transferJournal.setTxHash(orderNo);
-    //      transferJournal.setSerialNo(BsinSnowflake.getId());
-    //      transferJournalMapper.insert(transferJournal);
-    //    }
+    // 2、创建支付转账流水
+    WaasTransferJournal waasTransferJournal =
+        waasTransferJournalMapper.selectOne(
+            new LambdaQueryWrapper<WaasTransferJournal>()
+                .eq(WaasTransferJournal::getTxHash, orderNo));
+    if (waasTransferJournal == null) {
+      waasTransferJournal = new WaasTransferJournal();
+      //    waasTransferJournal.setToAddress(toAddress);
+      //    waasTransferJournal.setFromCustomerNo(fromCustomerNo);
+      waasTransferJournal.setToCustomerNo(customerNo);
+      waasTransferJournal.setMerchantNo(merchantNo);
+      waasTransferJournal.setAmount(new BigInteger(payAmount));
+      //    waasTransferJournal.setFromAddress((String)
+      //     merchantCustomerBase.get("walletAddress"));
+      //    waasTransferJournal.setTokenId(digitalAssetsItem.getTokenId());
+      //      waasTransferJournal.setAmount(new BigInteger(payAmount));
+      //    waasTransferJournal.setMetadataImage();
+      waasTransferJournal.setTxHash(orderNo);
+      waasTransferJournal.setSerialNo(BsinSnowflake.getId());
+      waasTransferJournalMapper.insert(waasTransferJournal);
+    }
 
     WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
     // 3、支付

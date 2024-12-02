@@ -60,7 +60,7 @@ public class DigitalAssetsItemBiz {
 
   @Autowired private MintJournalMapper mintJournalMapper;
 
-  @Autowired private TransferJournalMapper transferJournalMapper;
+  @Autowired private WaasTransferJournalMapper waasTransferJournalMapper;
 
   @Autowired private DigitalAssetsBiz digitalAssetsBiz;
 
@@ -359,23 +359,23 @@ public class DigitalAssetsItemBiz {
     // 2.1ERC1155 判断 transfer记录
     if (limitClaim) {
       if (contractProtocol.getProtocolStandards().startsWith("ERC1155")) {
-        LambdaQueryWrapper<TransferJournal> transferWarapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<WaasTransferJournal> transferWarapper = new LambdaQueryWrapper<>();
         transferWarapper.eq(
             ObjectUtil.isNotNull(digitalAssetsItem.getDigitalAssetsCollectionNo()),
-            TransferJournal::getDigitalAssetsCollectionNo,
+            WaasTransferJournal::getDigitalAssetsCollectionNo,
             digitalAssetsItem.getDigitalAssetsCollectionNo());
         transferWarapper.eq(
             ObjectUtil.isNotNull(digitalAssetsItem.getTokenId()),
-            TransferJournal::getTokenId,
+            WaasTransferJournal::getTokenId,
             digitalAssetsItem.getTokenId());
-        transferWarapper.eq(ObjectUtil.isNotNull(phone), TransferJournal::getToPhone, phone);
+        transferWarapper.eq(ObjectUtil.isNotNull(phone), WaasTransferJournal::getToPhone, phone);
         transferWarapper.eq(
-            ObjectUtil.isNotNull(customerNo), TransferJournal::getToCustomerNo, customerNo);
+            ObjectUtil.isNotNull(customerNo), WaasTransferJournal::getToCustomerNo, customerNo);
         transferWarapper.eq(
-            ObjectUtil.isNotNull(toAddress), TransferJournal::getToAddress, toAddress);
-        transferWarapper.eq(TransferJournal::getToAddress, toAddress);
-        List<TransferJournal> transferJournals = transferJournalMapper.selectList(transferWarapper);
-        if (transferJournals.size() > 0) {
+            ObjectUtil.isNotNull(toAddress), WaasTransferJournal::getToAddress, toAddress);
+        transferWarapper.eq(WaasTransferJournal::getToAddress, toAddress);
+        List<WaasTransferJournal> waasTransferJournals = waasTransferJournalMapper.selectList(transferWarapper);
+        if (waasTransferJournals.size() > 0) {
           throw new BusinessException(ResponseCode.KYC_NFT_OBTAINED);
         }
       }
@@ -401,27 +401,27 @@ public class DigitalAssetsItemBiz {
     }
     if (contractProtocol.getProtocolStandards().startsWith("ERC1155")) {
       // 3.ERC1155领取
-      TransferJournal transferJournal = new TransferJournal();
-      BeanUtil.copyProperties(digitalAssetsItem, transferJournal);
-      transferJournal.setToAddress(toAddress);
-      transferJournal.setFromCustomerNo(fromCustomerNo);
-      transferJournal.setToCustomerNo(customerNo);
-      transferJournal.setMerchantNo(merchantNo);
-      transferJournal.setFromAddress((String) merchantCustomerBase.get("walletAddress"));
-      transferJournal.setTokenId(digitalAssetsItem.getTokenId());
-      transferJournal.setAmount(new BigInteger(amount));
-      transferJournal.setMetadataImage(digitalAssetsItem.getCoverImage());
+      WaasTransferJournal waasTransferJournal = new WaasTransferJournal();
+      BeanUtil.copyProperties(digitalAssetsItem, waasTransferJournal);
+      waasTransferJournal.setToAddress(toAddress);
+      waasTransferJournal.setFromCustomerNo(fromCustomerNo);
+      waasTransferJournal.setToCustomerNo(customerNo);
+      waasTransferJournal.setMerchantNo(merchantNo);
+      waasTransferJournal.setFromAddress((String) merchantCustomerBase.get("walletAddress"));
+      waasTransferJournal.setTokenId(digitalAssetsItem.getTokenId());
+      waasTransferJournal.setAmount(new BigInteger(amount));
+      waasTransferJournal.setMetadataImage(digitalAssetsItem.getCoverImage());
       contractTransactionResp =
           digitalAssetsBiz.transfer(
               digitalAssetsCollection.getContractAddress(),
               (String) merchantCustomerBase.get("privateKey"),
               addPrivilege,
-              transferJournal,
+                  waasTransferJournal,
               contractProtocol);
       // 生成一条 transfer 记录
-      transferJournal.setTxHash(contractTransactionResp.getTxHash());
-      transferJournal.setSerialNo(BsinSnowflake.getId());
-      transferJournalMapper.insert(transferJournal);
+      waasTransferJournal.setTxHash(contractTransactionResp.getTxHash());
+      waasTransferJournal.setSerialNo(BsinSnowflake.getId());
+      waasTransferJournalMapper.insert(waasTransferJournal);
     } else if (contractProtocol.getProtocolStandards().startsWith("ERC721")) {
       // 2.2 ERC721 领取
       if (tokenIdStr == null) {

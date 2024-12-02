@@ -5,18 +5,18 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
-import me.flyray.bsin.domain.entity.TransferJournal;
+import me.flyray.bsin.domain.entity.WaasTransferJournal;
 
 /**
 * @author bolei
-* @description 针对表【da_digital_assets_transfer】的数据库操作Mapper
+* @description 针对表【waas_transfer_journal】的数据库操作Mapper
 * @createDate 2023-06-27 17:10:27
 * @Entity generator.domain.DaDigitalAssetsTransfer
 */
 
 @Repository
 @Mapper
-public interface TransferJournalMapper extends BaseMapper<TransferJournal> {
+public interface WaasTransferJournalMapper extends BaseMapper<WaasTransferJournal> {
 
 }
 
