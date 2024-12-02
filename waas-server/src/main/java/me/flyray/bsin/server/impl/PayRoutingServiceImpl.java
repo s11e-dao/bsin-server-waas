@@ -127,23 +127,26 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       transactionMapper.insert(transaction);
     }
     // 2、创建支付流水
-    TransferJournal transferJournal =
-        transferJournalMapper.selectOne(
-            new LambdaQueryWrapper<TransferJournal>().eq(TransferJournal::getTxHash, orderNo));
-    if (transferJournal == null) {
-      transferJournal = new TransferJournal();
-      //    transferJournal.setToAddress(toAddress);
-      //    transferJournal.setFromCustomerNo(fromCustomerNo);
-      transferJournal.setToCustomerNo(customerNo);
-      transferJournal.setMerchantNo(merchantNo);
-      //    transferJournal.setFromAddress((String) merchantCustomerBase.get("walletAddress"));
-      //    transferJournal.setTokenId(digitalAssetsItem.getTokenId());
-      //      transferJournal.setAmount(new BigInteger(payAmount));
-      //    transferJournal.setMetadataImage();
-      transferJournal.setTxHash(orderNo);
-      transferJournal.setSerialNo(BsinSnowflake.getId());
-      transferJournalMapper.insert(transferJournal);
-    }
+    // TODO：
+    //    WaasTransactionJournal waasTransactionJournal =
+    //        transferJournalMapper.selectOne(
+    //            new LambdaQueryWrapper<TransferJournal>().eq(TransferJournal::getTxHash,
+    // orderNo));
+    //    if (transferJournal == null) {
+    //      transferJournal = new TransferJournal();
+    //      //    transferJournal.setToAddress(toAddress);
+    //      //    transferJournal.setFromCustomerNo(fromCustomerNo);
+    //      transferJournal.setToCustomerNo(customerNo);
+    //      transferJournal.setMerchantNo(merchantNo);
+    //      //    transferJournal.setFromAddress((String)
+    // merchantCustomerBase.get("walletAddress"));
+    //      //    transferJournal.setTokenId(digitalAssetsItem.getTokenId());
+    //      //      transferJournal.setAmount(new BigInteger(payAmount));
+    //      //    transferJournal.setMetadataImage();
+    //      transferJournal.setTxHash(orderNo);
+    //      transferJournal.setSerialNo(BsinSnowflake.getId());
+    //      transferJournalMapper.insert(transferJournal);
+    //    }
 
     WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
     // 3、支付
@@ -201,7 +204,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
           // 订单备注
           wxPayRequest.setBody(remark);
           wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
-          wxPayRequest.setOutTradeNo(transaction.getSerialNo());
+          wxPayRequest.setOutTradeNo(orderNo);
           wxPayRequest.setTotalFee(deciPrice.intValue());
           wxPayRequest.setSpbillCreateIp("127.0.0.1");
           // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
