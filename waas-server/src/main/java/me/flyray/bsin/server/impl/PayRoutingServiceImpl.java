@@ -20,8 +20,8 @@ import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.PayRoutingService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
+import me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
-import me.flyray.bsin.infrastructure.mapper.WaasTransferJournalMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
@@ -59,7 +59,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
   @Autowired private WaasTransactionMapper waasTransactionMapper;
   @Autowired private PayChannelConfigMapper payChannelConfigMapper;
-  @Autowired private WaasTransferJournalMapper waasTransferJournalMapper;
+  @Autowired private WaasTransactionJournalMapper waasTransactionJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private BizRoleAppService bizRoleAppService;
@@ -77,7 +77,7 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   public Map<String, Object> pay(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String payWay = MapUtils.getString(requestMap, "payWay");
-    String payAmount = MapUtils.getString(requestMap, "payAmount");
+    String payAmount = MapUtils.getDouble(requestMap, "payAmount").toString();
     String orderNo = MapUtils.getString(requestMap, "orderNo");
     String tenantId = MapUtils.getString(requestMap, "tenantId");
     if (tenantId == null) {
@@ -128,25 +128,16 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       waasTransactionMapper.insert(waasTransaction);
     }
     // 2、创建支付转账流水
-    WaasTransferJournal waasTransferJournal =
-        waasTransferJournalMapper.selectOne(
-            new LambdaQueryWrapper<WaasTransferJournal>()
-                .eq(WaasTransferJournal::getTxHash, orderNo));
-    if (waasTransferJournal == null) {
-      waasTransferJournal = new WaasTransferJournal();
-      //    waasTransferJournal.setToAddress(toAddress);
-      //    waasTransferJournal.setFromCustomerNo(fromCustomerNo);
-      waasTransferJournal.setToCustomerNo(customerNo);
-      waasTransferJournal.setMerchantNo(merchantNo);
-      waasTransferJournal.setAmount(new BigInteger(payAmount));
-      //    waasTransferJournal.setFromAddress((String)
-      //     merchantCustomerBase.get("walletAddress"));
-      //    waasTransferJournal.setTokenId(digitalAssetsItem.getTokenId());
-      //      waasTransferJournal.setAmount(new BigInteger(payAmount));
-      //    waasTransferJournal.setMetadataImage();
-      waasTransferJournal.setTxHash(orderNo);
-      waasTransferJournal.setSerialNo(BsinSnowflake.getId());
-      waasTransferJournalMapper.insert(waasTransferJournal);
+    WaasTransactionJournal waasTransactionJournal =
+        waasTransactionJournalMapper.selectOne(
+            new LambdaQueryWrapper<WaasTransactionJournal>()
+                .eq(WaasTransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
+    if (waasTransactionJournal == null) {
+      waasTransactionJournal = new WaasTransactionJournal();
+      waasTransactionJournal.setTransactionNo(orderNo);
+      waasTransactionJournal.setPayAmount(new BigDecimal(payAmount));
+      waasTransactionJournal.setSerialNo(BsinSnowflake.getId());
+      waasTransactionJournalMapper.insert(waasTransactionJournal);
     }
 
     WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
