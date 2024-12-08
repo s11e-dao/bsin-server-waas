@@ -5,12 +5,12 @@
 <mapper namespace="me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper">
 
     <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.WaasTransactionJournal">
-            <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
-            <result property="payAmount" column="pay_amount" jdbcType="VARCHAR"/>
-            <result property="payWayNo" column="pay_way_no" jdbcType="VARCHAR"/>
-            <result property="payFee" column="pay_fee" jdbcType="VARCHAR"/>
-            <result property="transactionNo" column="transaction_no" jdbcType="VARCHAR"/>
-            <result property="status" column="status" jdbcType="VARCHAR"/>
+        <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
+        <result property="payAmount" column="pay_amount" jdbcType="VARCHAR"/>
+        <result property="payWayNo" column="pay_way_no" jdbcType="VARCHAR"/>
+        <result property="payFee" column="pay_fee" jdbcType="VARCHAR"/>
+        <result property="transactionNo" column="transaction_no" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -19,4 +19,10 @@
         pay_way_no,pay_fee,transaction_no,
         status
     </sql>
+
+    <update id="updateTransferStatus">
+        update waas_transaction_journal
+        set transaction_no = #{transactionNo}
+        where serialNo = #{serialNo}
+    </update>
 </mapper>

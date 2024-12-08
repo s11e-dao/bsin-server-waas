@@ -13,6 +13,7 @@ import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppType;
 import me.flyray.bsin.facade.service.MemberService;
+import me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
@@ -53,6 +54,7 @@ public class PayCallbackController {
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
   @Autowired private WaasTransactionMapper transactionMapper;
+  @Autowired private WaasTransactionJournalMapper waasTransactionJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private MemberService memberService;
@@ -99,8 +101,10 @@ public class PayCallbackController {
       }
       if ("SUCCESS".equals(result.getResultCode())) {
         waasTransaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
+        waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.SUCCESS.getCode());
       } else {
         waasTransaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
+        waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.FAIL.getCode());
       }
       transactionMapper.updateById(waasTransaction);
       // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理

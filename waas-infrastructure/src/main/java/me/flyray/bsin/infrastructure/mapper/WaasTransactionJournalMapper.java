@@ -1,9 +1,13 @@
 package me.flyray.bsin.infrastructure.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import me.flyray.bsin.domain.entity.MetadataFile;
 import me.flyray.bsin.domain.entity.WaasTransactionJournal;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigInteger;
 
 /**
 * @author bolei
@@ -15,6 +19,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Mapper
 public interface WaasTransactionJournalMapper extends BaseMapper<WaasTransactionJournal> {
+
+    boolean updateTransferStatus(@Param("transactionNo") String serialNo,@Param("status") String status);
+
 
 }
 

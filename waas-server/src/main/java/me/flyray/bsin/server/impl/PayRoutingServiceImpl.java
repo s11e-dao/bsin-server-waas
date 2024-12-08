@@ -134,9 +134,10 @@ public class PayRoutingServiceImpl implements PayRoutingService {
                 .eq(WaasTransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
     if (waasTransactionJournal == null) {
       waasTransactionJournal = new WaasTransactionJournal();
-      waasTransactionJournal.setTransactionNo(orderNo);
+      waasTransactionJournal.setTransactionNo(waasTransaction.getSerialNo());
       waasTransactionJournal.setPayAmount(new BigDecimal(payAmount));
       waasTransactionJournal.setSerialNo(BsinSnowflake.getId());
+      waasTransactionJournal.setStatus(TransactionStatus.PENDING.getCode());
       waasTransactionJournalMapper.insert(waasTransactionJournal);
     }
 
