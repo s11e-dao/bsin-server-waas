@@ -1,8 +1,12 @@
 package me.flyray.bsin.server.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.*;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
@@ -21,6 +25,7 @@ import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
@@ -59,6 +64,68 @@ public class TransactionServiceImpl  implements WaasTransactionService {
     private ChainTransactionListen transactionBiz;
     @Autowired
     private TransactionBiz transferBiz;
+
+    @Override
+    public WaasTransaction pay(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction recharge(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction transfer(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction withdraw(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @ApiDoc(desc = "withdrawApply")
+    @ShenyuDubboClient("/withdrawApply")
+    @Override
+    public WaasTransaction withdrawApply(Map<String, Object> requestMap) {
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        WaasTransaction transaction = BsinServiceContext.getReqBodyDto(WaasTransaction.class, requestMap);
+        if(TransactionType.getInstanceById(transaction.getTransactionType()) == null){
+            throw new BusinessException("999","交易类型不存在！");
+        }
+        transaction.setAuditStatus("");
+        transactionMapper.insert(transaction);
+        return transaction;
+    }
+
+    @ApiDoc(desc = "withdrawAudit")
+    @ShenyuDubboClient("/withdrawAudit")
+    @Override
+    public void withdrawAudit(Map<String, Object> requestMap) {
+        WaasTransaction transaction = BsinServiceContext.getReqBodyDto(WaasTransaction.class, requestMap);
+        transactionMapper.updateById(transaction);
+    }
+
+    @Override
+    public WaasTransaction refund(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction settlement(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction income(Map<String, Object> requestMap) {
+        return null;
+    }
+
+    @Override
+    public WaasTransaction redeem(Map<String, Object> requestMap) {
+        return null;
+    }
 
     @Override
     @ShenyuDubboClient("/create")
@@ -125,7 +192,6 @@ public class TransactionServiceImpl  implements WaasTransactionService {
     }
 
     /**
-     *
      * @param transactionDTO
      * fromAddress
      * toAddress
@@ -167,12 +233,16 @@ public class TransactionServiceImpl  implements WaasTransactionService {
     @Override
     @ShenyuDubboClient("/getPageList")
     @ApiDoc(desc = "getPageList")
-    public Page<TransactionVO> getPageList(TransactionDTO transactionDTO) {
+    public Page<WaasTransaction> getPageList(TransactionDTO transactionDTO) {
         log.debug("请求TransactionService.pageList,参数:{}", transactionDTO);
-        LoginUser user = LoginInfoContextHelper.getLoginUser();
-        Pagination pagination = transactionDTO.getPagination();
-        transactionDTO.setTenantId(user.getTenantId());
-        return transactionMapper.pageList(new Page<>(pagination.getPageNum(), pagination.getPageSize()),transactionDTO );
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        Pagination pagination =  transactionDTO.getPagination();
+        Page<WaasTransaction> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
+        LambdaQueryWrapper<WaasTransaction> warapper = new LambdaQueryWrapper<>();
+        warapper.orderByDesc(WaasTransaction::getCreateTime);
+        warapper.eq(WaasTransaction::getTenantId, loginUser.getTenantId());
+        warapper.eq(ObjectUtils.isNotEmpty(loginUser.getMerchantNo()), WaasTransaction::getTransactionType, transactionDTO.getTransactionType());
+        return transactionMapper.selectPage(page,warapper);
     }
 
     @ShenyuDubboClient("/getDetail")

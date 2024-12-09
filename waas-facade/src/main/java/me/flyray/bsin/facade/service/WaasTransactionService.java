@@ -1,5 +1,6 @@
 package me.flyray.bsin.facade.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.flyray.bsin.domain.entity.WaasTransaction;
 import me.flyray.bsin.domain.request.TransactionDTO;
@@ -14,6 +15,76 @@ import java.util.Map;
 * @createDate 2024-04-24 20:36:00
 */
 public interface WaasTransactionService {
+
+    /**
+     * 支付
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction pay(Map<String, Object> requestMap);
+
+    /**
+     * 充值
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction recharge(Map<String, Object> requestMap);
+
+    /**
+     * 转账
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction transfer(Map<String, Object> requestMap);
+
+    /**
+     * 提现
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction withdraw(Map<String, Object> requestMap);
+
+    /**
+     * 提现申请
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction withdrawApply(Map<String, Object> requestMap);
+
+    /**
+     * 提现审核
+     * @param requestMap
+     * @return
+     */
+    public void withdrawAudit(Map<String, Object> requestMap);
+
+    /**
+     * 退款
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction refund(Map<String, Object> requestMap);
+
+    /**
+     * 结算
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction settlement(Map<String, Object> requestMap);
+
+    /**
+     * 收入
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction income(Map<String, Object> requestMap);
+
+    /**
+     * 赎回
+     * @param requestMap
+     * @return
+     */
+    public WaasTransaction redeem(Map<String, Object> requestMap);
 
     /**
      * 创建交易（转出）
@@ -40,7 +111,7 @@ public interface WaasTransactionService {
      * @param transactionDTO
      * @return
      */
-    Page<TransactionVO> getPageList(TransactionDTO transactionDTO);
+    Page<WaasTransaction> getPageList(TransactionDTO transactionDTO);
 
     public WaasTransaction getDetail(Map<String, Object> requestMap);
 

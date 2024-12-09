@@ -79,6 +79,11 @@ public class WaasTransaction extends BaseEntity implements Serializable {
     private String comment;
 
     /**
+     * 审核状态;1、待审核 2、审核成功 3、审核拒绝
+     */
+    private String auditStatus;
+
+    /**
      * 交易完成时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
