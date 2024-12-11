@@ -11,7 +11,7 @@ import me.flyray.bsin.domain.entity.BizRoleApp;
 import me.flyray.bsin.domain.entity.WaasTransaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
-import me.flyray.bsin.enums.AppType;
+import me.flyray.bsin.enums.AppChannel;
 import me.flyray.bsin.facade.service.MemberService;
 import me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
@@ -79,7 +79,7 @@ public class PayCallbackController {
     try {
       // 解析回调包文
       BizRoleApp bizRoleApp = new BizRoleApp();
-      bizRoleApp.setAppType(AppType.WX_PAY.getType());
+      bizRoleApp.setAppType(AppChannel.WX_PAY.getType());
       bizRoleApp.setMchId(mchId);
       WxPayService wxPayService = getWxService(bizRoleApp);
       result = wxPayService.parseOrderNotifyResult(body);
@@ -118,7 +118,7 @@ public class PayCallbackController {
 
   private WxPayService getWxService(BizRoleApp merchantWxApp) {
     WxPayService wxPayService = null;
-    if (StringUtils.equals(merchantWxApp.getAppType(), AppType.WX_PAY.getType())) {
+    if (StringUtils.equals(merchantWxApp.getAppType(), AppChannel.WX_PAY.getType())) {
       log.info("微信支付应用");
       WxPayConfig config = new WxPayConfig();
       config.setMchId(merchantWxApp.getMchId());
