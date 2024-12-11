@@ -79,7 +79,7 @@ public class PayCallbackController {
     try {
       // 解析回调包文
       BizRoleApp bizRoleApp = new BizRoleApp();
-      bizRoleApp.setAppType(AppChannel.WX_PAY.getType());
+      bizRoleApp.setAppChannel(AppChannel.WX_PAY.getType());
       bizRoleApp.setMchId(mchId);
       WxPayService wxPayService = getWxService(bizRoleApp);
       result = wxPayService.parseOrderNotifyResult(body);
@@ -118,7 +118,7 @@ public class PayCallbackController {
 
   private WxPayService getWxService(BizRoleApp merchantWxApp) {
     WxPayService wxPayService = null;
-    if (StringUtils.equals(merchantWxApp.getAppType(), AppChannel.WX_PAY.getType())) {
+    if (StringUtils.equals(merchantWxApp.getAppChannel(), AppChannel.WX_PAY.getType())) {
       log.info("微信支付应用");
       WxPayConfig config = new WxPayConfig();
       config.setMchId(merchantWxApp.getMchId());
