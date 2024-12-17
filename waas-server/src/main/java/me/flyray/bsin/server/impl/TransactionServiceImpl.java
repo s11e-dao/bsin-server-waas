@@ -241,7 +241,7 @@ public class TransactionServiceImpl  implements WaasTransactionService {
         LambdaQueryWrapper<WaasTransaction> warapper = new LambdaQueryWrapper<>();
         warapper.orderByDesc(WaasTransaction::getCreateTime);
         warapper.eq(WaasTransaction::getTenantId, loginUser.getTenantId());
-        warapper.eq(ObjectUtils.isNotEmpty(loginUser.getMerchantNo()), WaasTransaction::getTransactionType, transactionDTO.getTransactionType());
+        warapper.eq(ObjectUtils.isNotEmpty(transactionDTO.getTransactionType()), WaasTransaction::getTransactionType, transactionDTO.getTransactionType());
         return transactionMapper.selectPage(page,warapper);
     }
 
