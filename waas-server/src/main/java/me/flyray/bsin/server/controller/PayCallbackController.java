@@ -8,13 +8,13 @@ import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.BizRoleApp;
-import me.flyray.bsin.domain.entity.WaasTransaction;
+import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppChannel;
 import me.flyray.bsin.facade.service.MemberService;
-import me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper;
-import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
+import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
+import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -53,8 +53,8 @@ public class PayCallbackController {
   private static WxRedisConfig wxRedisConfig;
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private WaasTransactionMapper transactionMapper;
-  @Autowired private WaasTransactionJournalMapper waasTransactionJournalMapper;
+  @Autowired private TransactionMapper transactionMapper;
+  @Autowired private TransactionJournalMapper waasTransactionJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private MemberService memberService;
@@ -93,9 +93,9 @@ public class PayCallbackController {
       requestMap.put("cashFee", result.getCashFee());
       requestMap.put("payId", result.getTransactionId());
       // 根据 WaasTransactionNo 查询交易订单并更新交易状态
-      WaasTransaction waasTransaction =
+      Transaction waasTransaction =
               transactionMapper.selectOne(
-                      new LambdaQueryWrapper<WaasTransaction>().eq(WaasTransaction::getOutSerialNo, result.getOutTradeNo()));
+                      new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, result.getOutTradeNo()));
       if (waasTransaction == null) {
         return WxPayNotifyResponse.fail("未找到交易订单");
       }

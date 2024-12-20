@@ -20,8 +20,8 @@ import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.PayRoutingService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
-import me.flyray.bsin.infrastructure.mapper.WaasTransactionJournalMapper;
-import me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper;
+import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
+import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.Map;
 
@@ -57,9 +56,9 @@ public class PayRoutingServiceImpl implements PayRoutingService {
   private String wxCallbackUrl;
 
   @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private WaasTransactionMapper waasTransactionMapper;
+  @Autowired private TransactionMapper waasTransactionMapper;
   @Autowired private PayChannelConfigMapper payChannelConfigMapper;
-  @Autowired private WaasTransactionJournalMapper waasTransactionJournalMapper;
+  @Autowired private TransactionJournalMapper waasTransactionJournalMapper;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private BizRoleAppService bizRoleAppService;
@@ -102,16 +101,16 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     }
 
     // 1.创建交易订单
-    WaasTransaction waasTransaction =
+    Transaction waasTransaction =
         waasTransactionMapper.selectOne(
-            new LambdaQueryWrapper<WaasTransaction>().eq(WaasTransaction::getOutSerialNo, orderNo));
+            new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
     // 订单已支付成功,直接返回
     if (waasTransaction != null
         && TransactionStatus.SUCCESS.getCode().equals(waasTransaction.getTransactionStatus())) {
       requestMap.put("payResult", "success");
       return requestMap;
     } else if (waasTransaction == null) {
-      waasTransaction = new WaasTransaction();
+      waasTransaction = new Transaction();
       waasTransaction.setSerialNo(BsinSnowflake.getId());
       waasTransaction.setOutSerialNo(orderNo);
       waasTransaction.setTransactionType(TransactionType.PAY.getCode());
@@ -128,12 +127,12 @@ public class PayRoutingServiceImpl implements PayRoutingService {
       waasTransactionMapper.insert(waasTransaction);
     }
     // 2、创建支付转账流水
-    WaasTransactionJournal waasTransactionJournal =
+    TransactionJournal waasTransactionJournal =
         waasTransactionJournalMapper.selectOne(
-            new LambdaQueryWrapper<WaasTransactionJournal>()
-                .eq(WaasTransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
+            new LambdaQueryWrapper<TransactionJournal>()
+                .eq(TransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
     if (waasTransactionJournal == null) {
-      waasTransactionJournal = new WaasTransactionJournal();
+      waasTransactionJournal = new TransactionJournal();
       waasTransactionJournal.setTransactionNo(waasTransaction.getSerialNo());
       waasTransactionJournal.setPayAmount(new BigDecimal(payAmount));
       waasTransactionJournal.setSerialNo(BsinSnowflake.getId());

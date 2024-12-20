@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
-import me.flyray.bsin.domain.entity.WaasTransferJournal;
+import me.flyray.bsin.domain.entity.TransferJournal;
 
 /**
 * @author bolei
@@ -16,7 +16,7 @@ import me.flyray.bsin.domain.entity.WaasTransferJournal;
 
 @Repository
 @Mapper
-public interface WaasTransferJournalMapper extends BaseMapper<WaasTransferJournal> {
+public interface TransferJournalMapper extends BaseMapper<TransferJournal> {
 
 }
 

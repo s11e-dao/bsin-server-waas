@@ -67,7 +67,7 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   @Autowired private ContractProtocolMapper contractProtocolMapper;
   @Autowired private DigitalAssetsItemObtainCodeMapper digitalAssetsItemObtainCodeMapper;
   @Autowired private MintJournalMapper mintJournalMapper;
-  @Autowired private WaasTransferJournalMapper waasTransferJournalMapper;
+  @Autowired private TransferJournalMapper waasTransferJournalMapper;
   @Autowired private DigitalAssetsBiz digitalAssetsBiz;
   @Autowired private MetadataFileMapper metadataFileMapper;
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
@@ -284,8 +284,8 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   public void transfer(Map<String, Object> requestMap) throws Exception {
     log.info("AdminBlockChainService transferNft 请求参数:{}", JSON.toJSONString(requestMap));
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
-    WaasTransferJournal waasTransferJournal =
-        BsinServiceContext.getReqBodyDto(WaasTransferJournal.class, requestMap);
+    TransferJournal waasTransferJournal =
+        BsinServiceContext.getReqBodyDto(TransferJournal.class, requestMap);
     String customerNo = MapUtils.getString(requestMap, "customerNo");
     if (customerNo == null) {
       customerNo = loginUser.getCustomerNo();

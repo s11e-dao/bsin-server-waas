@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="me.flyray.bsin.infrastructure.mapper.WaasTransactionMapper">
+<mapper namespace="me.flyray.bsin.infrastructure.mapper.TransactionMapper">
 
-    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.WaasTransaction">
+    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.Transaction">
             <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
             <result property="txHash" column="tx_hash" jdbcType="VARCHAR"/>
             <result property="contractAddress" column="contract_address" jdbcType="VARCHAR"/>
@@ -12,12 +12,14 @@
             <result property="methodInvokeWay" column="method_invoke_way" jdbcType="VARCHAR"/>
             <result property="transactionType" column="transaction_type" jdbcType="VARCHAR"/>
             <result property="transactionStatus" column="transaction_status" jdbcType="VARCHAR"/>
-            <result property="fromAddress" column="from_address" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type_no" jdbcType="INTEGER"/>
             <result property="txAmount" column="tx_amount" jdbcType="DECIMAL"/>
             <result property="fee" column="fee" jdbcType="DECIMAL"/>
-            <result property="toAddress" column="to_address" jdbcType="VARCHAR"/>
+            <result property="fromAddressType" column="from_address_type" jdbcType="VARCHAR"/>
+            <result property="fromAddress" column="from_address" jdbcType="VARCHAR"/>
+            <result property="toAddressType" column="to_address" jdbcType="VARCHAR"/>
+            <result property="toAddress" column="to_address_type" jdbcType="VARCHAR"/>
             <result property="comment" column="comment" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
@@ -37,9 +39,11 @@
         ct.method_invoke_way,
         ct.transaction_type,
         ct.transaction_status,
+        ct.from_address_type
         ct.from_address,
         ct.tx_amount,
         ct.fee,
+        ct.to_address_type
         ct.to_address,
         ct.comment,
         ct.biz_role_type,

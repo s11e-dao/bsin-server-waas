@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
+
 import lombok.Data;
 
 /**
@@ -14,7 +13,7 @@ import lombok.Data;
  */
 @TableName(value ="waas_transaction_journal")
 @Data
-public class WaasTransactionJournal implements Serializable {
+public class TransactionJournal implements Serializable {
     /**
      * transaction编号
      */

@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @TableName(value ="waas_transfer_journal")
 @Data
-public class WaasTransferJournal implements Serializable {
+public class TransferJournal implements Serializable {
     /**
      * transfer编号
      */

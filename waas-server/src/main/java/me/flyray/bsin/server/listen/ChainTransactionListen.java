@@ -23,7 +23,6 @@ import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.websocket.WebSocketService;
@@ -56,7 +55,7 @@ public class ChainTransactionListen {
     @Resource
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
-    private WaasTransactionMapper transactionMapper;
+    private TransactionMapper transactionMapper;
     @Autowired
     private WalletAccountMapper walletAccountMapper;
     @Autowired
@@ -151,9 +150,9 @@ public class ChainTransactionListen {
             log.info("交易hash: {}", txHash);
 
             // 判断该交易是否已经处理
-            QueryWrapper<WaasTransaction> query = Wrappers.query();
+            QueryWrapper<Transaction> query = Wrappers.query();
             query.eq("tx_hash",txHash);
-            List<WaasTransaction> transactionList = transactionMapper.selectList(query);
+            List<Transaction> transactionList = transactionMapper.selectList(query);
             if(!transactionList.isEmpty()){
                 return;
             }
@@ -170,9 +169,9 @@ public class ChainTransactionListen {
                 TransactionReceipt transactionReceipt = ethGetTransactionReceipt.getTransactionReceipt().orElseThrow(RuntimeException::new);
 
                 // 2、通过hash获取链上交易
-                Optional<Transaction> transactions = web3j.ethGetTransactionByHash(txHash).send().getTransaction();
+                Optional<org.web3j.protocol.core.methods.response.Transaction> transactions = web3j.ethGetTransactionByHash(txHash).send().getTransaction();
                 if (transactions.isPresent()) {
-                    Transaction transaction = transactions.orElseThrow(RuntimeException::new);
+                    org.web3j.protocol.core.methods.response.Transaction transaction = transactions.orElseThrow(RuntimeException::new);
                     String from = transaction.getFrom();
                     String to = transaction.getTo();
                     // 3、获取合约方法

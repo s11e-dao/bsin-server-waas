@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  */
 @Data
 @TableName(value ="waas_transaction")
-public class WaasTransaction extends BaseEntity implements Serializable {
+public class Transaction extends BaseEntity implements Serializable {
 
     /**
      * @see TransactionType
@@ -49,11 +49,6 @@ public class WaasTransaction extends BaseEntity implements Serializable {
     private String transactionStatus;
 
     /**
-     * 源地址
-     */
-    private String fromAddress;
-
-    /**
      * 交易金额
      */
     private BigDecimal txAmount;
@@ -69,9 +64,30 @@ public class WaasTransaction extends BaseEntity implements Serializable {
     private BigDecimal fee;
 
     /**
+     * 源地址类型
+     */
+    private String fromAddressType;
+
+    /**
+     * 源地址
+     */
+    private String fromAddress;
+
+    /**
+     * 目标地址类型
+     */
+    private String toAddressType;
+
+    /**
      * 目标地址
      */
     private String toAddress;
+
+    /**
+     * 目标地址类型： crm中结算账号ID
+     * 地址类型 1、结算账号 2、链地址
+     */
+    private String addressType;
 
     /**
      * 备注
@@ -89,25 +105,26 @@ public class WaasTransaction extends BaseEntity implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String completedTime;
+
     /**
      * 商户业务唯一标识
      */
     private String outSerialNo;
+
     /**
      * 用户角色类型，1.系统运营 2.平台租户 3.商户 4.代理商 5.客户 6.门店 99.无
      * @see BizRoleType
      */
-    @NotBlank(message = "业务角色类型不能为空！", groups = AddGroup.class)
     private String bizRoleType;
+
     /**
      * 业务角色类型编号
      */
-    @NotBlank(message = "业务角色序号不能为空！", groups = AddGroup.class)
     private String bizRoleTypeNo;
+
     /**
      * 租户
      */
-    @NotBlank(message = "租户ID不能为空！", groups = AddGroup.class)
     private String tenantId;
 
 }

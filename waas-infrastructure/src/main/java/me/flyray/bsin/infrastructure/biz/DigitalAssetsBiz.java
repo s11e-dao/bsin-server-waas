@@ -33,7 +33,7 @@ import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 import me.flyray.bsin.domain.entity.MetadataFile;
 import me.flyray.bsin.domain.entity.MetadataTemplate;
 import me.flyray.bsin.domain.entity.MintJournal;
-import me.flyray.bsin.domain.entity.WaasTransferJournal;
+import me.flyray.bsin.domain.entity.TransferJournal;
 import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.enums.FileType;
 import me.flyray.bsin.exception.BusinessException;
@@ -382,7 +382,7 @@ public class DigitalAssetsBiz {
       String contract,
       String privateKey,
       boolean addPrivilege,
-      WaasTransferJournal waasTransferJournal,
+      TransferJournal waasTransferJournal,
       ContractProtocol contractProtocol) {
 
     log.debug("DigitalAssetsBiz transfer 请求参数:{}", JSON.toJSONString(waasTransferJournal));

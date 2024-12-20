@@ -176,7 +176,7 @@ public class OrderbookServiceImpl implements OrderbookService {
         DigitalAssetsCollection digitalAssetsColletion = digitalAssetsMapper.selectById(orderbook.getFromDigitalAssetsNo());
 
         // TODO 4、数字资产执行链上转移
-        WaasTransferJournal waasTransferJournal = new WaasTransferJournal();
+        TransferJournal waasTransferJournal = new TransferJournal();
         ContractProtocol fromContractProtocol = contractProtocolMapper.getContractProtocolByContract(orderbook.getFromDigitalAssetsNo());
         // 虚拟账户入账
         //ContractProtocol toontractProtocol = contractProtocolMapper.getContractProtocolByContract(orderbook.getToDigitalAssetsNo());

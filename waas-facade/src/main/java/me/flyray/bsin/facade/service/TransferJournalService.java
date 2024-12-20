@@ -1,7 +1,7 @@
 package me.flyray.bsin.facade.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import me.flyray.bsin.domain.entity.WaasTransferJournal;
+import me.flyray.bsin.domain.entity.TransferJournal;
 
 import java.util.Map;
 
@@ -16,6 +16,6 @@ public interface TransferJournalService {
   public IPage<?> getPageList(Map<String, Object> requestMap);
 
   /** 转让详情 */
-  public WaasTransferJournal getDetail(Map<String, Object> requestMap);
+  public TransferJournal getDetail(Map<String, Object> requestMap);
 
 }
