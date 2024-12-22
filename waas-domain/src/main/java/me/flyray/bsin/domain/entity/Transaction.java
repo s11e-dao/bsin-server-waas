@@ -70,6 +70,7 @@ public class Transaction extends BaseEntity implements Serializable {
 
     /**
      * 源地址
+     * 源类型 1、结算账号 2、链地址
      */
     private String fromAddress;
 
@@ -80,14 +81,9 @@ public class Transaction extends BaseEntity implements Serializable {
 
     /**
      * 目标地址
-     */
-    private String toAddress;
-
-    /**
-     * 目标地址类型： crm中结算账号ID
      * 地址类型 1、结算账号 2、链地址
      */
-    private String addressType;
+    private String toAddress;
 
     /**
      * 备注
