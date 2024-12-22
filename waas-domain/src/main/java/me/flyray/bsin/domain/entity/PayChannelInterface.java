@@ -21,12 +21,12 @@ public class PayChannelInterface implements Serializable {
      * @see PayInterfaceCode
      */
     @TableId
-    private String payInterfaceCode;
+    private String payChannelCode;
 
     /**
      * 接口名称
      */
-    private String payInterfaceName;
+    private String payChannelName;
 
     /**
      * 支付参数配置页面类型:1-JSON渲染,2-自定义

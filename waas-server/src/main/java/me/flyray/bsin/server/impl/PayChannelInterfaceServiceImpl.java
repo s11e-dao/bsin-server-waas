@@ -89,8 +89,8 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         Page<PayChannelInterface> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
         PayChannelInterface payChannelInterface = BsinServiceContext.getReqBodyDto(PayChannelInterface.class, requestMap);
         LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
-        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceCode()), PayChannelInterface::getPayInterfaceCode, payChannelInterface.getPayInterfaceCode());
-        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceName()), PayChannelInterface::getPayInterfaceName, payChannelInterface.getPayInterfaceName());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelCode()), PayChannelInterface::getPayChannelCode, payChannelInterface.getPayChannelCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelName()), PayChannelInterface::getPayChannelName, payChannelInterface.getPayChannelName());
         warapper.orderByDesc(PayChannelInterface::getCreateTime);
         warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
         IPage<PayChannelInterface> pageList = payChannelInterfaceMapper.selectPage(page, warapper);
@@ -104,8 +104,8 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         PayChannelInterface payChannelInterface = BsinServiceContext.getReqBodyDto(PayChannelInterface.class, requestMap);
         LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
-        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceCode()), PayChannelInterface::getPayInterfaceCode, payChannelInterface.getPayInterfaceCode());
-        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayInterfaceName()), PayChannelInterface::getPayInterfaceName, payChannelInterface.getPayInterfaceName());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelCode()), PayChannelInterface::getPayChannelCode, payChannelInterface.getPayChannelCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelName()), PayChannelInterface::getPayChannelName, payChannelInterface.getPayChannelName());
         warapper.orderByDesc(PayChannelInterface::getCreateTime);
         warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
         return payChannelInterfaceMapper.selectList(warapper);

@@ -33,7 +33,7 @@ public class PayChannelConfig implements Serializable {
     /**
      * 支付接口代码
      */
-    private String payInterfaceCode;
+    private String payChannelCode;
 
     /**
      * 接口配置参数,json字符串

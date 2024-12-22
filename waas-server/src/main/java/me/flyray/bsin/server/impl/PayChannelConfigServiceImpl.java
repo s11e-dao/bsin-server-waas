@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
+import me.flyray.bsin.domain.entity.DisBrokerageConfig;
 import me.flyray.bsin.domain.entity.Event;
 import me.flyray.bsin.domain.entity.PayChannelConfig;
 import me.flyray.bsin.domain.entity.PayChannelInterface;
@@ -44,6 +45,11 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
     @Autowired
     private PayChannelConfigMapper payChannelConfigMapper;
 
+    /**
+     * 一个bizRoleAppId在一个payChannelCode中只会存在一条
+     * @param requestMap
+     * @return
+     */
     @ApiDoc(desc = "add")
     @ShenyuDubboClient("/add")
     @Override
@@ -52,7 +58,19 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         PayChannelConfig payChannelConfig = BsinServiceContext.getReqBodyDto(PayChannelConfig.class, requestMap);
         payChannelConfig.setTenantId(loginUser.getTenantId());
         payChannelConfig.setSerialNo(BsinSnowflake.getId());
-        payChannelConfigMapper.insert(payChannelConfig);
+        // 构建查询条件
+        LambdaQueryWrapper<PayChannelConfig> wrapper = new LambdaQueryWrapper<PayChannelConfig>()
+                .eq(PayChannelConfig::getTenantId, loginUser.getTenantId())
+                .eq(PayChannelConfig::getPayChannelCode, payChannelConfig.getPayChannelCode());
+        // 查询记录
+        PayChannelConfig existingPayChannelConfig = payChannelConfigMapper.selectOne(wrapper);
+        if (existingPayChannelConfig == null) {
+            // 记录不存在，插入新记录
+            payChannelConfigMapper.insert(payChannelConfig);
+        } else {
+            // 记录存在，更新记录
+            payChannelConfigMapper.updateById(payChannelConfig);
+        }
         return payChannelConfig;
     }
 
@@ -103,7 +121,7 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         PayChannelConfig payChannelConfig = BsinServiceContext.getReqBodyDto(PayChannelConfig.class, requestMap);
         LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
-        warapper.eq(ObjectUtil.isNotNull(payChannelConfig.getPayInterfaceCode()), PayChannelConfig::getPayInterfaceCode, payChannelConfig.getPayInterfaceCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelConfig.getPayChannelCode()), PayChannelConfig::getPayChannelCode, payChannelConfig.getPayChannelCode());
         warapper.orderByDesc(PayChannelConfig::getCreateTime);
         warapper.eq(PayChannelConfig::getTenantId, loginUser.getTenantId());
         return payChannelConfigMapper.selectList(warapper);
