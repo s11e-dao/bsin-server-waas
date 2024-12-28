@@ -6,9 +6,11 @@ import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
 import com.github.binarywang.wxpay.bean.result.enums.TradeTypeEnum;
+import com.github.binarywang.wxpay.bean.transfer.TransferBatchesRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.TransferService;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.constants.ResponseCode;
@@ -263,6 +265,8 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     return requestMap;
   }
 
+
+
   /**
    * 根据支付方式判断处理
    *
@@ -289,5 +293,30 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     //    log.info(wxPayOrderQueryResult.toString());
     //    requestMap.put("orderResult", wxPayOrderQueryResult);
     return requestMap;
+  }
+
+  /**
+   * 商户提现转账接口
+   * @param requestMap
+   * @return
+   */
+  @Override
+  public Map<String, Object> transfer(Map<String, Object> requestMap) {
+
+    WxPayConfig wxPayConfig = new WxPayConfig();
+
+    TransferService wxTransferService = bsinWxPayServiceUtil.getWxTransferService(wxPayConfig);
+
+    TransferBatchesRequest transferBatchesRequest = new TransferBatchesRequest();
+
+    try {
+      wxTransferService.transferBatches(transferBatchesRequest);
+    } catch (WxPayException e) {
+      e.printStackTrace();
+      //        log.info("支付异常{}", e);
+      throw new BusinessException("100000", "微信支付创建订单失败：" + e.getMessage());
+    }
+
+    return null;
   }
 }

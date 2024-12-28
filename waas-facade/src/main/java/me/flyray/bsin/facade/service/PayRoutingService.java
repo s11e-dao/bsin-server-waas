@@ -19,4 +19,11 @@ public interface PayRoutingService {
 
   public Map<String, Object> queryOrder(Map<String, Object> requestMap);
 
+  /**
+   * 根据支付方式进行第三调用转账：用于用户提现
+   * @param requestMap
+   * @return
+   */
+  public Map<String, Object> transfer(Map<String, Object> requestMap);
+
 }
