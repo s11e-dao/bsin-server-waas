@@ -322,6 +322,12 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     return null;
   }
 
+  @Override
+  public Map<String, Object> entPay(Map<String, Object> requestMap) {
+    return null;
+  }
+
+
   /**
    * 支付成功后进行分账
    * @param requestMap
