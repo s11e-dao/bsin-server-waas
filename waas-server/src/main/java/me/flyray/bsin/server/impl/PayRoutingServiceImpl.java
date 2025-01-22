@@ -3,6 +3,7 @@ package me.flyray.bsin.server.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
+import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
 import com.github.binarywang.wxpay.bean.result.enums.TradeTypeEnum;
@@ -10,6 +11,7 @@ import com.github.binarywang.wxpay.bean.transfer.TransferBatchesRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.ProfitSharingService;
 import com.github.binarywang.wxpay.service.TransferService;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
@@ -314,9 +316,31 @@ public class PayRoutingServiceImpl implements PayRoutingService {
     } catch (WxPayException e) {
       e.printStackTrace();
       //        log.info("支付异常{}", e);
-      throw new BusinessException("100000", "微信支付创建订单失败：" + e.getMessage());
+      throw new BusinessException("100000", "微信转账创建订单失败：" + e.getMessage());
     }
 
     return null;
   }
+
+  /**
+   * 支付成功后进行分账
+   * @param requestMap
+   * @return
+   */
+  @Override
+  public Map<String, Object> profitsharing(Map<String, Object> requestMap){
+    WxPayConfig wxPayConfig = new WxPayConfig();
+    ProfitSharingService wxProfitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
+    ProfitSharingRequest profitSharingRequest = new ProfitSharingRequest();
+    try {
+      wxProfitSharingService.multiProfitSharing(profitSharingRequest);
+    }catch (WxPayException e) {
+      e.printStackTrace();
+      //        log.info("支付异常{}", e);
+      throw new BusinessException("100000", "微信分账创建订单失败：" + e.getMessage());
+    }
+    return null;
+  }
+
+
 }

@@ -26,4 +26,18 @@ public interface PayRoutingService {
    */
   public Map<String, Object> transfer(Map<String, Object> requestMap);
 
+  /**
+   * 企业付款到零钱
+   * @param requestMap
+   * @return
+   */
+  public Map<String, Object> entPay(Map<String, Object> requestMap);
+
+  /**
+   * 根据支付方式进行第三调用分账：分账
+   * @param requestMap
+   * @return
+   */
+  public Map<String, Object> profitsharing(Map<String, Object> requestMap);
+
 }
