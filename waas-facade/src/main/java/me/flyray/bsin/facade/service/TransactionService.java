@@ -15,11 +15,11 @@ import java.util.Map;
 public interface TransactionService {
 
     /**
-     * 支付
+     * 根据支付方式进行第三调用
      * @param requestMap
      * @return
      */
-    public Transaction pay(Map<String, Object> requestMap);
+    public Map<String, Object> pay(Map<String, Object> requestMap);
 
     /**
      * 充值
@@ -112,6 +112,10 @@ public interface TransactionService {
     Page<Transaction> getPageList(TransactionDTO transactionDTO);
 
     public Transaction getDetail(Map<String, Object> requestMap);
+
+    public Map<String, Object> profitsharing(Map<String, Object> requestMap);
+
+    public Map<String, Object> queryOrder(Map<String, Object> requestMap);
 
 //    /**
 //     * 转入通知
