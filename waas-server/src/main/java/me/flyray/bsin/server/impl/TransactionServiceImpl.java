@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundResult;
 import com.github.binarywang.wxpay.bean.result.enums.TradeTypeEnum;
 import com.github.binarywang.wxpay.bean.transfer.TransferBatchesRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
@@ -344,6 +346,17 @@ public class TransactionServiceImpl  implements TransactionService {
 
     @Override
     public Transaction refund(Map<String, Object> requestMap) {
+        WxPayConfig wxPayConfig = new WxPayConfig();
+        WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
+        WxPayRefundRequest request = new WxPayRefundRequest();
+        try {
+            WxPayRefundResult wxPayRefundResult = wxPayService.refund(request);
+        }catch (WxPayException e) {
+            e.printStackTrace();
+            //        log.info("支付异常{}", e);
+            throw new BusinessException("100000", "微信分账创建订单失败：" + e.getMessage());
+        }
+
         return null;
     }
 
