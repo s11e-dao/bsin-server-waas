@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
-import me.flyray.bsin.domain.entity.Event;
-import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.PayWayService;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
 import static me.flyray.bsin.constants.ResponseCode.SERIAL_NO_NOT_EXIST;
 
 /**
