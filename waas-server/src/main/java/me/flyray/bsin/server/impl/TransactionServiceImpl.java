@@ -76,9 +76,8 @@ public class TransactionServiceImpl  implements TransactionService {
 
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
-    @Autowired private TransactionMapper waasTransactionMapper;
     @Autowired private PayChannelConfigMapper payChannelConfigMapper;
-    @Autowired private TransactionJournalMapper waasTransactionJournalMapper;
+    @Autowired private TransactionJournalMapper transactionJournalMapper;
 
     @DubboReference(version = "${dubbo.provider.version}")
     private BizRoleAppService bizRoleAppService;
@@ -126,7 +125,7 @@ public class TransactionServiceImpl  implements TransactionService {
 
         // 1.创建交易订单
         Transaction waasTransaction =
-                waasTransactionMapper.selectOne(
+                transactionMapper.selectOne(
                         new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
         // 订单已支付成功,直接返回
         if (waasTransaction != null
@@ -148,11 +147,11 @@ public class TransactionServiceImpl  implements TransactionService {
             waasTransaction.setCreateTime(new Date());
             waasTransaction.setFromAddress(customerNo);
             waasTransaction.setCreateBy(customerNo);
-            waasTransactionMapper.insert(waasTransaction);
+            transactionMapper.insert(waasTransaction);
         }
         // 2、创建支付转账流水
         TransactionJournal waasTransactionJournal =
-                waasTransactionJournalMapper.selectOne(
+                transactionJournalMapper.selectOne(
                         new LambdaQueryWrapper<TransactionJournal>()
                                 .eq(TransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
         if (waasTransactionJournal == null) {
@@ -161,7 +160,7 @@ public class TransactionServiceImpl  implements TransactionService {
             waasTransactionJournal.setPayAmount(new BigDecimal(payAmount));
             waasTransactionJournal.setSerialNo(BsinSnowflake.getId());
             waasTransactionJournal.setStatus(TransactionStatus.PENDING.getCode());
-            waasTransactionJournalMapper.insert(waasTransactionJournal);
+            transactionJournalMapper.insert(waasTransactionJournal);
         }
 
         WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
@@ -346,7 +345,29 @@ public class TransactionServiceImpl  implements TransactionService {
 
     @Override
     public Transaction refund(Map<String, Object> requestMap) {
+        String bizRoleAppId = MapUtils.getString(requestMap, "appId");
+        // 支付配置应用: 从商户应用配置的支付应用中获取
+        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
+        warapper.orderByDesc(PayChannelConfig::getCreateTime);
+        PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
+        if (payChannelConfig == null) {
+            throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
+        }
+        JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
+
+        String apiVersion = payChannelConfigParams.getString("apiVersion");
+        String key = payChannelConfigParams.getString("key");
+        String keyPath = payChannelConfigParams.getString("keyPath");
+        String appId = payChannelConfigParams.getString("appId");
+        String mchId = payChannelConfigParams.getString("mchId");
+
         WxPayConfig wxPayConfig = new WxPayConfig();
+        wxPayConfig.setAppId(appId);
+        wxPayConfig.setMchId(mchId);
+        wxPayConfig.setMchKey(key);
+        wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
+
         WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
         WxPayRefundRequest request = new WxPayRefundRequest();
         try {
@@ -509,7 +530,30 @@ public class TransactionServiceImpl  implements TransactionService {
      */
     @Override
     public Map<String, Object> profitsharing(Map<String, Object> requestMap){
+
+        String bizRoleAppId = MapUtils.getString(requestMap, "appId");
+        // 支付配置应用: 从商户应用配置的支付应用中获取
+        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
+        warapper.orderByDesc(PayChannelConfig::getCreateTime);
+        PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
+        if (payChannelConfig == null) {
+            throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
+        }
+        JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
+
+        String apiVersion = payChannelConfigParams.getString("apiVersion");
+        String key = payChannelConfigParams.getString("key");
+        String keyPath = payChannelConfigParams.getString("keyPath");
+        String appId = payChannelConfigParams.getString("appId");
+        String mchId = payChannelConfigParams.getString("mchId");
+
         WxPayConfig wxPayConfig = new WxPayConfig();
+        wxPayConfig.setAppId(appId);
+        wxPayConfig.setMchId(mchId);
+        wxPayConfig.setMchKey(key);
+        wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
+
         ProfitSharingService wxProfitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
         ProfitSharingRequest profitSharingRequest = new ProfitSharingRequest();
         try {
