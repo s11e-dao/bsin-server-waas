@@ -43,7 +43,7 @@ public class PayChannelInterface implements Serializable {
      * 支持的支付方式 ["wxpay_jsapi", "wxpay_bar"]
      * @see me.flyray.bsin.domain.enums.PayWayEnum
      */
-    private Object wayCode;
+    private String wayCode;
 
     /**
      * 页面展示：卡片-图标

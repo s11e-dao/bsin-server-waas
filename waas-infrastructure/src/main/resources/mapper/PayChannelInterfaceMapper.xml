@@ -9,7 +9,7 @@
             <result property="payChannelName" column="pay_channel_name" jdbcType="VARCHAR"/>
             <result property="configPageType" column="config_page_type" jdbcType="TINYINT"/>
             <result property="params" column="params" jdbcType="VARCHAR"/>
-            <result property="wayCode" column="way_code" jdbcType="OTHER"/>
+            <result property="wayCode" column="way_code" jdbcType="VARCHAR"/>
             <result property="icon" column="icon" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
