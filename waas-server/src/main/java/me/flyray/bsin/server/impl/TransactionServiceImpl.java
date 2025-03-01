@@ -186,6 +186,7 @@ public class TransactionServiceImpl  implements TransactionService {
             String keyPath = payChannelConfigParams.getString("keyPath");
             appId = payChannelConfigParams.getString("appId");
             String mchId = payChannelConfigParams.getString("mchId");
+            notifyUrl = payChannelConfigParams.getString("notifyUrl");
 
             WxPayConfig wxPayConfig = new WxPayConfig();
             wxPayConfig.setAppId(appId);
