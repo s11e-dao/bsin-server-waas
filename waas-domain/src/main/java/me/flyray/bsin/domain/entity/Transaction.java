@@ -1,5 +1,6 @@
 package me.flyray.bsin.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -21,6 +22,12 @@ import java.math.BigDecimal;
 @Data
 @TableName(value ="waas_transaction")
 public class Transaction extends BaseEntity implements Serializable {
+
+    /**
+     * ID
+     */
+    @TableId
+    private String serialNo;
 
     /**
      * @see TransactionType

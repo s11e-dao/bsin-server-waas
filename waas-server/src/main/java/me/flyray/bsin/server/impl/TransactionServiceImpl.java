@@ -225,7 +225,7 @@ public class TransactionServiceImpl  implements TransactionService {
                     wxPayRequest.setSpbillCreateIp("127.0.0.1");
                     // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
                     //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
-                    notifyUrl = payChannelConfigParams.getString("notifyUrl");
+//                    notifyUrl = payChannelConfigParams.getString("notifyUrl");
                     wxPayRequest.setNotifyUrl(notifyUrl);
                     // 小程序支付统一下单接口：
                     wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);

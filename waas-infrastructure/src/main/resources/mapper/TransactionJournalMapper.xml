@@ -22,7 +22,7 @@
 
     <update id="updateTransferStatus">
         update waas_transaction_journal
-        set transaction_no = #{transactionNo}
-        where serialNo = #{serialNo}
+        set status = #{status}
+        where transaction_no = #{transactionNo}
     </update>
 </mapper>

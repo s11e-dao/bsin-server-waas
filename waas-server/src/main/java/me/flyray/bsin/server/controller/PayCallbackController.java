@@ -99,6 +99,7 @@ public class PayCallbackController {
       if (waasTransaction == null) {
         return WxPayNotifyResponse.fail("未找到交易订单");
       }
+      // 更新交易流水
       if ("SUCCESS".equals(result.getResultCode())) {
         waasTransaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
         waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.SUCCESS.getCode());
