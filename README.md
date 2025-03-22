@@ -4,7 +4,7 @@
 
 一、火源钱包设计方案
 
-![avatar](./doc/images/wallet-arch.png)
+![avatar](./doc/images/dwaas.png)
 
 1.1 架构设计
 火源钱包采用先进的前后端分离、容器化微服务架构设计，支持WaaS服务，旨在确保Web3资产的安全控制和转移。
@@ -15,6 +15,8 @@
 - 资产管理：全面管理和监控用户的数字资产。
 - 交易：安全、高效地处理资产交易。
 - DApp应用接入：开放API，支持与各类DApp应用实现无缝对接。
+
+![avatar](./doc/images/wallet-arch.png)
 
 1.3 用户界面
 
