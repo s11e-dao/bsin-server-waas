@@ -11,7 +11,6 @@ import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.validate.AddGroup;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 

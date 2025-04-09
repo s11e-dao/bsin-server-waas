@@ -5,13 +5,13 @@
     <parent>
         <groupId>me.flyray.bsin</groupId>
         <artifactId>bsin-server-apps</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bsin-server-waas</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>bsin-server-waas</name>
     <description>bsin-paas平台：原子服务开发脚手架</description>
 
@@ -23,11 +23,9 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version>
-        <scaffold.version>2.0.0-SNAPSHOT</scaffold.version>
-        <bsin.paas.starter>2.0.0-SNAPSHOT</bsin.paas.starter>
+        <java.version>17</java.version>
+        <bsin.paas.starter>3.0.0-SNAPSHOT</bsin.paas.starter>
         <lombok.version>1.18.20</lombok.version>
-        <flowable.version>6.7.2.32</flowable.version>
     </properties>
 
     <dependencies>

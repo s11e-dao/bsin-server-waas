@@ -14,13 +14,11 @@ import me.flyray.bsin.blockchain.enums.ContractProtocolStandards;
 import me.flyray.bsin.constants.ResponseCode;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.*;
-import me.flyray.bsin.domain.enums.AccountCategory;
 import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.domain.enums.ObtainMethod;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.facade.request.DigitalAssetsPutShelvesDTO;
-import me.flyray.bsin.facade.service.AccountService;
 import me.flyray.bsin.facade.service.DigitalAssetsCollectionService;
 import me.flyray.bsin.infrastructure.biz.*;
 import me.flyray.bsin.infrastructure.mapper.*;
@@ -74,8 +72,8 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
   @Autowired private MerchantInfoBiz merchantInfoBiz;
   @Autowired private CrmAccountBiz crmAccountBiz;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private AccountService accountService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private AccountService accountService;
 
   /**
    * 部署数字资产智能合约：非同质化资产
@@ -271,10 +269,10 @@ public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollecti
 
     // 5.mint数字积分时对数字积分账户 account 进行 入账操作 用户DP余额账户入账
     //    requestMap.put("amount",amount);
-    requestMap.put("ccy", digitalAssetsCollection.getSymbol());
-    requestMap.put("category", AccountCategory.BALANCE.getCode());
-    requestMap.put("name", AccountCategory.BALANCE.getDesc());
-    accountService.inAccount(requestMap);
+//    requestMap.put("ccy", digitalAssetsCollection.getSymbol());
+//    requestMap.put("category", AccountCategory.BALANCE.getCode());
+//    requestMap.put("name", AccountCategory.BALANCE.getDesc());
+//    accountService.inAccount(requestMap);
 
   }
 

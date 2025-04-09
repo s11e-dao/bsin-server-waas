@@ -15,7 +15,6 @@ import me.flyray.bsin.domain.enums.WalletType;
 import me.flyray.bsin.domain.request.WalletDTO;
 import me.flyray.bsin.domain.response.WalletVO;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.facade.service.WalletService;
 import me.flyray.bsin.infrastructure.biz.WalletAccountBiz;
 import me.flyray.bsin.infrastructure.mapper.CustomerChainCoinMapper;
@@ -57,9 +56,6 @@ public class WalletServiceImpl implements WalletService {
   private WalletAccountBiz walletAccountBiz;
   @Autowired
   private CustomerChainCoinMapper customerChainCoinMapper;
-
-  @DubboReference(version = "${dubbo.provider.version}")
-  private CustomerService customerService;
 
   /**
    * 1、生成普通账户

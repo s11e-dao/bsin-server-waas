@@ -7,12 +7,10 @@ import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
-import me.flyray.bsin.domain.entity.BizRoleApp;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.enums.AppChannel;
-import me.flyray.bsin.facade.service.MemberService;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
@@ -56,8 +54,8 @@ public class PayCallbackController {
   @Autowired private TransactionMapper transactionMapper;
   @Autowired private TransactionJournalMapper waasTransactionJournalMapper;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private MemberService memberService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private MemberService memberService;
 
   /**
    * 1、解析回调包文
@@ -77,11 +75,11 @@ public class PayCallbackController {
       throws Exception {
     WxPayOrderNotifyResult result = null;
     try {
-      // 解析回调包文
-      BizRoleApp bizRoleApp = new BizRoleApp();
-      bizRoleApp.setAppChannel(AppChannel.WX_PAY.getType());
-      bizRoleApp.setMchId(mchId);
-      WxPayService wxPayService = getWxService(bizRoleApp);
+//      // 解析回调包文
+//      BizRoleApp bizRoleApp = new BizRoleApp();
+//      bizRoleApp.setAppChannel(AppChannel.WX_PAY.getType());
+//      bizRoleApp.setMchId(mchId);
+      WxPayService wxPayService = null ; //getWxService(null);
       result = wxPayService.parseOrderNotifyResult(body);
       log.info("处理腾讯支付平台的订单支付");
       log.info(JSONObject.toJSONString(result));
@@ -117,24 +115,25 @@ public class PayCallbackController {
     return WxPayNotifyResponse.success("success");
   }
 
-  private WxPayService getWxService(BizRoleApp merchantWxApp) {
-    WxPayService wxPayService = null;
-    if (StringUtils.equals(merchantWxApp.getAppChannel(), AppChannel.WX_PAY.getType())) {
-      log.info("微信支付应用");
-      WxPayConfig config = new WxPayConfig();
-      config.setMchId(merchantWxApp.getMchId());
-      //      SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, aesKey.getBytes());
-      //      config.setSecret(aes.decryptStr(merchantWxApp.getAppSecret(),
-      // CharsetUtil.CHARSET_UTF_8));
-      if (wxRedisConfig == null) {
-        wxRedisConfig = new WxRedisConfig();
-        wxRedisConfig.setHost(wxRedisHost);
-        wxRedisConfig.setPort(wxRedisPort);
-        wxRedisConfig.setPassword(wxRedisPassword);
-      }
-      wxPayService = (WxPayService) bsinWxPayServiceUtil.getWxPayService(config);
-    } else {
-    }
-    return wxPayService;
-  }
+//  private WxPayService getWxService(BizRoleApp merchantWxApp) {
+//    WxPayService wxPayService = null;
+//    if (StringUtils.equals(merchantWxApp.getAppChannel(), AppChannel.WX_PAY.getType())) {
+//      log.info("微信支付应用");
+//      WxPayConfig config = new WxPayConfig();
+////      config.setMchId(merchantWxApp.getMchId());
+//      //      SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, aesKey.getBytes());
+//      //      config.setSecret(aes.decryptStr(merchantWxApp.getAppSecret(),
+//      // CharsetUtil.CHARSET_UTF_8));
+//      if (wxRedisConfig == null) {
+//        wxRedisConfig = new WxRedisConfig();
+//        wxRedisConfig.setHost(wxRedisHost);
+//        wxRedisConfig.setPort(wxRedisPort);
+//        wxRedisConfig.setPassword(wxRedisPassword);
+//      }
+//      wxPayService = (WxPayService) bsinWxPayServiceUtil.getWxPayService(config);
+//    } else {
+//    }
+//    return wxPayService;
+//  }
+
 }

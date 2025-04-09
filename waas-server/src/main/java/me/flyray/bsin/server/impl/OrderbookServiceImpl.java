@@ -12,7 +12,6 @@ import me.flyray.bsin.domain.enums.OrderbookStatus;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.response.DigitalAssetsDetailRes;
 import me.flyray.bsin.facade.response.DigitalAssetsItemRes;
-import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.facade.service.OrderbookService;
 import me.flyray.bsin.infrastructure.biz.DigitalAssetsBiz;
 import me.flyray.bsin.infrastructure.biz.DigitalAssetsItemBiz;
@@ -63,8 +62,8 @@ public class OrderbookServiceImpl implements OrderbookService {
     @Autowired
     private DigitalAssetsItemBiz digitalAssetsItemBiz;
 
-    @DubboReference(version = "${dubbo.provider.version}")
-    private CustomerService customerService;
+//    @DubboReference(version = "${dubbo.provider.version}")
+//    private CustomerService customerService;
 
     /**
      * 用户将数字资产在集市上挂单卖出，兑换生态积分
@@ -230,21 +229,21 @@ public class OrderbookServiceImpl implements OrderbookService {
         if (customerNos.size() > 0){
             Map crmReqMap = new HashMap();
             crmReqMap.put("customerNos",customerNos);
-            List<CustomerBase> customerList = customerService.getListByCustomerNos(crmReqMap);
-            List<DigitalAssetsItemRes> digitalAssetsItemResList = new ArrayList<>();
-            for (DigitalAssetsItemRes digitalAssetsItemRes : orderbookPageList.getRecords()) {
-                // 找出客户信息
-                for (CustomerBase customer : customerList) {
-                    if (digitalAssetsItemRes.getCustomerNo().equals(customer.getCustomerNo())){
-                        digitalAssetsItemRes.setUsername(customer.getUsername());
-                        digitalAssetsItemRes.setAvatar(customer.getAvatar());
-                    }else if(digitalAssetsItemRes.getMerchantNo().equals(customer.getCustomerNo())){
-                        digitalAssetsItemRes.setMerchantName(customer.getUsername());
-                    }
-                }
-                digitalAssetsItemResList.add(digitalAssetsItemRes);
-            }
-            orderbookPageList.setRecords(digitalAssetsItemResList);
+//            List<CustomerBase> customerList = customerService.getListByCustomerNos(crmReqMap);
+//            List<DigitalAssetsItemRes> digitalAssetsItemResList = new ArrayList<>();
+//            for (DigitalAssetsItemRes digitalAssetsItemRes : orderbookPageList.getRecords()) {
+//                // 找出客户信息
+//                for (CustomerBase customer : customerList) {
+//                    if (digitalAssetsItemRes.getCustomerNo().equals(customer.getCustomerNo())){
+//                        digitalAssetsItemRes.setUsername(customer.getUsername());
+//                        digitalAssetsItemRes.setAvatar(customer.getAvatar());
+//                    }else if(digitalAssetsItemRes.getMerchantNo().equals(customer.getCustomerNo())){
+//                        digitalAssetsItemRes.setMerchantName(customer.getUsername());
+//                    }
+//                }
+//                digitalAssetsItemResList.add(digitalAssetsItemRes);
+//            }
+//            orderbookPageList.setRecords(digitalAssetsItemResList);
         }
         return orderbookPageList;
     }

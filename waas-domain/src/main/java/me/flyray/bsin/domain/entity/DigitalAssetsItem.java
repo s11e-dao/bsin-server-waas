@@ -13,8 +13,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
-import javax.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import me.flyray.bsin.validate.AddGroup;
 import me.flyray.bsin.validate.EditGroup;

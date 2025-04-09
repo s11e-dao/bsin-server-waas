@@ -6,12 +6,7 @@ import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.blockchain.enums.ChainType;
 import me.flyray.bsin.constants.ResponseCode;
-import me.flyray.bsin.domain.entity.CustomerBase;
-import me.flyray.bsin.domain.entity.Merchant;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.AccountService;
-import me.flyray.bsin.facade.service.CustomerService;
-import me.flyray.bsin.facade.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,16 +22,16 @@ public class MerchantInfoBiz {
     @Value("${bsin.jiujiu.aesKey}")
     private String aesKey;
 
-    @DubboReference(version = "${dubbo.provider.version}")
-    private MerchantService merchantService;
+//    @DubboReference(version = "${dubbo.provider.version}")
+//    private MerchantService merchantService;
 
-    public Merchant getMerchantBase(String merchantNo, String chainType) {
-        // 1.查找资产商户
-        Map<String, Object> reqMerchant = new HashMap();
-        reqMerchant.put("serialNo", merchantNo);
-        Merchant merchant = merchantService.getDetail(reqMerchant);
-        return merchant;
-    }
+//    public Merchant getMerchantBase(String merchantNo, String chainType) {
+//        // 1.查找资产商户
+//        Map<String, Object> reqMerchant = new HashMap();
+//        reqMerchant.put("serialNo", merchantNo);
+//        Merchant merchant = merchantService.getDetail(reqMerchant);
+//        return merchant;
+//    }
 
     /**
      * 获取DigitalAssetsItem所属商户的信息
@@ -47,10 +42,10 @@ public class MerchantInfoBiz {
         // 1.查找资产商户
         Map<String, Object> reqMerchant = new HashMap();
         reqMerchant.put("serialNo", merchantNo);
-        Merchant merchant = merchantService.getDetail(reqMerchant);
+//        Merchant merchant = merchantService.getDetail(reqMerchant);
 
         // 2.查找资产商户的管理员客户
-        String merchanNo = merchant.getSerialNo();
+        String merchanNo = null; // merchant.getSerialNo();
 
         // TODO 3. 根据商户查询商户的钱包信息
         merchantDetail = new HashMap<>();

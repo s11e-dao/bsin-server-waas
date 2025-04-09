@@ -9,10 +9,6 @@ import java.math.BigInteger;
 import java.util.Date;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 /**
  * 客户等级权益利益表
  * @TableName da_customer_profile

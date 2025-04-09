@@ -2,7 +2,6 @@ package me.flyray.bsin.infrastructure.biz;
 
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.blockchain.enums.ChainEnv;
-import me.flyray.bsin.facade.service.AccountService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +12,8 @@ import java.util.Map;
 @Slf4j
 public class CrmAccountBiz {
 
-    @DubboReference(version = "${dubbo.provider.version}")
-    private AccountService accountService;
+//    @DubboReference(version = "${dubbo.provider.version}")
+//    private AccountService accountService;
 
     /**
      * 检验客户余额
@@ -24,7 +23,7 @@ public class CrmAccountBiz {
             Map reqMap = new HashMap();
             reqMap.put("customerNo", (String) customerBase.get("customerNo"));
             // TODO 调用crm中心冻结账户余额
-            accountService.freeze(reqMap);
+//            accountService.freeze(reqMap);
         }
         // TODO 判断用户账户余额是否充足
         else {

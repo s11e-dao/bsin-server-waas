@@ -7,9 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
-import me.flyray.bsin.domain.entity.CustomerBase;
 import me.flyray.bsin.domain.entity.CustomerPassCard;
-import me.flyray.bsin.domain.entity.Merchant;
 import me.flyray.bsin.facade.response.DigitalAssetsDetailRes;
 import me.flyray.bsin.facade.response.DigitalAssetsItemRes;
 import me.flyray.bsin.facade.service.*;
@@ -48,11 +46,11 @@ public class CustomerPassCardServiceImpl implements CustomerPassCardService {
 
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private CustomerService customerService;
-
-  @DubboReference(version = "${dubbo.provider.version}")
-  private MerchantService merchantService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private CustomerService customerService;
+//
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private MerchantService merchantService;
 
   @DubboReference(version = "${dubbo.provider.version}")
   private DigitalAssetsCollectionService digitalAssetsCollectionService;
@@ -134,16 +132,16 @@ public class CustomerPassCardServiceImpl implements CustomerPassCardService {
     if (merchantNos.size() > 0) {
       Map marketReqMap = new HashMap();
       marketReqMap.put("merchantNos", merchantNos);
-      List<Merchant> merchantList = merchantService.getListByMerchantNos(marketReqMap);
-      for (CustomerPassCard customerPassCard : customerPassCardList) {
-        // 找出客户信息
-        for (Merchant merchant : merchantList) {
-          if (customerPassCard.getMerchantNo().equals(merchant.getSerialNo())) {
-            customerPassCard.setMerchantName(merchant.getMerchantName());
-            customerPassCard.setMerchantLogo(merchant.getLogoUrl());
-          }
-        }
-      }
+//      List<Merchant> merchantList = merchantService.getListByMerchantNos(marketReqMap);
+//      for (CustomerPassCard customerPassCard : customerPassCardList) {
+//        // 找出客户信息
+//        for (Merchant merchant : merchantList) {
+//          if (customerPassCard.getMerchantNo().equals(merchant.getSerialNo())) {
+//            customerPassCard.setMerchantName(merchant.getMerchantName());
+//            customerPassCard.setMerchantLogo(merchant.getLogoUrl());
+//          }
+//        }
+//      }
     }
     return customerPassCardList;
   }
@@ -151,7 +149,7 @@ public class CustomerPassCardServiceImpl implements CustomerPassCardService {
   @ShenyuDubboClient("/getMemberList")
   @ApiDoc(desc = "getMemberList")
   @Override
-  public List<CustomerBase> getMemberList(Map<String, Object> requestMap) {
+  public List getMemberList(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     CustomerPassCard customerPassCardReq =
         BsinServiceContext.getReqBodyDto(CustomerPassCard.class, requestMap);
@@ -165,13 +163,13 @@ public class CustomerPassCardServiceImpl implements CustomerPassCardService {
       // 获取商户信息
       customerNos.add(customerPassCard.getCustomerNo());
     }
-    List<CustomerBase> customerList = new ArrayList<>();
-    if (customerNos.size() > 0) {
-      Map marketReqMap = new HashMap();
-      marketReqMap.put("customerNos", customerNos);
-      customerList = customerService.getListByCustomerNos(marketReqMap);
-    }
-    return customerList;
+//    List<CustomerBase> customerList = new ArrayList<>();
+//    if (customerNos.size() > 0) {
+//      Map marketReqMap = new HashMap();
+//      marketReqMap.put("customerNos", customerNos);
+//      customerList = customerService.getListByCustomerNos(marketReqMap);
+//    }
+    return null;
   }
 
   @ShenyuDubboClient("/getPageList")

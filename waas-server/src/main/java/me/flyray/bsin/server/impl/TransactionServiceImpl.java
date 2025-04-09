@@ -28,7 +28,6 @@ import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
 import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.BizRoleAppService;
 import me.flyray.bsin.facade.service.TransactionService;
 import me.flyray.bsin.infrastructure.mapper.*;
 import me.flyray.bsin.mybatis.utils.Pagination;
@@ -78,9 +77,6 @@ public class TransactionServiceImpl  implements TransactionService {
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
     @Autowired private PayChannelConfigMapper payChannelConfigMapper;
     @Autowired private TransactionJournalMapper transactionJournalMapper;
-
-    @DubboReference(version = "${dubbo.provider.version}")
-    private BizRoleAppService bizRoleAppService;
 
     @Autowired
     private TransactionMapper transactionMapper;

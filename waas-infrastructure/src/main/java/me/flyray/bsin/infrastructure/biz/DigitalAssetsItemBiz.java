@@ -14,8 +14,6 @@ import me.flyray.bsin.domain.enums.ObtainMethod;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.facade.response.DigitalAssetsDetailRes;
-import me.flyray.bsin.facade.service.AccountService;
-import me.flyray.bsin.facade.service.EquityConfigService;
 import me.flyray.bsin.infrastructure.mapper.*;
 import me.flyray.bsin.redis.provider.BsinCacheProvider;
 import me.flyray.bsin.redis.provider.BsinRedisProvider;
@@ -72,11 +70,10 @@ public class DigitalAssetsItemBiz {
 
   @Autowired private MerchantInfoBiz merchantInfoBiz;
 
-  @DubboReference(version = "dev")
-  private EquityConfigService equityConfigService;
-
-  @DubboReference(version = "dev")
-  private AccountService accountService;
+//  @DubboReference(version = "dev")
+//  private EquityConfigService equityConfigService;
+//  @DubboReference(version = "dev")
+//  private AccountService accountService;
 
   public DigitalAssetsDetailRes getDetail(
       String digitalAssetsCollectionNo, String itemSerialNo, BigInteger tokenId) {
@@ -96,12 +93,12 @@ public class DigitalAssetsItemBiz {
     }
 
     // 查询发行商户
-    Merchant merchant =
-            merchantInfoBiz.getMerchantBase(
-            digitalAssetsItem.getMerchantNo(), digitalAssetsItem.getChainType());
-
-    digitalAssetsItem.setMerchantName(merchant.getMerchantName());
-    digitalAssetsItem.setMerchantLogo(merchant.getLogoUrl());
+//    Merchant merchant =
+//            merchantInfoBiz.getMerchantBase(
+//            digitalAssetsItem.getMerchantNo(), digitalAssetsItem.getChainType());
+//
+//    digitalAssetsItem.setMerchantName(merchant.getMerchantName());
+//    digitalAssetsItem.setMerchantLogo(merchant.getLogoUrl());
     digitalAssetsDetailRes.setDigitalAssetsItem(digitalAssetsItem);
 
     // 数字资产Collection信息
@@ -116,7 +113,7 @@ public class DigitalAssetsItemBiz {
 
     Map requestMap = new HashMap();
     // 查询数字资产的权益和详情
-    List<Map> equityList = equityConfigService.getListByCategoryNo(requestMap);
+    List<Map> equityList = null; // equityConfigService.getListByCategoryNo(requestMap);
     digitalAssetsDetailRes.setEquityList(equityList);
     return digitalAssetsDetailRes;
   }
@@ -427,7 +424,7 @@ public class DigitalAssetsItemBiz {
       if (tokenIdStr == null) {
         // 从缓存中获取
         tokenIdStr = BsinCacheProvider.get("waas","tokenId:" + digitalAssetsItem.getSerialNo());
-        if (tokenIdStr == null || new Integer(tokenIdStr).longValue() < 1) {
+        if (tokenIdStr == null ||  Integer.valueOf(tokenIdStr).longValue() < 1) {
           // 设置当前铸造tokenId:
           tokenIdStr = String.valueOf(digitalAssetsItem.getCurrentMintTokenId());
           if (tokenIdStr == null || digitalAssetsItem.getCurrentMintTokenId().longValue() < 1) {

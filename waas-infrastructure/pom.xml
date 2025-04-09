@@ -6,11 +6,11 @@
     <parent>
         <groupId>me.flyray.bsin</groupId>
         <artifactId>bsin-server-waas</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>waas-infrastructure</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>waas-infrastructure</name>
     <packaging>jar</packaging>
 
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>bsin-common-utils</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -44,36 +44,31 @@
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>bsin-common-oss</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>bsin-common-redis</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>waas-facade</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>waas-domain</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>me.flyray.bsin</groupId>
-            <artifactId>crm-facade</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>bsin-common-blockchain</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
 

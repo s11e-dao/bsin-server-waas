@@ -1,12 +1,12 @@
 package me.flyray.bsin.domain.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import me.flyray.bsin.domain.entity.ChainCoin;
 import me.flyray.bsin.mybatis.utils.Pagination;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotNull;
 
 @Data
 public class ChainCoinDTO extends ChainCoin {

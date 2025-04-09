@@ -8,16 +8,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
-import me.flyray.bsin.domain.annotations.CaptureCustomerBehavior;
-import me.flyray.bsin.domain.entity.Account;
 import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 import me.flyray.bsin.domain.entity.TokenParam;
 import me.flyray.bsin.domain.entity.TokenReleaseJournal;
-import me.flyray.bsin.domain.enums.AccountCategory;
-import me.flyray.bsin.domain.enums.EventCode;
-import me.flyray.bsin.domain.enums.CustomerType;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.AccountService;
 import me.flyray.bsin.facade.service.DigitalPointsService;
 import me.flyray.bsin.facade.service.TokenParamService;
 import me.flyray.bsin.infrastructure.mapper.CustomerPassCardMapper;
@@ -59,12 +53,12 @@ public class TokenParamServiceImpl implements TokenParamService {
   @Autowired private CustomerPassCardMapper customerPassCardMapper;
   @Autowired private DigitalPointsService digitalPointsService;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private AccountService accountService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private AccountService accountService;
 
   @ShenyuDubboClient("/edit")
   @ApiDoc(desc = "edit")
-  @CaptureCustomerBehavior(behaviorCode = EventCode.ISSUE, customerType = CustomerType.PERSONAL)
+//  @CaptureCustomerBehavior(behaviorCode = EventCode.ISSUE, customerType = CustomerType.PERSONAL)
   @Override
   public TokenParam edit(Map<String, Object> requestMap) {
     TokenParam tokenParam = BsinServiceContext.getReqBodyDto(TokenParam.class, requestMap);
@@ -231,122 +225,122 @@ public class TokenParamServiceImpl implements TokenParamService {
     reqMap.put("merchantNo", merchantNo);
     reqMap.put("customerNo", customerNo);
     // 优先从缓存中获取
-    Account customerAccount =
-        BsinCacheProvider.get("waas",
-            "customerAccount:" + tenantId + merchantNo + customerNo + ccy);
-    if (customerAccount == null) {
-      if (customerAccountNo == null) {
-        // 币种：用币种英文代替
-        reqMap.put("ccy", ccy);
-        // 账户类别：比如总收入账户、总支出账户
-        reqMap.put("category", AccountCategory.BALANCE.getCode());
-        reqMap.put("name", AccountCategory.BALANCE.getDesc());
-        reqMap.put("openAccount", "false");
-      } else {
-        reqMap.put("serialId", customerAccountNo);
-      }
-      Map resMap = (Map) accountService.getDetail(reqMap);
-      Map respDataMap = (Map) resMap.get("data");
+//    Account customerAccount =
+//        BsinCacheProvider.get("waas",
+//            "customerAccount:" + tenantId + merchantNo + customerNo + ccy);
+//    if (customerAccount == null) {
+//      if (customerAccountNo == null) {
+//        // 币种：用币种英文代替
+//        reqMap.put("ccy", ccy);
+//        // 账户类别：比如总收入账户、总支出账户
+//        reqMap.put("category", AccountCategory.BALANCE.getCode());
+//        reqMap.put("name", AccountCategory.BALANCE.getDesc());
+//        reqMap.put("openAccount", "false");
+//      } else {
+//        reqMap.put("serialId", customerAccountNo);
+//      }
+//      Map resMap = (Map) accountService.getDetail(reqMap);
+//      Map respDataMap = (Map) resMap.get("data");
+//
+//      if (respDataMap.get("code") != null) {
+//        throw new BusinessException("释放余额账户不存在，不满足释放条件！！！");
+//      }
 
-      if (respDataMap.get("code") != null) {
-        throw new BusinessException("释放余额账户不存在，不满足释放条件！！！");
-      }
-
-      Map customerAccountMap = (Map) resMap.get("data");
-      releaseAccountBalance = (BigDecimal) customerAccountMap.get("balance");
-    } else {
-      releaseAccountBalance = customerAccount.getBalance();
-    }
-
-    // TODO: 根据释放方式：1、劳动价值释放， 2、购买释放， 3、周期释放 优化， 目前只支持：劳动价值释放-单元释放的触发价值(特指捕获劳动价值的积分数量)，每累计达到释放一次
-    // tokenReleaseParam.getReleaseMethod();
-
-    // 3.1. 根据兑换比例计算释放量
-    BigDecimal releaseAmount = releaseAccountBalance.multiply(tokenReleaseParam.getExchangeRate());
-
-    // 3.2. 判断预留量是否充足
-    if (tokenReleaseParam
-            .getTotalSupply()
-            .subtract(tokenReleaseParam.getCirculation())
-            .subtract(releaseAmount)
-            .compareTo(new BigDecimal(0))
-        < 0) {
-      throw new BusinessException("数字积分可流通量不足，无法释放，请联系社区管理员！！！");
-    }
-
-    // 3.3.检验释放条件
-    int flag = tokenReleaseParam.getUnitReleaseTriggerValue().compareTo(releaseAmount);
-    if (flag > 0) {
-      throw new BusinessException("不满足释放条件: 释放账户余额："
-              + releaseAccountBalance
-              + " < 触发余额："
-              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
-              + "+预留量："
-              + tokenReleaseParam.getReservedAmount().toString());
-      //      return RespBodyHandler.setRespBodyDto("不满足释放条件: 释放账户余额："
-      //              + releaseAccountBalance
-      //              + " < 触发余额："
-      //              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
-      //              + "+预留量："
-      //              + tokenReleaseParam.getReservedAmount().toString()
-      //          );
-      //      throw new BusinessException(
-      //          "100000",
-      //          "不满足释放条件: 释放账户余额："
-      //              + releaseAccountBalance
-      //              + " < 触发余额："
-      //              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
-      //              + "+预留量："
-      //              + tokenReleaseParam.getReservedAmount().toString());
-    }
-
-    //        // TODO 会员数太大需优化，查询分配用户群体，执行token释放分配
-    //        List<CustomerPassCard> customerPassCardList = customerPassCardMapper.selectList(new
-    // LambdaQueryWrapper<CustomerPassCard>()
-    //                .eq(CustomerPassCard::getMerchantNo, customerNo));
-    //        // 计算占比进行入账操作
-    //        for (CustomerPassCard customerPassCard : customerPassCardList) {
-    //            // 查询客户的曲线积分
-    //            Map<String, Object> accountReq = new HashMap<>();
-    //            accountReq.put("tenantId", customerPassCard.getTenantId());
-    //            accountReq.put("customerNo", customerPassCard.getCustomerNo());
-    //            accountReq.put("category", AccountCategory.BALANCE.getCode());
-    //            accountReq.put("ccy", CcyType.BC.getCode());
-    //            Map<String, Object> accountData = customerAccountService.getDetail(accountReq);
-    //            Map<String, Object> accountDetail = (Map<String, Object>)accountData.get("data");
-    //            // 入账金额
-    //            BigDecimal bcTokenBalance = new
-    // BigDecimal(accountDetail.get("balance").toString());
-    //            BigDecimal amout =
-    // bcTokenBalance.divide(accumulateBcTokenBalance).multiply(tokenReleaseParam.getUnitReleaseAmout());
-    //            Map<String, Object> inAccountReq = new HashMap<>();
-    //            accountReq.put("tenantId", customerPassCard.getTenantId());
-    //            accountReq.put("customerNo", customerPassCard.getCustomerNo());
-    //            accountReq.put("category", AccountCategory.BALANCE.getCode());
-    //            accountReq.put("name", AccountCategory.BALANCE.getDesc());
-    //            accountReq.put("ccy", CcyType.DP.getCode());
-    //            inAccountReq.put("amout", amout);
-    //            // TODO 先入账处理，后期直接改成铸造在链上
-    //            customerAccountService.inAccount(inAccountReq);
-    //        }
-
-    // 4.释放token，进行链上铸造: releaseAmount
-    reqMap.put("amount", releaseAmount);
-    reqMap.put("digitalAssetsCollectionNo", digitalAssetsCollectionNo);
-    digitalPointsService.mint(reqMap);
-
-    // 5.生成释放分配流水
-    TokenReleaseJournal tokenReleaseJournal = new TokenReleaseJournal();
-    BeanUtil.copyProperties(tokenReleaseParam, tokenReleaseJournal);
-    tokenReleaseJournal.setSerialNo(BsinSnowflake.getId());
-    tokenReleaseJournal.setAmout(releaseAmount);
-    tokenReleaseJournal.setCustomerNo(customerNo);
-    tokenReleaseJournalMapper.insert(tokenReleaseJournal);
-
-    // 6.更新当前流通量
-    tokenReleaseParam.setCirculation(
-        tokenReleaseParam.getCirculation().add(tokenReleaseParam.getUnitReleaseAmout()));
-    tokenParamMapper.updateById(tokenReleaseParam);
+//      Map customerAccountMap = (Map) resMap.get("data");
+//      releaseAccountBalance = (BigDecimal) customerAccountMap.get("balance");
+//    } else {
+//      releaseAccountBalance = customerAccount.getBalance();
+//    }
+//
+//    // TODO: 根据释放方式：1、劳动价值释放， 2、购买释放， 3、周期释放 优化， 目前只支持：劳动价值释放-单元释放的触发价值(特指捕获劳动价值的积分数量)，每累计达到释放一次
+//    // tokenReleaseParam.getReleaseMethod();
+//
+//    // 3.1. 根据兑换比例计算释放量
+//    BigDecimal releaseAmount = releaseAccountBalance.multiply(tokenReleaseParam.getExchangeRate());
+//
+//    // 3.2. 判断预留量是否充足
+//    if (tokenReleaseParam
+//            .getTotalSupply()
+//            .subtract(tokenReleaseParam.getCirculation())
+//            .subtract(releaseAmount)
+//            .compareTo(new BigDecimal(0))
+//        < 0) {
+//      throw new BusinessException("数字积分可流通量不足，无法释放，请联系社区管理员！！！");
+//    }
+//
+//    // 3.3.检验释放条件
+//    int flag = tokenReleaseParam.getUnitReleaseTriggerValue().compareTo(releaseAmount);
+//    if (flag > 0) {
+//      throw new BusinessException("不满足释放条件: 释放账户余额："
+//              + releaseAccountBalance
+//              + " < 触发余额："
+//              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
+//              + "+预留量："
+//              + tokenReleaseParam.getReservedAmount().toString());
+//      //      return RespBodyHandler.setRespBodyDto("不满足释放条件: 释放账户余额："
+//      //              + releaseAccountBalance
+//      //              + " < 触发余额："
+//      //              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
+//      //              + "+预留量："
+//      //              + tokenReleaseParam.getReservedAmount().toString()
+//      //          );
+//      //      throw new BusinessException(
+//      //          "100000",
+//      //          "不满足释放条件: 释放账户余额："
+//      //              + releaseAccountBalance
+//      //              + " < 触发余额："
+//      //              + tokenReleaseParam.getUnitReleaseTriggerValue().toString()
+//      //              + "+预留量："
+//      //              + tokenReleaseParam.getReservedAmount().toString());
+//    }
+//
+//    //        // TODO 会员数太大需优化，查询分配用户群体，执行token释放分配
+//    //        List<CustomerPassCard> customerPassCardList = customerPassCardMapper.selectList(new
+//    // LambdaQueryWrapper<CustomerPassCard>()
+//    //                .eq(CustomerPassCard::getMerchantNo, customerNo));
+//    //        // 计算占比进行入账操作
+//    //        for (CustomerPassCard customerPassCard : customerPassCardList) {
+//    //            // 查询客户的曲线积分
+//    //            Map<String, Object> accountReq = new HashMap<>();
+//    //            accountReq.put("tenantId", customerPassCard.getTenantId());
+//    //            accountReq.put("customerNo", customerPassCard.getCustomerNo());
+//    //            accountReq.put("category", AccountCategory.BALANCE.getCode());
+//    //            accountReq.put("ccy", CcyType.BC.getCode());
+//    //            Map<String, Object> accountData = customerAccountService.getDetail(accountReq);
+//    //            Map<String, Object> accountDetail = (Map<String, Object>)accountData.get("data");
+//    //            // 入账金额
+//    //            BigDecimal bcTokenBalance = new
+//    // BigDecimal(accountDetail.get("balance").toString());
+//    //            BigDecimal amout =
+//    // bcTokenBalance.divide(accumulateBcTokenBalance).multiply(tokenReleaseParam.getUnitReleaseAmout());
+//    //            Map<String, Object> inAccountReq = new HashMap<>();
+//    //            accountReq.put("tenantId", customerPassCard.getTenantId());
+//    //            accountReq.put("customerNo", customerPassCard.getCustomerNo());
+//    //            accountReq.put("category", AccountCategory.BALANCE.getCode());
+//    //            accountReq.put("name", AccountCategory.BALANCE.getDesc());
+//    //            accountReq.put("ccy", CcyType.DP.getCode());
+//    //            inAccountReq.put("amout", amout);
+//    //            // TODO 先入账处理，后期直接改成铸造在链上
+//    //            customerAccountService.inAccount(inAccountReq);
+//    //        }
+//
+//    // 4.释放token，进行链上铸造: releaseAmount
+//    reqMap.put("amount", releaseAmount);
+//    reqMap.put("digitalAssetsCollectionNo", digitalAssetsCollectionNo);
+//    digitalPointsService.mint(reqMap);
+//
+//    // 5.生成释放分配流水
+//    TokenReleaseJournal tokenReleaseJournal = new TokenReleaseJournal();
+//    BeanUtil.copyProperties(tokenReleaseParam, tokenReleaseJournal);
+//    tokenReleaseJournal.setSerialNo(BsinSnowflake.getId());
+//    tokenReleaseJournal.setAmout(releaseAmount);
+//    tokenReleaseJournal.setCustomerNo(customerNo);
+//    tokenReleaseJournalMapper.insert(tokenReleaseJournal);
+//
+//    // 6.更新当前流通量
+//    tokenReleaseParam.setCirculation(
+//        tokenReleaseParam.getCirculation().add(tokenReleaseParam.getUnitReleaseAmout()));
+//    tokenParamMapper.updateById(tokenReleaseParam);
 
     // 7.释放账户 出账操作 不方便 调用 crm 可以放在 调用次方法的biz中
     //    return RespBodyHandler.setRespBodyDto(Boolean.TRUE);
@@ -398,8 +392,8 @@ public class TokenParamServiceImpl implements TokenParamService {
     }
     // 2.从请求参数中查询要释放的账户
     BigDecimal releaseAccountBalance = null;
-    Account customerAccount = (Account) requestMap.get("customerAccount");
-    releaseAccountBalance = customerAccount.getBalance();
+//    Account customerAccount = (Account) requestMap.get("customerAccount");
+//    releaseAccountBalance = customerAccount.getBalance();
 
     // TODO: 根据释放方式：1、劳动价值释放， 2、购买释放， 3、周期释放 优化， 目前只支持：劳动价值释放-单元释放的触发价值(特指捕获劳动价值的积分数量)，每累计达到释放一次
     // tokenReleaseParam.getReleaseMethod();
@@ -443,9 +437,9 @@ public class TokenParamServiceImpl implements TokenParamService {
     } else {
       // 虚拟余额账户入账
       reqMap.put("ccy", digitalAssetsCollection.getSymbol());
-      reqMap.put("category", AccountCategory.BALANCE.getCode());
-      reqMap.put("name", AccountCategory.BALANCE.getDesc());
-      accountService.inAccount(reqMap);
+//      reqMap.put("category", AccountCategory.BALANCE.getCode());
+//      reqMap.put("name", AccountCategory.BALANCE.getDesc());
+//      accountService.inAccount(reqMap);
     }
 
     // 5.生成释放分配流水

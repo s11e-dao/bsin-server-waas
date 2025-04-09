@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import me.flyray.bsin.domain.entity.ChainCoin;
-import me.flyray.bsin.domain.entity.Platform;
 import me.flyray.bsin.domain.entity.Wallet;
 import me.flyray.bsin.domain.entity.WalletAccount;
 import me.flyray.bsin.exception.BusinessException;
@@ -119,7 +118,7 @@ public class WalletAccountBiz {
      * TODO 查询平台配置的钱包处理平台归集钱包
      */
     public WalletAccount getGatherAccount(String tenantId, String chainCoinNo) throws Exception {
-        QueryWrapper<Platform> platformQueryWrapper = new QueryWrapper<>();
+        QueryWrapper platformQueryWrapper = new QueryWrapper<>();
         platformQueryWrapper.eq("tenant_id", tenantId);
 
         QueryWrapper<Wallet> walletQueryWrapper = new QueryWrapper<>();

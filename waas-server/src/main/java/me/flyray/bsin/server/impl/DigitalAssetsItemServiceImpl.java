@@ -62,17 +62,17 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
   @Autowired private DigitalAssetsItemBiz digitalAssetsItemBiz;
   @Autowired private MerchantInfoBiz merchantInfoBiz;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private CustomerService customerService;
-
-  @DubboReference(version = "${dubbo.provider.version}")
-  private MerchantService merchantService;
-
-  @DubboReference(version = "${dubbo.provider.version}")
-  private EquityService equityService;
-
-  @DubboReference(version = "${dubbo.provider.version}")
-  private MemberService memberService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private CustomerService customerService;
+//
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private MerchantService merchantService;
+//
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private EquityService equityService;
+//
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private MemberService memberService;
 
   /**
    * 领取逻辑：
@@ -203,7 +203,7 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
       requestMap.put("tenantId", tenantId);
       requestMap.put("merchantNo", digitalAssetsItem.getMerchantNo());
       requestMap.put("nickname", customerBase.get("nickname"));
-      memberService.openMember(requestMap);
+//      memberService.openMember(requestMap);
     }
   }
 
@@ -279,16 +279,16 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
     if (customerNos.size() > 0) {
       Map crmReqMap = new HashMap();
       crmReqMap.put("customerNos", customerNos);
-      List<Map> customerList = customerService.getListByCustomerNos(crmReqMap);
-      for (DigitalAssetsItemRes digitalAssetsItem : digitalAssetsItemList) {
-        // 找出客户信息
-        for (Map customer : customerList) {
-          if (digitalAssetsItem.getMerchantNo().equals(customer.get("customerNo"))) {
-            digitalAssetsItem.setMerchantName((String) customer.get("username"));
-          }
-        }
-        digitalAssetsItemListRes.add(digitalAssetsItem);
-      }
+//      List<Map> customerList = customerService.getListByCustomerNos(crmReqMap);
+//      for (DigitalAssetsItemRes digitalAssetsItem : digitalAssetsItemList) {
+//        // 找出客户信息
+//        for (Map customer : customerList) {
+//          if (digitalAssetsItem.getMerchantNo().equals(customer.get("customerNo"))) {
+//            digitalAssetsItem.setMerchantName((String) customer.get("username"));
+//          }
+//        }
+//        digitalAssetsItemListRes.add(digitalAssetsItem);
+//      }
     }
     return digitalAssetsItemListRes;
   }
@@ -328,19 +328,19 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
     if (merchantNos.size() > 0) {
       Map crmReqMap = new HashMap();
       crmReqMap.put("merchantNos", merchantNos);
-      List<Merchant> merchantList = merchantService.getListByMerchantNos(crmReqMap);
-      List<DigitalAssetsItem> digitalAssetsItemList = new ArrayList<>();
-      for (DigitalAssetsItem digitalAssetsItem : digitalAssetsItemPageList.getRecords()) {
-        // 找出商户信息
-        for (Merchant merchant : merchantList) {
-          if (digitalAssetsItem.getMerchantNo().equals(merchant.getSerialNo())) {
-            digitalAssetsItem.setMerchantName(merchant.getMerchantName());
-            digitalAssetsItem.setMerchantLogo(merchant.getLogoUrl());
-          }
-        }
-        digitalAssetsItemList.add(digitalAssetsItem);
-      }
-      digitalAssetsItemPageList.setRecords(digitalAssetsItemList);
+//      List<Merchant> merchantList = merchantService.getListByMerchantNos(crmReqMap);
+//      List<DigitalAssetsItem> digitalAssetsItemList = new ArrayList<>();
+//      for (DigitalAssetsItem digitalAssetsItem : digitalAssetsItemPageList.getRecords()) {
+//        // 找出商户信息
+//        for (Merchant merchant : merchantList) {
+//          if (digitalAssetsItem.getMerchantNo().equals(merchant.getSerialNo())) {
+//            digitalAssetsItem.setMerchantName(merchant.getMerchantName());
+//            digitalAssetsItem.setMerchantLogo(merchant.getLogoUrl());
+//          }
+//        }
+//        digitalAssetsItemList.add(digitalAssetsItem);
+//      }
+//      digitalAssetsItemPageList.setRecords(digitalAssetsItemList);
     }
     return digitalAssetsItemPageList;
   }
@@ -400,16 +400,16 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
     if (customerNos.size() > 0) {
       Map crmReqMap = new HashMap();
       crmReqMap.put("customerNos", customerNos);
-      List<Map> customerList = customerService.getListByCustomerNos(crmReqMap);
-      for (DigitalAssetsItemRes digitalAssetsItem : digitalAssetsItemList) {
-        // 找出客户信息
-        for (Map customer : customerList) {
-          if (digitalAssetsItem.getMerchantNo().equals(customer.get("customerNo"))) {
-            digitalAssetsItem.setMerchantName((String) customer.get("username"));
-          }
-        }
-        digitalAssetsItemListRes.add(digitalAssetsItem);
-      }
+//      List<Map> customerList = customerService.getListByCustomerNos(crmReqMap);
+//      for (DigitalAssetsItemRes digitalAssetsItem : digitalAssetsItemList) {
+//        // 找出客户信息
+//        for (Map customer : customerList) {
+//          if (digitalAssetsItem.getMerchantNo().equals(customer.get("customerNo"))) {
+//            digitalAssetsItem.setMerchantName((String) customer.get("username"));
+//          }
+//        }
+//        digitalAssetsItemListRes.add(digitalAssetsItem);
+//      }
     }
     return digitalAssetsItemListRes;
   }
@@ -435,7 +435,7 @@ public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
   @Override
   public void equityConfig(Map<String, Object> requestMap) {
     // TODO 参数校验待处理
-    equityService.add(requestMap);
+//    equityService.add(requestMap);
   }
 
 }

@@ -1,9 +1,8 @@
 package me.flyray.bsin.domain.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import me.flyray.bsin.validate.AddGroup;
-
-import javax.validation.constraints.NotBlank;
 
 @Data
 public class TransactionRequest {

@@ -21,7 +21,6 @@ import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.domain.enums.ProfileType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.CustomerProfileService;
-import me.flyray.bsin.facade.service.CustomerService;
 import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
 import me.flyray.bsin.infrastructure.biz.MerchantInfoBiz;
 import me.flyray.bsin.infrastructure.mapper.ContractMapper;
@@ -74,8 +73,8 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 //  @DubboReference(version = "${dubbo.provider.version}")
 //  private CopilotService copilotService;
 
-  @DubboReference(version = "${dubbo.provider.version}")
-  private CustomerService customerService;
+//  @DubboReference(version = "${dubbo.provider.version}")
+//  private CustomerService customerService;
 
   @ShenyuDubboClient("/create")
   @ApiDoc(desc = "create")
@@ -263,7 +262,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
       }
       setReq.put("customerNo", customerNo);
       setReq.put("merchantNo", merchantNo);
-      customerService.settingProfile(setReq);
+//      customerService.settingProfile(setReq);
 
       customerProfile.setSerialNo(BsinSnowflake.getId());
       customerProfile.setContractAddress(profileAddress);
@@ -286,7 +285,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
       if (!"".equals(copilotInfoResp.get("data"))) {
         Map<String, Object> copilotInfo = (Map<String, Object>) copilotInfoResp.get("data");
         setReq.put("copilotNo", (String) copilotInfo.get("serialNo"));
-        customerService.settingProfile(setReq);
+//        customerService.settingProfile(setReq);
       }
     } catch (Exception e) {
       throw new BusinessException("100000", e.toString());

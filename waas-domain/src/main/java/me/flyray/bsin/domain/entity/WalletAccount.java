@@ -1,11 +1,11 @@
 package me.flyray.bsin.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import me.flyray.bsin.entity.BaseEntity;
 import me.flyray.bsin.validate.AddGroup;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
