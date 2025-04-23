@@ -19,6 +19,7 @@
         <module>waas-facade</module>
         <module>waas-domain</module>
         <module>waas-infrastructure</module>
+        <module>waas-mcp</module>
         <module>waas-server</module>
     </modules>
 
