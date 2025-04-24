@@ -41,7 +41,6 @@ import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.infrastructure.mapper.ContractMapper;
 import me.flyray.bsin.infrastructure.mapper.MetadataFileMapper;
 import me.flyray.bsin.infrastructure.mapper.MetadataTemplateMapper;
-import me.flyray.bsin.oss.ipfs.BsinIpfsService;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
@@ -59,7 +58,6 @@ public class DigitalAssetsBiz {
   @Autowired private ContractMapper contractMapper;
   @Autowired private MetadataFileMapper metadataFileMapper;
   @Autowired private MetadataTemplateMapper metadataTemplateMapper;
-  @Autowired private BsinIpfsService bsinIpfsService;
   @Autowired private CustomerInfoBiz customerInfoBiz;
 
   @Value("${bsin.jiujiu.aesKey}")
@@ -703,10 +701,8 @@ public class DigitalAssetsBiz {
     // TODO: 上传文件至ipfs和服务器
     JSONObject uploadResponse;
     try {
-      multipartFile = bsinIpfsService.string2multipartFile(content, fileName);
-      uploadResponse =
-          bsinIpfsService.ipfsAndServiceUpload(
-              multipartFile, tenantId, metadataFilePathNo, "3", tenantAppType);
+      multipartFile = null; //bsinIpfsService.string2multipartFile(content, fileName);
+      uploadResponse = null; //bsinIpfsService.ipfsAndServiceUpload(multipartFile, tenantId, metadataFilePathNo, "3", tenantAppType);
       metadataURI = (String) uploadResponse.get("fileUrl");
       uploadResponse.put("imageUrl", metadataFile.getIpfsUrl());
     } catch (Exception e) {

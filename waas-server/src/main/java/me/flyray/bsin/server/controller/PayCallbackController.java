@@ -4,19 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
-import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
-import me.flyray.bsin.enums.AppChannel;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.springmvc.annotation.ShenyuSpringMvcClient;
@@ -50,9 +46,12 @@ public class PayCallbackController {
 
   private static WxRedisConfig wxRedisConfig;
 
-  @Autowired BsinWxPayServiceUtil bsinWxPayServiceUtil;
-  @Autowired private TransactionMapper transactionMapper;
-  @Autowired private TransactionJournalMapper waasTransactionJournalMapper;
+  @Autowired
+  BsinWxPayServiceUtil bsinWxPayServiceUtil;
+  @Autowired
+  private TransactionMapper transactionMapper;
+  @Autowired
+  private TransactionJournalMapper waasTransactionJournalMapper;
 
 //  @DubboReference(version = "${dubbo.provider.version}")
 //  private MemberService memberService;
