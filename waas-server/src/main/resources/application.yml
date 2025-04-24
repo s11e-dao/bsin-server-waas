@@ -4,6 +4,13 @@ logging:
     com.github.binarywang.demo.wx.mp: DEBUG
     me.chanjar.weixin: DEBUG
 
+spring:
+  data:
+    redis:
+      host: ${WAAS_REDIS_HOST}
+      port: ${WAAS_REDIS_PORT}
+      password: ${WAAS_REDIS_PASSWORD}
+
 shenyu:
   register:
     registerType: http #zookeeper #etcd #nacos #consul
