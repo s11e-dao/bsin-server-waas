@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import me.flyray.bsin.blockchain.dto.ContractTransactionResp;
 import me.flyray.bsin.constants.ResponseCode;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.ContractProtocol;
@@ -14,14 +13,13 @@ import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.request.DigitalAssetsIssueReqDTO;
 import me.flyray.bsin.facade.service.DigitalAssetsCollectionService;
-import me.flyray.bsin.facade.service.DigitalPointsService;
+import me.flyray.bsin.facade.engine.DigitalPointsServiceEngine;
 import me.flyray.bsin.infrastructure.biz.*;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.infrastructure.mapper.TokenParamMapper;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
-import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
@@ -46,7 +44,7 @@ import java.util.Map;
 @ShenyuDubboService(path = "/digitalPoints", timeout = 6000)
 @ApiModule(value = "digitalPoints")
 @Service
-public class DigitalPointsServiceImpl implements DigitalPointsService {
+public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
 
   @Autowired private ContractProtocolMapper contractProtocolMapper;
   @Autowired private DigitalAssetsBiz digitalAssetsBiz;

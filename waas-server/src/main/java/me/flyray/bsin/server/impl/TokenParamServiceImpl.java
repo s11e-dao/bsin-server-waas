@@ -12,19 +12,17 @@ import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 import me.flyray.bsin.domain.entity.TokenParam;
 import me.flyray.bsin.domain.entity.TokenReleaseJournal;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.service.DigitalPointsService;
+import me.flyray.bsin.facade.engine.DigitalPointsServiceEngine;
 import me.flyray.bsin.facade.service.TokenParamService;
 import me.flyray.bsin.infrastructure.mapper.CustomerPassCardMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.infrastructure.mapper.TokenParamMapper;
 import me.flyray.bsin.infrastructure.mapper.TokenReleaseJournalMapper;
 import me.flyray.bsin.mybatis.utils.Pagination;
-import me.flyray.bsin.redis.provider.BsinCacheProvider;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
@@ -51,7 +49,7 @@ public class TokenParamServiceImpl implements TokenParamService {
   @Autowired private TokenReleaseJournalMapper tokenReleaseJournalMapper;
   @Autowired private DigitalAssetsCollectionMapper digitalAssetsCollectionMapper;
   @Autowired private CustomerPassCardMapper customerPassCardMapper;
-  @Autowired private DigitalPointsService digitalPointsService;
+  @Autowired private DigitalPointsServiceEngine digitalPointsService;
 
 //  @DubboReference(version = "${dubbo.provider.version}")
 //  private AccountService accountService;

@@ -1,4 +1,4 @@
-package me.flyray.bsin.facade.service;
+package me.flyray.bsin.facade.engine;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import me.flyray.bsin.domain.entity.CustomerPassCard;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @desc 客户通行证
  */
 
-public interface CustomerPassCardService {
+public interface PassCardServiceEngine {
 
     /**
      * 品牌商户发pass card

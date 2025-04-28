@@ -1,4 +1,4 @@
-package me.flyray.bsin.facade.service;
+package me.flyray.bsin.facade.engine;
 
 import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 
@@ -10,7 +10,7 @@ import java.util.Map;
  * @desc
  */
 
-public interface DigitalPointsService {
+public interface DigitalPointsServiceEngine {
 
     /**
      * 发行

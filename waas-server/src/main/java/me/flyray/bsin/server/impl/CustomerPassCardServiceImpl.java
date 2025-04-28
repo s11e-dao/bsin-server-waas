@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.CustomerPassCard;
+import me.flyray.bsin.facade.engine.PassCardServiceEngine;
 import me.flyray.bsin.facade.response.DigitalAssetsDetailRes;
 import me.flyray.bsin.facade.response.DigitalAssetsItemRes;
 import me.flyray.bsin.facade.service.*;
@@ -40,7 +41,7 @@ import java.util.Map;
 @ShenyuDubboService(path = "/customerPassCard", timeout = 6000)
 @ApiModule(value = "customerPassCard")
 @Service
-public class CustomerPassCardServiceImpl implements CustomerPassCardService {
+public class CustomerPassCardServiceImpl implements PassCardServiceEngine {
 
   @Autowired public CustomerPassCardMapper customerPassCardMapper;
 
