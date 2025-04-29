@@ -1,5 +1,7 @@
 package me.flyray.bsin.facade.engine;
 
+import java.util.Map;
+
 /**
  * 渠道数据资产:
  * 可信数据存储：身份数据、行为数据（消费/支付行为、内容贡献行为i、社交行为、活跃行为）、商品服务数据、物流数据
@@ -19,5 +21,13 @@ public interface DataAssetsServiceEngine {
      * valuation：资产估值。
      * documents：相关证明文件。
      */
+    void register(Map<String, Object> requestMap);
+
+
+    /**
+     * 数据总揽和溯源
+     */
+
+
 
 }
