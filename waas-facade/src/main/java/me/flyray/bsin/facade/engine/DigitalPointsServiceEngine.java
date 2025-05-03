@@ -30,4 +30,12 @@ public interface DigitalPointsServiceEngine {
     void mint(Map<String, Object> requestMap) throws Exception;
 
 
+    /**
+     * 根据联合曲线，计算出劳动价值应该获得多少的积分分配
+     * 计算应该产出多少数字积分
+     * Calculate the value of labor
+     */
+    void calculateValueOfLabor(Map<String, Object> requestMap) throws Exception;
+
+
 }

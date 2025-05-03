@@ -29,5 +29,7 @@ public interface DataAssetsServiceEngine {
      */
 
 
+    public void getDetail(Map<String, Object> requestMap);
+
 
 }
