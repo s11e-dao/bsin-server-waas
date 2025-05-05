@@ -16,7 +16,7 @@ public interface DataAssetsServiceEngine {
      * 接口名称：POST /api/assets/register
      * 功能描述：提交现实资产信息，进行资产登记。
      * 请求参数：
-     * asset_type：资产类型（如房地产、债券）。
+     * asset_type：资产类型（如消费、支付）。
      * owner_id：资产所有者标识。
      * valuation：资产估值。
      * documents：相关证明文件。
