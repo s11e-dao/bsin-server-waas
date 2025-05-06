@@ -36,7 +36,6 @@ import static me.flyray.bsin.constants.ResponseCode.SERIAL_NO_NOT_EXIST;
 @Slf4j
 @ShenyuDubboService(path = "/payWay", timeout = 6000)
 @ApiModule(value = "payWay")
-@Service
 public class PayWayServiceImpl implements PayWayService {
 
 

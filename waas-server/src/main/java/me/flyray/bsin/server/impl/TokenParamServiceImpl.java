@@ -42,7 +42,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/tokenParam", timeout = 6000)
 @ApiModule(value = "tokenParam")
-@Service
 public class TokenParamServiceImpl implements TokenParamService {
 
   @Autowired private TokenParamMapper tokenParamMapper;

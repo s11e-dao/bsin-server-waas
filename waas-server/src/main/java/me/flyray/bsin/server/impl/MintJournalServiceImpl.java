@@ -32,7 +32,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/mintJournal", timeout = 6000)
 @ApiModule(value = "mintJournal")
-@Service
 public class MintJournalServiceImpl implements MintJournalService {
 
   @Autowired private MintJournalMapper mintJournalMapper;

@@ -16,7 +16,6 @@ import java.util.Map;
 
 
 @Slf4j
-@DubboService
 @ApiModule(value = "validate")
 @ShenyuDubboService("/validate")
 public class ValidateServiceImpl implements ValidateService {

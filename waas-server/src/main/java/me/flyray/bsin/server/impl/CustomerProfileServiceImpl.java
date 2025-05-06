@@ -57,7 +57,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/customerProfile", timeout = 6000)
 @ApiModule(value = "customerProfile")
-@Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
 
   @Value("${bsin.oss.ipfs.gateway}")

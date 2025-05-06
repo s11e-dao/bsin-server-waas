@@ -26,7 +26,6 @@ import java.util.Map;
 
 
 @Slf4j
-@DubboService
 @ApiModule(value = "googleAuthenticator")
 @ShenyuDubboService("/googleAuthenticator")
 public class GoogleAuthenticatorServiceImpl implements GoogleAuthenticatorService {

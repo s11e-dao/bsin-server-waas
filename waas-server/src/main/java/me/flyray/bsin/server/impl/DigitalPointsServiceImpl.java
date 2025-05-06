@@ -43,7 +43,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/digitalPoints", timeout = 6000)
 @ApiModule(value = "digitalPoints")
-@Service
 public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
 
   @Autowired private ContractProtocolMapper contractProtocolMapper;

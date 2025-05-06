@@ -40,7 +40,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/metadataFile", timeout = 6000)
 @ApiModule(value = "metadataFile")
-@Service
 public class MetadataFileServiceImpl implements MetadataFileService {
 
     @Autowired

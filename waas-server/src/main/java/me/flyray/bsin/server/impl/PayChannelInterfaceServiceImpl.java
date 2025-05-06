@@ -35,7 +35,6 @@ import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
 @Slf4j
 @ShenyuDubboService(path = "/payChannelInterface", timeout = 6000)
 @ApiModule(value = "payChannelInterface")
-@Service
 public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceService {
 
 

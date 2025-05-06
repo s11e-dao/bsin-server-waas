@@ -34,7 +34,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/metadataTemplate", timeout = 6000)
 @ApiModule(value = "metadataTemplate")
-@Service
 public class MetadataTemplateServiceImpl implements MetadataTemplateService {
 
     @Autowired

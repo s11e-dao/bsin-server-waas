@@ -32,7 +32,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/transferJournal", timeout = 6000)
 @ApiModule(value = "transferJournal")
-@Service
 public class TransferJournalServiceImpl implements TransferJournalService {
 
   @Autowired private TransferJournalMapper waasTransferJournalMapper;

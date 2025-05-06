@@ -34,7 +34,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/contractProtocol", timeout = 6000)
 @ApiModule(value = "contractProtocol")
-@Service
 public class ContractProtocolServiceImpl implements ContractProtocolService {
 
     @Autowired

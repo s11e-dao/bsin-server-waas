@@ -44,7 +44,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/orderbook", timeout = 6000)
 @ApiModule(value = "orderbook")
-@Service
 public class OrderbookServiceImpl implements OrderbookService {
 
     @Autowired

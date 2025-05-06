@@ -39,7 +39,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/customerDigitalAssets", timeout = 6000)
 @ApiModule(value = "customerDigitalAssets")
-@Service
 public class CustomerDigitalAssetsServiceImpl implements CustomerDigitalAssetsService {
 
   @Autowired private DigitalAssetsItemMapper digitalAssetsItemMapper;

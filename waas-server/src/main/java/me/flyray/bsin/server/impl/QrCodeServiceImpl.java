@@ -20,7 +20,6 @@ import me.flyray.bsin.facade.service.QrCodeService;
 @Slf4j
 @ShenyuDubboService(path = "/qrCode", timeout = 6000)
 @ApiModule(value = "qrCode")
-@Service
 public class QrCodeServiceImpl implements QrCodeService {
 
     @ShenyuDubboClient("/generate")

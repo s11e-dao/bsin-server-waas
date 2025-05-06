@@ -30,7 +30,6 @@ import java.util.List;
 * @createDate 2024-04-24 20:37:18
 */
 @Slf4j
-@DubboService
 @ApiModule(value = "blackWhiteListAddress")
 @ShenyuDubboService("/blackWhiteListAddress")
 public class BlackWhiteListAddressServiceImpl implements BlackWhiteListAddressService {

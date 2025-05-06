@@ -33,7 +33,6 @@ import java.util.List;
 */
 
 @Slf4j
-@DubboService
 @ApiModule(value = "chainCoin")
 @ShenyuDubboService("/chainCoin")
 public class ChainCoinServiceImpl implements ChainCoinService {

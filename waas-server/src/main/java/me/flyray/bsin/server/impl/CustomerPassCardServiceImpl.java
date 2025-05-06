@@ -40,7 +40,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/customerPassCard", timeout = 6000)
 @ApiModule(value = "customerPassCard")
-@Service
 public class CustomerPassCardServiceImpl implements PassCardServiceEngine {
 
   @Autowired public CustomerPassCardMapper customerPassCardMapper;

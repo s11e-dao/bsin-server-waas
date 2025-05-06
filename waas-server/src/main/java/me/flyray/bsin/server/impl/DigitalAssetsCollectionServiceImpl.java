@@ -57,7 +57,6 @@ import static me.flyray.bsin.constants.ResponseCode.TENANT_ID_NOT_ISNULL;
 @Slf4j
 @ShenyuDubboService(path = "/digitalAssetsCollection", timeout = 6000)
 @ApiModule(value = "digitalAssetsCollection")
-@Service
 public class DigitalAssetsCollectionServiceImpl implements DigitalAssetsCollectionService {
 
   @Autowired private DigitalAssetsCollectionMapper digitalAssetsCollectionMapper;

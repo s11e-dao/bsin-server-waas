@@ -33,7 +33,6 @@ import java.util.Map;
 * @createDate 2024-04-24 20:35:43
 */
 @Slf4j
-@DubboService
 @ApiModule(value = "walletAccount")
 @ShenyuDubboService("/walletAccount")
 public class WalletAccountServiceImpl implements WalletAccountService {

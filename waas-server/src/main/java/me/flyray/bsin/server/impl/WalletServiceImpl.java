@@ -45,7 +45,6 @@ import java.util.*;
 @Slf4j
 @ShenyuDubboService(path = "/wallet", timeout = 6000)
 @ApiModule(value = "wallet")
-@Service
 public class WalletServiceImpl implements WalletService {
 
   @Autowired private BsinBlockChainEngineFactory bsinBlockChainEngineFactory;

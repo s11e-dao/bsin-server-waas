@@ -16,7 +16,6 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/dataAssets", timeout = 6000)
 @ApiModule(value = "dataAssets")
-@Service
 public class DataAssetsServiceEngineImpl implements DataAssetsServiceEngine {
 
     @ShenyuDubboClient("/register")

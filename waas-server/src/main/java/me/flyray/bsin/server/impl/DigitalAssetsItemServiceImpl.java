@@ -52,7 +52,6 @@ import static java.math.BigDecimal.ROUND_HALF_DOWN;
 @Slf4j
 @ShenyuDubboService(path = "/digitalAssetsItem", timeout = 6000)
 @ApiModule(value = "digitalAssetsItem")
-@Service
 public class DigitalAssetsItemServiceImpl implements DigitalAssetsItemService {
 
   @Autowired private DigitalAssetsItemMapper digitalAssetsItemMapper;

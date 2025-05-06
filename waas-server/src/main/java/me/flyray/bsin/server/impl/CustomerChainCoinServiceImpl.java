@@ -29,7 +29,6 @@ import java.util.List;
 * @createDate 2024-04-29 15:44:26
 */
 @Slf4j
-@DubboService
 @ApiModule(value = "customerChainCoin")
 @ShenyuDubboService("/customerChainCoin")
 public class CustomerChainCoinServiceImpl implements CustomerChainCoinService {
