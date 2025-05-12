@@ -2,21 +2,18 @@ package me.flyray.bsin.server.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
-import me.flyray.bsin.domain.entity.PayWay;
-import me.flyray.bsin.facade.engine.DataAssetsServiceEngine;
-import org.apache.commons.collections4.MapUtils;
+import me.flyray.bsin.facade.engine.TrustedDataAssetsServiceEngine;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Slf4j
 @ShenyuDubboService(path = "/dataAssets", timeout = 6000)
 @ApiModule(value = "dataAssets")
-public class DataAssetsServiceEngineImpl implements DataAssetsServiceEngine {
+public class DataAssetsServiceEngineImpl implements TrustedDataAssetsServiceEngine {
 
     @ShenyuDubboClient("/register")
     @ApiDoc(desc = "register")
