@@ -161,7 +161,6 @@ public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
     digitalAssetsColletion.setCollectionType(digitalAssetsIssueReqDTO.getAssetsCollectionType());
     digitalAssetsCollectionMapper.insert(digitalAssetsColletion);
 
-
     // 7.插入token基础信息
     TokenParam tokenParam = new TokenParam();
     tokenParam.setSerialNo(BsinSnowflake.getId());
@@ -174,6 +173,7 @@ public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
     tokenParam.setName(digitalAssetsColletion.getName());
     tokenParam.setSymbol(digitalAssetsColletion.getSymbol());
     tokenParamMapper.insert(tokenParam);
+
   }
 
   @ShenyuDubboClient("/getDetailByMerchantNo")
@@ -216,6 +216,5 @@ public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
   public void calculateValueOfLabor(Map<String, Object> requestMap) throws Exception {
 
   }
-
 
 }

@@ -5,6 +5,7 @@ import me.flyray.bsin.blockchain.enums.ChainEnv;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 

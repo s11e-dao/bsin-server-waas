@@ -41,15 +41,14 @@ public interface TrustedDataAssetsServiceEngine {
     void register(Map<String, Object> requestMap);
 
     /**
-     * 销毁
+     * 数据销毁
      */
+    void destroy(Map<String, Object> requestMap);
 
 
     /**
      * 数据总揽和溯源
      */
-
-
     public void getDetail(Map<String, Object> requestMap);
 
 

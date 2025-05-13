@@ -23,4 +23,10 @@ public class DidProfileServiceEngineImpl implements DidProfileServiceEngine {
 
     }
 
+    @Override
+    public void getDetail(Map<String, Object> requestMap) {
+
+    }
+
+
 }
