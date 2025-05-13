@@ -1,0 +1,11 @@
+package me.flyray.bsin.facade.engine;
+
+/**
+ * 生态价值分配引擎：交易价值分配和数据价值分配
+ * 统一换算成劳动价值，基于劳动价值铸造曲线价值，基于曲线价值获得数字积分（贡献分红凭证）
+ */
+
+public interface EcologicalValueAllocationEngine {
+
+
+}

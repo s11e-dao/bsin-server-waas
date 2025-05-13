@@ -21,7 +21,7 @@ public class AnywebBiz {
         MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("appid", "ed6f4342-3a51-4b87-bd47-02ff13a04962")
-                .addFormDataPart("secret", "1b70582-74b5-4708-ab0a-332706058407")
+                .addFormDataPart("secret", "1b70582-74b5-4708-ab0a-3327060584071")
                 .addFormDataPart("code", code)
                 .build();
         Request request = new Request.Builder()

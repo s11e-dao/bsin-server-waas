@@ -10,32 +10,38 @@ import java.util.Map;
 
 /**
  * @author bolei
- * @description 联合曲线服务,针对表【crm_bonding_curve_token】的数据库操作Service
  * @createDate 2023-07-19 21:12:25
  */
 public interface BondingCurveTokenService {
 
+
+  /**
+   * 计算一系列现金流在给定的联合收益率曲线下的现值。
+   * 基于劳动价值贡献和数据价值贡献计算联合曲线值
+   */
+  public double calculateCurveValue(Map<Double, Double> yieldCurve);
+
   /** 新增 */
-  public BondingCurveTokenParam addCurve(Map<String, Object> requestMap);
+  public BondingCurveTokenParam add(Map<String, Object> requestMap);
 
   /** 删除 */
-  public void deleteCurve(Map<String, Object> requestMap);
+  public void delete(Map<String, Object> requestMap);
 
   /** 修改 */
-  public Map<String, Object> editCurve(Map<String, Object> requestMap);
+  public Map<String, Object> edit(Map<String, Object> requestMap);
 
   /** 查询曲线列表 */
-  public List<?> getCurveList(Map<String, Object> requestMap);
+  public List<?> getList(Map<String, Object> requestMap);
 
 
   /** 查询商戶BC曲线---唯一的 */
   public BondingCurveTokenParam getMerchantCurve(Map<String, Object> requestMap);
 
   /** 分页查询曲线详情 */
-  public IPage<?> getCurvePageList(Map<String, Object> requestMap);
+  public IPage<?> getPageList(Map<String, Object> requestMap);
 
   /** 查询曲线详情 */
-  public BondingCurveTokenParam getCurveDetail(Map<String, Object> requestMap);
+  public BondingCurveTokenParam getDetail(Map<String, Object> requestMap);
 
   /**
    * 根据劳动价值铸造原力(成长值):
@@ -59,7 +65,7 @@ public interface BondingCurveTokenService {
    * @param:
    * @return:
    */
-  public IPage<?> getBondingCurveTokenJournalPageList(Map<String, Object> requestMap);
+  public IPage<?> getJournalPageList(Map<String, Object> requestMap);
 
   /**
    * 获取联合曲线流水详情
@@ -75,7 +81,7 @@ public interface BondingCurveTokenService {
    * @param:
    * @return:
    */
-  public List<?> getBondingCurveTokenJournalList(Map<String, Object> requestMap);
+  public List<?> getJournalList(Map<String, Object> requestMap);
 
   /**
    * 获取联合曲线未来数据--曲线展示
@@ -83,6 +89,6 @@ public interface BondingCurveTokenService {
    * @param:
    * @return:
    */
-  public List<?> getBondingCurveTokenTrendList(Map<String, Object> requestMap);
+  public List<?> getTrendList(Map<String, Object> requestMap);
 
 }

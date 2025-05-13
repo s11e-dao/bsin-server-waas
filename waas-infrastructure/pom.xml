@@ -42,6 +42,12 @@
 
         <dependency>
             <groupId>me.flyray.bsin</groupId>
+            <artifactId>crm-facade</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.flyray.bsin</groupId>
             <artifactId>waas-facade</artifactId>
             <version>${project.version}</version>
         </dependency>
