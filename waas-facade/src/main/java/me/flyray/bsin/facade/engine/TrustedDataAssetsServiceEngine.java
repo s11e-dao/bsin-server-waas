@@ -45,11 +45,9 @@ public interface TrustedDataAssetsServiceEngine {
      */
     void destroy(Map<String, Object> requestMap);
 
-
     /**
      * 数据总揽和溯源
      */
     public void getDetail(Map<String, Object> requestMap);
-
 
 }
