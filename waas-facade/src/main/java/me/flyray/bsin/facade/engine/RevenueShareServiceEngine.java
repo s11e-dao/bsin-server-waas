@@ -7,7 +7,7 @@ package me.flyray.bsin.facade.engine;
  *                 │ HTTP/gRPC
  *                 ▼
  * ┌───────────────────────────────┐
- * │     分账引擎 API 层          │ ←—— 鉴权、限流、幂等
+ * │        分账引擎 API 层          │ ←—— 鉴权、限流、幂等
  * └───────────────┬───────────────┘
  *                 │
  *                 ▼
@@ -20,7 +20,7 @@ package me.flyray.bsin.facade.engine;
  * └───────────────┬───────────────┘
  *                 │
  *             ┌───┴──────────┐
- *             │ 分账策略模块 │  ←—— 可插拔策略（Strategy Pattern）
+ *             │    分账策略模块 │  ←—— 可插拔策略（Strategy Pattern）
  *             └───┬──────────┘
  *                 │
  *     ┌───────────┴───────────┐
@@ -30,5 +30,10 @@ package me.flyray.bsin.facade.engine;
  *     基于商户让利配置进行分润
  */
 public interface RevenueShareServiceEngine {
+
+    /**
+     * 获取让利规则配置
+     * 根据规则进行分账（调用第三方分账：crm或是支付模块）
+     */
 
 }
