@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
+import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
@@ -52,16 +53,16 @@ public class PayCallbackController {
   private TransactionMapper transactionMapper;
   @Autowired
   private TransactionJournalMapper waasTransactionJournalMapper;
+  @Autowired
+  private RevenueShareServiceEngine revenueShareServiceEngine;
 
 //  @DubboReference(version = "${dubbo.provider.version}")
 //  private MemberService memberService;
 
   /**
    * 1、解析回调包文
-   *
-   * <p>2、调用订单完成方法统一处理
-   *
-   * <p>参考：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
+   * 2、调用订单完成方法统一处理
+   * 参考：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
    *
    * @param body
    * @return
@@ -105,6 +106,10 @@ public class PayCallbackController {
         waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.FAIL.getCode());
       }
       transactionMapper.updateById(waasTransaction);
+
+      // 分佣分账引擎
+      revenueShareServiceEngine.excute(requestMap);
+
       // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
       bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
     } catch (Exception e) {

@@ -11,6 +11,6 @@ public interface DataValueAllocationEngine {
     /**
      * 根据数据分类和级别进行价值计算和价值分配
      */
-    void excute(Map<String, Object> requestMap);
+    void excute(Map<String, Object> requestMap) throws Exception;
 
 }

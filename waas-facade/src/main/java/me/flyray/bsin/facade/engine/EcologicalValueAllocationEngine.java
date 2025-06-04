@@ -34,6 +34,6 @@ import java.util.Map;
 
 public interface EcologicalValueAllocationEngine {
 
-    void excute(Map<String, Object> requestMap);
+    void excute(Map<String, Object> requestMap) throws Exception;
 
 }

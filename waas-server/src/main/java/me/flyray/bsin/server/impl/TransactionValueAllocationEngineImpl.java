@@ -1,8 +1,8 @@
 package me.flyray.bsin.server.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import me.flyray.bsin.facade.engine.DataValueAllocationEngine;
 import me.flyray.bsin.facade.engine.DigitalPointsServiceEngine;
+import me.flyray.bsin.facade.engine.TransactionValueAllocationEngine;
 import me.flyray.bsin.facade.service.BondingCurveTokenService;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 
 @Slf4j
-@ShenyuDubboService(path = "/dataValueAllocation", timeout = 6000)
-@ApiModule(value = "dataValueAllocation")
-public class DataValueAllocationEngineImpl implements DataValueAllocationEngine {
+@ShenyuDubboService(path = "/transactionValueAllocation", timeout = 6000)
+@ApiModule(value = "transactionValueAllocation")
+public class TransactionValueAllocationEngineImpl implements TransactionValueAllocationEngine {
 
     @Autowired
     private BondingCurveTokenService bondingCurveTokenService;
@@ -21,17 +21,11 @@ public class DataValueAllocationEngineImpl implements DataValueAllocationEngine 
     private DigitalPointsServiceEngine digitalPointsServiceEngine;
 
     /**
-     * 参数：数据分类和数据级别
-     * 根据数据分类和级别进行激励发放
-     * 调用数字积分mint接口获取应该产出多少数字积分
+     * 获取交易数据进行分账操作
      * @param requestMap
      */
     @Override
-    public void excute(Map<String, Object> requestMap) throws Exception {
-
-        bondingCurveTokenService.calculateCurveValue(requestMap);
-
-        digitalPointsServiceEngine.calculateValueOfLabor(requestMap);
+    public void excute(Map<String, Object> requestMap) {
 
     }
 

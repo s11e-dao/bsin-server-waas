@@ -35,8 +35,10 @@ public interface RevenueShareServiceEngine {
 
     /**
      * 获取让利规则配置
-     * 根据规则进行分账（调用第三方分账：crm或是支付模块）
+     * 根据规则进行计算分账（调用第三方）
+     * 调用crm进行入账操作
+     * 调用生态价值引擎进行生态贡献计算和价值分配
      */
-    void excute(Map<String, Object> requestMap);
+    void excute(Map<String, Object> requestMap) throws Exception;
 
 }

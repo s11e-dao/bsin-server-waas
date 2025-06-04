@@ -31,7 +31,7 @@ public interface DigitalPointsServiceEngine {
 
 
     /**
-     * 根据联合曲线，计算出劳动价值应该获得多少的积分分配
+     * 根据联合曲线价值，计算出劳动价值应该获得多少的积分分配
      * 计算应该产出多少数字积分
      * Calculate the value of labor
      */
