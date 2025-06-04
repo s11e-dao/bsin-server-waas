@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
+import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
@@ -19,8 +20,10 @@ import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.springmvc.annotation.ShenyuSpringMvcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,8 +63,10 @@ public class PayCallbackController {
 //  private MemberService memberService;
 
   /**
-   * 1、解析回调包文
-   * 2、调用订单完成方法统一处理
+   * 1、解析回调结果
+   * 2、验证更新交易状态
+   * 3、分佣分账生态贡献激励处理
+   * 4、调用oms模块处理业务订单
    * 参考：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
    *
    * @param body
@@ -75,7 +80,7 @@ public class PayCallbackController {
       throws Exception {
     WxPayOrderNotifyResult result = null;
     try {
-//      // 解析回调包文
+      // 1、解析回调结果
 //      BizRoleApp bizRoleApp = new BizRoleApp();
 //      bizRoleApp.setAppChannel(AppChannel.WX_PAY.getType());
 //      bizRoleApp.setMchId(mchId);
@@ -90,27 +95,14 @@ public class PayCallbackController {
       requestMap.put("orderNo", result.getOutTradeNo());
       requestMap.put("cashFee", result.getCashFee());
       requestMap.put("payId", result.getTransactionId());
-      // 根据 WaasTransactionNo 查询交易订单并更新交易状态
-      Transaction waasTransaction =
-              transactionMapper.selectOne(
-                      new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, result.getOutTradeNo()));
-      if (waasTransaction == null) {
-        return WxPayNotifyResponse.fail("未找到交易订单");
-      }
-      // 更新交易流水
-      if ("SUCCESS".equals(result.getResultCode())) {
-        waasTransaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
-        waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.SUCCESS.getCode());
-      } else {
-        waasTransaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
-        waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.FAIL.getCode());
-      }
-      transactionMapper.updateById(waasTransaction);
 
-      // 分佣分账引擎
+      // 2、验证更新交易状态
+      updateTransactionStatus(result);
+
+      // 3、分佣分账引擎
       revenueShareServiceEngine.excute(requestMap);
 
-      // 异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
+      // 4、异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
       bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
     } catch (Exception e) {
       System.out.println(e.getCause());
@@ -139,5 +131,28 @@ public class PayCallbackController {
 //    }
 //    return wxPayService;
 //  }
+
+  /**
+   * 更新交易状态
+   */
+  @Transactional(rollbackFor = Exception.class)
+  protected void updateTransactionStatus(WxPayOrderNotifyResult result) {
+    // 根据 WaasTransactionNo 查询交易订单并更新交易状态
+    Transaction waasTransaction =
+            transactionMapper.selectOne(
+                    new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, result.getOutTradeNo()));
+    if (waasTransaction == null) {
+      return ;
+    }
+    // 更新交易流水
+    if ("SUCCESS".equals(result.getResultCode())) {
+      waasTransaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
+      waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.SUCCESS.getCode());
+    } else {
+      waasTransaction.setTransactionStatus(TransactionStatus.FAIL.getCode());
+      waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.FAIL.getCode());
+    }
+    transactionMapper.updateById(waasTransaction);
+  }
 
 }

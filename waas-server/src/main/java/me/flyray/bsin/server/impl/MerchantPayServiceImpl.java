@@ -21,13 +21,14 @@ public class MerchantPayServiceImpl implements MerchantPayService {
     }
 
     @Override
-    public void profitsharingConfig(Map<String, Object> requestMap) {
+    public void profitSharingConfig(Map<String, Object> requestMap) {
 
     }
 
     @Override
-    public void getProfitsharingConfig(Map<String, Object> requestMap) {
+    public void getProfitSharingConfig(Map<String, Object> requestMap) {
 
     }
+
 
 }
