@@ -51,7 +51,6 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         // 生态贡献计算和价值分配
         ecologicalValueAllocationEngine.excute(requestMap);
 
-
     }
 
 }
