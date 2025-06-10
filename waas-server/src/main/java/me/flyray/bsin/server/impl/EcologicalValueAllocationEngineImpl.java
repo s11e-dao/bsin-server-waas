@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.facade.engine.DataValueAllocationEngine;
 import me.flyray.bsin.facade.engine.EcologicalValueAllocationEngine;
 import me.flyray.bsin.facade.engine.TransactionValueAllocationEngine;
+import me.flyray.bsin.facade.service.DisInviteRelationService;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,14 @@ public class EcologicalValueAllocationEngineImpl implements EcologicalValueAlloc
     private TransactionValueAllocationEngine transactionValueAllocationEngine;
     @Autowired
     private DataValueAllocationEngine dataValueAllocationEngine;
+    @DubboReference(version = "dev")
+    private DisInviteRelationService disInviteRelationService;
 
     @Override
     public void excute(Map<String, Object> requestMap) throws Exception {
+
+        // 根据订单涉及的分销模型关系向CRM获取利益分配角色
+        disInviteRelationService.getDistributionRoleAndRateList(requestMap);
 
         // 判断根据不同类型进行不同价值计算和价值分配
         transactionValueAllocationEngine.excute(requestMap);
