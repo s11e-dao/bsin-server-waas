@@ -36,7 +36,11 @@ public class EcologicalValueAllocationEngineImpl implements EcologicalValueAlloc
         dataValueAllocationEngine.excute(requestMap);
 
         // 收益价值分配 通过智能合约自动进行价值分配（当下通过账户记帐的方式实现）
+        valueAllocation(requestMap);
 
+    }
+
+    public void valueAllocation(Map<String, Object> requestMap){
 
     }
 
