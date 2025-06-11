@@ -31,10 +31,12 @@ public class EcologicalValueAllocationEngineImpl implements EcologicalValueAlloc
         // 根据订单涉及的分销模型关系向CRM获取利益分配角色
         disInviteRelationService.getDistributionRoleAndRateList(requestMap);
 
-        // 判断根据不同类型进行不同价值计算和价值分配
+        // 价值评估 判断根据不同类型进行不同价值计算和价值分配
         transactionValueAllocationEngine.excute(requestMap);
-
         dataValueAllocationEngine.excute(requestMap);
+
+        // 收益价值分配 通过智能合约自动进行价值分配（当下通过账户记帐的方式实现）
+
 
     }
 

@@ -1,5 +1,6 @@
 package me.flyray.bsin.server.impl;
 
+import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.service.ProfitSharingService;
@@ -47,6 +48,8 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         //      wxPayConfig.setPrivateCertString(payChannelConfigParams.getString("privateCert"));
         wxPayConfig.setUseSandboxEnv(false);
         ProfitSharingService profitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
+        ProfitSharingRequest profitSharingRequest = new ProfitSharingRequest();
+        profitSharingService.multiProfitSharing(profitSharingRequest);
 
         // 生态贡献计算和价值分配
         ecologicalValueAllocationEngine.excute(requestMap);
