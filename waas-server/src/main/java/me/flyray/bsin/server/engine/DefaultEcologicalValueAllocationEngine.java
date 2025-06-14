@@ -1,4 +1,4 @@
-package me.flyray.bsin.server.impl;
+package me.flyray.bsin.server.engine;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @ShenyuDubboService(path = "/ecologicalValueAllocation", timeout = 6000)
 @ApiModule(value = "ecologicalValueAllocation")
-public class EcologicalValueAllocationEngineImpl implements EcologicalValueAllocationEngine {
+public class DefaultEcologicalValueAllocationEngine implements EcologicalValueAllocationEngine {
 
     @Autowired
     private TransactionValueAllocationEngine transactionValueAllocationEngine;

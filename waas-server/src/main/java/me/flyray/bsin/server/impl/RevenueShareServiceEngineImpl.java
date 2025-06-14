@@ -6,10 +6,16 @@ import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.service.ProfitSharingService;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
+import me.flyray.bsin.domain.entity.Platform;
+import me.flyray.bsin.domain.enums.EcologicalValueAllocationType;
 import me.flyray.bsin.facade.engine.EcologicalValueAllocationEngine;
 import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
+import me.flyray.bsin.facade.service.DisInviteRelationService;
 import me.flyray.bsin.facade.service.MerchantPayService;
+import me.flyray.bsin.facade.service.PlatformService;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
+import me.flyray.bsin.server.engine.EcologicalValueAllocationEngineFactory;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +29,13 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
 
 
     @Autowired
-    private EcologicalValueAllocationEngine ecologicalValueAllocationEngine;
-    @Autowired
     private MerchantPayService merchantPayService;
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
+    @Autowired
+    private EcologicalValueAllocationEngineFactory EcologicalValueEngineFactory;
+    @DubboReference(version = "dev")
+    private PlatformService platformService;
 
     /**
      * 执行分账分润
@@ -50,6 +58,12 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         ProfitSharingService profitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
         ProfitSharingRequest profitSharingRequest = new ProfitSharingRequest();
         profitSharingService.multiProfitSharing(profitSharingRequest);
+
+        // 根据租户查询租户的生态价值分配模型配置
+        Platform platform = platformService.getEcologicalValueAllocationModel(requestMap);
+
+        EcologicalValueAllocationEngine ecologicalValueAllocationEngine = EcologicalValueEngineFactory.createEngine(
+                EcologicalValueAllocationType.getInstanceById(platform.getEcoValueAllocationModel()));
 
         // 生态贡献计算和价值分配
         ecologicalValueAllocationEngine.excute(requestMap);
