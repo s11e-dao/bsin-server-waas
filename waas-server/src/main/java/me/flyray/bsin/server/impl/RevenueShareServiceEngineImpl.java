@@ -62,7 +62,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         // 根据租户查询租户的生态价值分配模型配置
         Platform platform = platformService.getEcologicalValueAllocationModel(requestMap);
 
-        EcologicalValueAllocationEngine ecologicalValueAllocationEngine = EcologicalValueEngineFactory.createEngine(
+        EcologicalValueAllocationEngine ecologicalValueAllocationEngine = EcologicalValueEngineFactory.getEngine(
                 EcologicalValueAllocationType.getInstanceById(platform.getEcoValueAllocationModel()));
 
         // 生态贡献计算和价值分配

@@ -17,7 +17,7 @@ public class EcologicalValueAllocationEngineFactory {
     @Autowired
     private HybridAllocationEngine hybridEngine;
 
-    public EcologicalValueAllocationEngine createEngine(EcologicalValueAllocationType type) {
+    public EcologicalValueAllocationEngine getEngine(EcologicalValueAllocationType type) {
         switch (type) {
             case CONTRIBUTION_BASED:
                 return contributionBasedEngine;

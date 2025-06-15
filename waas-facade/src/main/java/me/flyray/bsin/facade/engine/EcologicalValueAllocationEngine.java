@@ -34,6 +34,11 @@ import java.util.Map;
 
 public interface EcologicalValueAllocationEngine {
 
+    /**
+     * 生态价值分配引擎定义，不同的租户有不同的价值分配模型
+     * @param requestMap
+     * @throws Exception
+     */
     void excute(Map<String, Object> requestMap) throws Exception;
 
 }
