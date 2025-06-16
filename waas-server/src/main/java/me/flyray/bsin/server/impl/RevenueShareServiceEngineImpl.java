@@ -33,7 +33,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
     @Autowired
-    private EcologicalValueAllocationEngineFactory EcologicalValueEngineFactory;
+    private EcologicalValueAllocationEngineFactory ecologicalValueEngineFactory;
     @DubboReference(version = "dev")
     private PlatformService platformService;
 
@@ -62,7 +62,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         // 根据租户查询租户的生态价值分配模型配置
         Platform platform = platformService.getEcologicalValueAllocationModel(requestMap);
 
-        EcologicalValueAllocationEngine ecologicalValueAllocationEngine = EcologicalValueEngineFactory.getEngine(
+        EcologicalValueAllocationEngine ecologicalValueAllocationEngine = ecologicalValueEngineFactory.getEngine(
                 EcologicalValueAllocationType.getInstanceById(platform.getEcoValueAllocationModel()));
 
         // 生态贡献计算和价值分配
