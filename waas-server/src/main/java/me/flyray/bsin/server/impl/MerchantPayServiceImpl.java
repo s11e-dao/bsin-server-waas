@@ -1,6 +1,7 @@
 package me.flyray.bsin.server.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.facade.service.MerchantPayService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
@@ -26,9 +27,9 @@ public class MerchantPayServiceImpl implements MerchantPayService {
     }
 
     @Override
-    public void getProfitSharingConfig(Map<String, Object> requestMap) {
+    public ProfitSharingConfig getProfitSharingConfig(Map<String, Object> requestMap) {
 
+        return null;
     }
-
 
 }

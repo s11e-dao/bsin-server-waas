@@ -1,5 +1,7 @@
 package me.flyray.bsin.facade.service;
 
+import me.flyray.bsin.domain.entity.ProfitSharingConfig;
+
 import java.util.Map;
 
 public interface MerchantPayService {
@@ -32,7 +34,6 @@ public interface MerchantPayService {
      * 获取商户的分账配置
      * @param requestMap
      */
-    public void getProfitSharingConfig(Map<String, Object> requestMap);
-
+    public ProfitSharingConfig getProfitSharingConfig(Map<String, Object> requestMap);
 
 }

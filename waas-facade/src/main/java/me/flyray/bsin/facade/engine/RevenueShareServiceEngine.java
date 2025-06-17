@@ -1,5 +1,7 @@
 package me.flyray.bsin.facade.engine;
 
+import me.flyray.bsin.domain.entity.Transaction;
+
 import java.util.Map;
 
 /**
@@ -39,6 +41,6 @@ public interface RevenueShareServiceEngine {
      * 调用crm进行入账操作
      * 调用生态价值引擎进行生态贡献计算和价值分配
      */
-    void excute(Map<String, Object> requestMap) throws Exception;
+    void excute(Transaction transaction) throws Exception;
 
 }

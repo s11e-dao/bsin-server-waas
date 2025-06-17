@@ -97,10 +97,10 @@ public class PayCallbackController {
       requestMap.put("payId", result.getTransactionId());
 
       // 2、验证更新交易状态
-      updateTransactionStatus(result);
+      Transaction transaction = updateTransactionStatus(result);
 
       // 3、分佣分账引擎
-      revenueShareServiceEngine.excute(requestMap);
+      revenueShareServiceEngine.excute(transaction);
 
       // 4、异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
       bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
@@ -136,13 +136,13 @@ public class PayCallbackController {
    * 更新交易状态
    */
   @Transactional(rollbackFor = Exception.class)
-  protected void updateTransactionStatus(WxPayOrderNotifyResult result) {
+  protected Transaction updateTransactionStatus(WxPayOrderNotifyResult result) {
     // 根据 WaasTransactionNo 查询交易订单并更新交易状态
     Transaction waasTransaction =
             transactionMapper.selectOne(
                     new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, result.getOutTradeNo()));
     if (waasTransaction == null) {
-      return ;
+      return null;
     }
     // 更新交易流水
     if ("SUCCESS".equals(result.getResultCode())) {
@@ -153,6 +153,7 @@ public class PayCallbackController {
       waasTransactionJournalMapper.updateTransferStatus(waasTransaction.getSerialNo(), TransactionStatus.FAIL.getCode());
     }
     transactionMapper.updateById(waasTransaction);
+    return waasTransaction;
   }
 
 }
