@@ -18,7 +18,6 @@ import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.facade.service.PlatformService;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.server.engine.EcologicalValueAllocationEngineFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
@@ -59,13 +58,10 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     @Override
     public void excute(Transaction transaction) throws Exception {
         Assert.notNull(transaction, "交易信息不能为空");
-        Assert.hasText(transaction.getSerialNo(), "交易号不能为空");
-        Assert.notNull(transaction.getTxAmount(), "交易金额不能为空");
-        
-        log.info("开始执行分账分润，交易号：{}，交易金额：{}", transaction.getSerialNo(), transaction.getTxAmount());
+        log.info("开始执行分账分润，交易号：{}", transaction.getSerialNo());
         
         try {
-            // 1. 判断交易是否需要进行分账，根据商户让利配置进行分账
+            // 1. 获取并验证分账配置
             Map<String, Object> requestMap = buildRequestMap(transaction);
             ProfitSharingConfig profitSharingConfig = merchantPayService.getProfitSharingConfig(requestMap);
             if (profitSharingConfig == null) {
@@ -73,18 +69,15 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
                 return;
             }
             
-            // 2. 根据不同支付通道，执行支付让利分账
+            // 2. 根据不同支付通道，执行支付分账
             executeProfitSharing(transaction, profitSharingConfig);
             
             // 3. 执行生态价值分配
-            executeEcologicalValueAllocation(transaction, profitSharingConfig);
+            executeEcologicalValueAllocation(transaction);
             
             log.info("分账分润执行完成，交易号：{}", transaction.getSerialNo());
-        } catch (WxPayException e) {
-            log.error("微信支付分账失败，交易号：{}，错误信息：{}", transaction.getSerialNo(), e.getMessage(), e);
-            throw e;
         } catch (Exception e) {
-            log.error("分账分润执行失败，交易号：{}，错误信息：{}", transaction.getSerialNo(), e.getMessage(), e);
+            log.error("分账分润执行失败，交易号：{}", transaction.getSerialNo(), e);
             throw e;
         }
     }
@@ -97,8 +90,6 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         requestMap.put("serialNo", transaction.getSerialNo());
         requestMap.put("tenantId", transaction.getTenantId());
         requestMap.put("txAmount", transaction.getTxAmount());
-        requestMap.put("bizRoleType", transaction.getBizRoleType());
-        requestMap.put("bizRoleTypeNo", transaction.getBizRoleTypeNo());
         return requestMap;
     }
 
@@ -109,7 +100,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      * @throws WxPayException 微信支付异常
      */
     private void executeProfitSharing(Transaction transaction, ProfitSharingConfig profitSharingConfig) throws WxPayException {
-        log.info("开始执行支付分账，交易号：{}，分账配置：{}", transaction.getSerialNo(), profitSharingConfig);
+        log.info("开始执行支付分账，交易号：{}", transaction.getSerialNo());
         
         WxPayConfig wxPayConfig = new WxPayConfig();
         wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
@@ -125,7 +116,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     /**
      * 构建分账请求对象
      */
-    private ProfitSharingRequest buildProfitSharingRequest(Transaction transaction, ProfitSharingConfig profitSharingConfig) {
+    private ProfitSharingRequest buildProfitSharingRequest(Transaction transaction, ProfitSharingConfig config) {
         ProfitSharingRequest request = new ProfitSharingRequest();
         // TODO: 根据实际业务需求设置分账请求参数
         return request;
@@ -135,11 +126,10 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      * 执行生态价值分配
      * @param transaction 交易信息
      */
-    private void executeEcologicalValueAllocation(Transaction transaction, ProfitSharingConfig profitSharingConfig) throws Exception {
+    private void executeEcologicalValueAllocation(Transaction transaction) throws Exception {
         log.info("开始执行生态价值分配，交易号：{}", transaction.getSerialNo());
-        // 根据模型，判断是否需要生态价值分配
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("profitSharingConfig",profitSharingConfig);
+        
+        Map<String, Object> requestMap = buildRequestMap(transaction);
         Platform platform = platformService.getEcologicalValueAllocationModel(requestMap);
         if (platform == null) {
             log.warn("未找到平台配置，交易号：{}", transaction.getSerialNo());
@@ -148,12 +138,11 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
 
         EcologicalValueAllocationType allocationType = EcologicalValueAllocationType.getInstanceById(
             platform.getEcoValueAllocationModel());
-
             
         // 获取生态价值计算引擎，根据不同计算模型进行价值计算分配
         ecologicalValueEngineFactory.getEngine(allocationType)
                 .excute(requestMap);
-        
+
         log.info("生态价值分配执行完成，交易号：{}", transaction.getSerialNo());
     }
 }
