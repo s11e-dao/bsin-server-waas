@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -11,6 +13,8 @@ import java.math.BigDecimal;
  * 商户让利配置
  * @TableName waas_profit_sharing_config
  */
+
+@Data
 @TableName(value ="waas_profit_sharing_config")
 public class ProfitSharingConfig implements Serializable {
     /**
