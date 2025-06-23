@@ -74,6 +74,10 @@ public class BondingCurveTokenParam implements Serializable {
      */
     private String digitalPointNo;
 
+    /**
+     * 释放数字积分的曲线价值阀值
+     */
+    private Integer releaseThreshold;
 
     /**
      * 积分最终价格

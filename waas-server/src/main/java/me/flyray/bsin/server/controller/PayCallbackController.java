@@ -56,8 +56,7 @@ public class PayCallbackController {
   private TransactionMapper transactionMapper;
   @Autowired
   private TransactionJournalMapper waasTransactionJournalMapper;
-  @Autowired
-  private RevenueShareServiceEngine revenueShareServiceEngine;
+
 
 //  @DubboReference(version = "${dubbo.provider.version}")
 //  private MemberService memberService;
@@ -65,8 +64,7 @@ public class PayCallbackController {
   /**
    * 1、解析回调结果
    * 2、验证更新交易状态
-   * 3、分佣分账生态贡献激励处理
-   * 4、调用oms模块处理业务订单
+   * 3、调用oms模块处理业务订单
    * 参考：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
    *
    * @param body
@@ -97,12 +95,9 @@ public class PayCallbackController {
       requestMap.put("payId", result.getTransactionId());
 
       // 2、验证更新交易状态
-      Transaction transaction = updateTransactionStatus(result);
+      updateTransactionStatus(result);
 
-      // 3、分佣分账引擎
-      revenueShareServiceEngine.excute(transaction);
-
-      // 4、异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
+      // 3、异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
       bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
     } catch (Exception e) {
       System.out.println(e.getCause());

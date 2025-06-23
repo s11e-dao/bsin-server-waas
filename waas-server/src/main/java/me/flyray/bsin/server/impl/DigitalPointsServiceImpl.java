@@ -204,17 +204,31 @@ public class DigitalPointsServiceImpl implements DigitalPointsServiceEngine {
   }
 
   /**
+   * 在链上mint积分
+   * @param requestMap
+   * @throws Exception
+   */
+  @ShenyuDubboClient("/release")
+  @ApiDoc(desc = "release")
+  @Override
+  public void release(Map<String, Object> requestMap) throws Exception {
+
+    // 计算每个人应该得到多少积分，根据结果为每个人进行铸造
+
+    digitalAssetsCollectionService.mint(requestMap);
+  }
+
+  /**
    * 根据劳动价值计算应该激励的数字积分
    * 1、计算劳动价值所有铸造量：根据实际贡献价值，计算联合曲线上的应得价值
    * 2、基于应得价值去铸铸造链上数字积分
-   * @param requestMap
    * @throws Exception
    */
   @ShenyuDubboClient("/calculateValueOfLabor")
   @ApiDoc(desc = "calculateValueOfLabor")
   @Override
-  public void calculateValueOfLabor(Map<String, Object> requestMap) throws Exception {
-
+  public BigDecimal calculateValueOfLabor(Integer bondingCurveValue) throws Exception {
+    return BigDecimal.ZERO;
   }
 
 }

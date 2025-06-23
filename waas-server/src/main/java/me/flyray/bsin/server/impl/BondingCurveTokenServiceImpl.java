@@ -64,13 +64,12 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
   /**
    * 1、获取平台或商户的曲线配置，基于曲线，对劳动价值进行计算
    * 2、返回劳动价值对应的曲线价值
-   * @param yieldCurve
    * @return
    */
   @Override
-  public double calculateCurveValue(Map<String, Object> yieldCurve) {
+  public BigDecimal calculateCurveValue(BigDecimal laborValue) {
 
-    return 0;
+    return BigDecimal.ZERO;
   }
 
   /**

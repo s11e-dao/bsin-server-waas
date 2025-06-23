@@ -2,6 +2,7 @@ package me.flyray.bsin.facade.engine;
 
 import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -29,13 +30,17 @@ public interface DigitalPointsServiceEngine {
      */
     void mint(Map<String, Object> requestMap) throws Exception;
 
+    /**
+     * 给每个用户释放获得的数字积分
+     */
+    void release(Map<String, Object> requestMap) throws Exception;
 
     /**
      * 根据联合曲线价值，计算出劳动价值应该获得多少的积分分配
      * 计算应该产出多少数字积分
      * Calculate the value of labor
      */
-    void calculateValueOfLabor(Map<String, Object> requestMap) throws Exception;
+    BigDecimal calculateValueOfLabor(Integer bondingCurveValue) throws Exception;
 
 
 }

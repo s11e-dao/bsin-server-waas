@@ -1,6 +1,5 @@
-package me.flyray.bsin.domain.entity;
+package me.flyray.bsin.domain.request;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,8 +14,7 @@ import java.math.BigDecimal;
  */
 
 @Data
-@TableName(value ="waas_profit_sharing_config")
-public class ProfitSharingConfig implements Serializable {
+public class ParticipantRoleAllocationDTO implements Serializable {
 
     /**
      * 设置规则的租户
@@ -30,47 +28,34 @@ public class ProfitSharingConfig implements Serializable {
     private String serialNo;
 
     /**
-     * 运营平台分佣比例
+     * 运营平台分佣金额
      */
-    private BigDecimal superTenantRate;
+    private BigDecimal superTenantValue;
 
     /**
      * 租户平台分佣比例
      */
-    private BigDecimal tenantRate;
+    private BigDecimal tenantValue;
 
     /**
      * 代理商分佣比例
      */
-    private BigDecimal sysAgentRate;
+    private BigDecimal sysAgentValue;
 
     /**
      * 消费者返利比例
      */
-    private BigDecimal customerRate;
+    private BigDecimal customerValue;
 
     /**
      * 分销模型的分销者比例
      */
-    private BigDecimal distributorRate;
-
-    /**
-     * 设置规则的商户
-     */
-    private String merchantNo;
-
-    /**
-     * 商户让利比例
-     */
-    private BigDecimal merchantSharingRate;
+    private BigDecimal distributorValue;
 
     /**
      * 佣金兑换数字积分比例
      */
     private BigDecimal exchangeDigitalPointsRate;
 
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 
 }

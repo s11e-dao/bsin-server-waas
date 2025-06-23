@@ -129,4 +129,14 @@ public class Transaction extends BaseEntity implements Serializable {
      */
     private String tenantId;
 
+    /**
+     * 分账标识
+     */
+    private boolean profitSharing;
+
+    /**
+     * 分账状态; 1、待分账 2、成功 3、失败 99 无
+     */
+    private boolean profitSharingStatus;
+
 }

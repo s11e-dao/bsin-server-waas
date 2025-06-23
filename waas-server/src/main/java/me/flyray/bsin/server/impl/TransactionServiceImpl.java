@@ -28,6 +28,7 @@ import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
 import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
+import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
 import me.flyray.bsin.facade.service.TransactionService;
 import me.flyray.bsin.infrastructure.mapper.*;
 import me.flyray.bsin.mybatis.utils.Pagination;
@@ -87,12 +88,16 @@ public class TransactionServiceImpl  implements TransactionService {
     @Autowired
     private WalletAccountMapper walletAccountMapper;
     @Autowired
+    private ProfitSharingConfigMapper profitSharingConfigMapper;
+    @Autowired
     private ChainTransactionListen transactionBiz;
     @Autowired
     private TransactionBiz transferBiz;
+    @Autowired
+    private RevenueShareServiceEngine revenueShareServiceEngine;
 
     @Override
-    public Map<String, Object> pay(Map<String, Object> requestMap) {
+    public Map<String, Object> create(Map<String, Object> requestMap) {
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         String payWay = MapUtils.getString(requestMap, "payWay");
         String payAmount = MapUtils.getDouble(requestMap, "payAmount").toString();
@@ -143,6 +148,23 @@ public class TransactionServiceImpl  implements TransactionService {
             waasTransaction.setCreateTime(new Date());
             waasTransaction.setFromAddress(customerNo);
             waasTransaction.setCreateBy(customerNo);
+            // 查询商户是否有让利配置继续让利分账
+            ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(
+                    new LambdaQueryWrapper<ProfitSharingConfig>()
+                            .eq(ProfitSharingConfig::getMerchantNo, merchantNo)
+                            .eq(ProfitSharingConfig::getTenantId, tenantId));
+
+            // 根据分账配置判断是否需要分账
+            boolean needProfitSharing = false;
+            if (profitSharingConfig != null) {
+                // 检查分账配置是否有效
+                if (profitSharingConfig.getMerchantSharingRate() != null && 
+                    profitSharingConfig.getMerchantSharingRate().compareTo(BigDecimal.ZERO) > 0) {
+                    needProfitSharing = true;
+                    log.info("商户{}存在分账配置，让利比例：{}%", merchantNo, profitSharingConfig.getMerchantSharingRate());
+                }
+            }
+            waasTransaction.setProfitSharing(needProfitSharing);
             transactionMapper.insert(waasTransaction);
         }
         // 2、创建支付转账流水
@@ -284,6 +306,70 @@ public class TransactionServiceImpl  implements TransactionService {
     }
 
     @Override
+    @ShenyuDubboClient("/pay")
+    @ApiDoc(desc = "pay")
+    public void pay(TransactionRequest transactionRequest) {
+        log.debug("请求TransactionService.pay,参数:{}", transactionRequest);
+        LoginUser user = LoginInfoContextHelper.getLoginUser();
+        try{
+            // 查询币种是否支持
+            QueryWrapper<ChainCoin> chainCoinQueryWrapper = new QueryWrapper<>();
+            chainCoinQueryWrapper.eq("chain_coin_key", transactionRequest.getChainCoinKey());
+            chainCoinQueryWrapper.eq("status", 1);  // 已上架
+            ChainCoin chainCoin = chainCoinMapper.selectOne(chainCoinQueryWrapper);
+            if(chainCoin == null){
+                throw new BusinessException("CHAIN_COIN_NOT_EXIST");
+            }
+            // 查询用户账户状态是否正常
+            QueryWrapper<WalletAccount> walletAccountQueryWrapper = new QueryWrapper<>();
+            walletAccountQueryWrapper.eq("address",transactionRequest.getToAddress());
+            walletAccountQueryWrapper.eq("chain_coin_no", chainCoin.getSerialNo());
+            walletAccountQueryWrapper.eq("tenant_id", transactionRequest.getTenantId());
+            WalletAccount walletAccounts = walletAccountMapper.selectOne(walletAccountQueryWrapper);
+            if(walletAccounts == null){}
+
+            // 创建交易记录
+            String serialNo = BsinSnowflake.getId(); // 雪花算法
+            Transaction transaction = new Transaction();
+            transaction.setSerialNo(serialNo);
+            transaction.setOutSerialNo(transactionRequest.getOutSerialNo());
+            transaction.setTransactionType(TransactionType.TRANSFER.getCode());       // 交易类型 2、转出
+            transaction.setComment(transactionRequest.getComment());
+            transaction.setFromAddress(transactionRequest.getFromAddress());
+            transaction.setTxAmount(new BigDecimal(transactionRequest.getTxAmount()));
+            transaction.setToAddress(transactionRequest.getToAddress());
+            transaction.setBizRoleType(user.getBizRoleType());
+            transaction.setBizRoleTypeNo(user.getBizRoleTypeNo());
+            transaction.setTenantId(transactionRequest.getTenantId());
+            transaction.setCreateTime(new Date());
+            transaction.setCreateBy(user.getUserId());
+            transactionMapper.insert(transaction);
+
+            // TODO 调用风控方法
+
+            // 风控审核通过，则执行转出动作
+            if(true){
+                transactionBiz.transferOut();
+            }else {
+                // 风控拦截交易，进入人工审核
+                TransactionAudit transactionAudit = new TransactionAudit();
+                transactionAudit.setAuditYpe(1);      // 1、交易转出审核
+                transactionAudit.setAuditStatus(1);     // 1、待审核状态
+                transactionAudit.setAuditLevel(1);      // 根据风控判断风险等级，暂默认为 1、低级风险
+                transactionAudit.setTransactionNo(serialNo);
+                transactionAudit.setCreateTime(new Date());
+                transactionAudit.setCreateBy(user.getUserId());
+                transactionAuditMapper.insert(transactionAudit);
+            }
+        }catch (BusinessException be){
+            throw be;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new BusinessException("SYSTEM_ERROR");
+        }
+    }
+
+    @Override
     public Transaction recharge(Map<String, Object> requestMap) {
         return null;
     }
@@ -383,6 +469,26 @@ public class TransactionServiceImpl  implements TransactionService {
         return null;
     }
 
+    /**
+     * 业务订单完成之后调用钱包模块进行分账分润
+     *  定时任务触发调用
+     ** @return
+     * @throws Exception
+     */
+    @ApiDoc(desc = "profitSharingSettlement")
+    @ShenyuDubboClient("/profitSharingSettlement")
+    @Override
+    public Transaction profitSharingSettlement(Map<String, Object> requestMap) throws Exception {
+        String outSerialNo = MapUtils.getString(requestMap, "outSerialNo");
+        QueryWrapper<Transaction> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("outSerialNo", outSerialNo);
+        // 根据订单号查询交易
+        Transaction transaction = transactionMapper.selectOne(queryWrapper);
+        // 分佣分账引擎
+        revenueShareServiceEngine.excute(transaction);
+        return transaction;
+    }
+
     @Override
     public Transaction income(Map<String, Object> requestMap) {
         return null;
@@ -391,70 +497,6 @@ public class TransactionServiceImpl  implements TransactionService {
     @Override
     public Transaction redeem(Map<String, Object> requestMap) {
         return null;
-    }
-
-    @Override
-    @ShenyuDubboClient("/create")
-    @ApiDoc(desc = "create")
-    public void create(TransactionRequest transactionRequest) {
-        log.debug("请求TransactionService.createTransaction,参数:{}", transactionRequest);
-        LoginUser user = LoginInfoContextHelper.getLoginUser();
-        try{
-            // 查询币种是否支持
-            QueryWrapper<ChainCoin> chainCoinQueryWrapper = new QueryWrapper<>();
-            chainCoinQueryWrapper.eq("chain_coin_key", transactionRequest.getChainCoinKey());
-            chainCoinQueryWrapper.eq("status", 1);  // 已上架
-            ChainCoin chainCoin = chainCoinMapper.selectOne(chainCoinQueryWrapper);
-            if(chainCoin == null){
-                throw new BusinessException("CHAIN_COIN_NOT_EXIST");
-            }
-            // 查询用户账户状态是否正常
-            QueryWrapper<WalletAccount> walletAccountQueryWrapper = new QueryWrapper<>();
-            walletAccountQueryWrapper.eq("address",transactionRequest.getToAddress());
-            walletAccountQueryWrapper.eq("chain_coin_no", chainCoin.getSerialNo());
-            walletAccountQueryWrapper.eq("tenant_id", transactionRequest.getTenantId());
-            WalletAccount walletAccounts = walletAccountMapper.selectOne(walletAccountQueryWrapper);
-            if(walletAccounts == null){}
-
-            // 创建交易记录
-            String serialNo = BsinSnowflake.getId(); // 雪花算法
-            Transaction transaction = new Transaction();
-            transaction.setSerialNo(serialNo);
-            transaction.setOutSerialNo(transactionRequest.getOutSerialNo());
-            transaction.setTransactionType(TransactionType.TRANSFER.getCode());       // 交易类型 2、转出
-            transaction.setComment(transactionRequest.getComment());
-            transaction.setFromAddress(transactionRequest.getFromAddress());
-            transaction.setTxAmount(new BigDecimal(transactionRequest.getTxAmount()));
-            transaction.setToAddress(transactionRequest.getToAddress());
-            transaction.setBizRoleType(user.getBizRoleType());
-            transaction.setBizRoleTypeNo(user.getBizRoleTypeNo());
-            transaction.setTenantId(transactionRequest.getTenantId());
-            transaction.setCreateTime(new Date());
-            transaction.setCreateBy(user.getUserId());
-            transactionMapper.insert(transaction);
-
-            // TODO 调用风控方法
-
-            // 风控审核通过，则执行转出动作
-            if(true){
-                transactionBiz.transferOut();
-            }else {
-                // 风控拦截交易，进入人工审核
-                TransactionAudit transactionAudit = new TransactionAudit();
-                transactionAudit.setAuditYpe(1);      // 1、交易转出审核
-                transactionAudit.setAuditStatus(1);     // 1、待审核状态
-                transactionAudit.setAuditLevel(1);      // 根据风控判断风险等级，暂默认为 1、低级风险
-                transactionAudit.setTransactionNo(serialNo);
-                transactionAudit.setCreateTime(new Date());
-                transactionAudit.setCreateBy(user.getUserId());
-                transactionAuditMapper.insert(transactionAudit);
-            }
-        }catch (BusinessException be){
-            throw be;
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new BusinessException("SYSTEM_ERROR");
-        }
     }
 
     /**
@@ -518,49 +560,6 @@ public class TransactionServiceImpl  implements TransactionService {
         String serialNo = MapUtils.getString(requestMap, "serialNo");
         Transaction transaction = transactionMapper.selectById(serialNo);
         return transaction;
-    }
-
-    /**
-     * 支付成功后进行分账
-     * @param requestMap
-     * @return
-     */
-    @Override
-    public Map<String, Object> profitsharing(Map<String, Object> requestMap){
-
-        String bizRoleAppId = MapUtils.getString(requestMap, "appId");
-        // 支付配置应用: 从商户应用配置的支付应用中获取
-        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
-        warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
-        warapper.orderByDesc(PayChannelConfig::getCreateTime);
-        PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
-        if (payChannelConfig == null) {
-            throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
-        }
-        JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
-
-        String apiVersion = payChannelConfigParams.getString("apiVersion");
-        String key = payChannelConfigParams.getString("key");
-        String keyPath = payChannelConfigParams.getString("keyPath");
-        String appId = payChannelConfigParams.getString("appId");
-        String mchId = payChannelConfigParams.getString("mchId");
-
-        WxPayConfig wxPayConfig = new WxPayConfig();
-        wxPayConfig.setAppId(appId);
-        wxPayConfig.setMchId(mchId);
-        wxPayConfig.setMchKey(key);
-        wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
-
-        ProfitSharingService wxProfitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
-        ProfitSharingRequest profitSharingRequest = new ProfitSharingRequest();
-        try {
-            wxProfitSharingService.multiProfitSharing(profitSharingRequest);
-        }catch (WxPayException e) {
-            e.printStackTrace();
-            //        log.info("支付异常{}", e);
-            throw new BusinessException("100000", "微信分账创建订单失败：" + e.getMessage());
-        }
-        return null;
     }
 
     /**

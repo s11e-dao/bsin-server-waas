@@ -5,6 +5,7 @@ import me.flyray.bsin.domain.entity.BondingCurveTokenJournal;
 import me.flyray.bsin.domain.entity.BondingCurveTokenParam;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public interface BondingCurveTokenService {
    * 计算一系列现金流在给定的联合收益率曲线下的现值。
    * 基于劳动价值贡献和数据价值贡献计算联合曲线值
    */
-  public double calculateCurveValue(Map<String, Object> yieldCurve);
+  public BigDecimal calculateCurveValue(BigDecimal laborValue);
 
   /** 新增 */
   public BondingCurveTokenParam add(Map<String, Object> requestMap);

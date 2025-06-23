@@ -15,11 +15,23 @@ import java.util.Map;
 public interface TransactionService {
 
     /**
+     * 创建交易
      * 根据支付方式进行第三调用
      * @param requestMap
      * @return
      */
-    public Map<String, Object> pay(Map<String, Object> requestMap);
+    public Map<String, Object> create(Map<String, Object> requestMap);
+
+    /**
+     * 支付交易
+     * 1、参数校验
+     * 2、记录交易信息
+     * 3、调用风控方法
+     * 4、风控未通过，则进入人工审核
+     * @param transactionRequest
+     * @return
+     */
+    void pay(TransactionRequest transactionRequest);
 
     /**
      * 充值
@@ -71,11 +83,11 @@ public interface TransactionService {
     public Transaction settlement(Map<String, Object> requestMap);
 
     /**
-     * 收入
+     * 让利分润结算
      * @param requestMap
      * @return
      */
-    public Transaction income(Map<String, Object> requestMap);
+    public Transaction profitSharingSettlement(Map<String, Object> requestMap) throws Exception;
 
     /**
      * 赎回
@@ -85,16 +97,11 @@ public interface TransactionService {
     public Transaction redeem(Map<String, Object> requestMap);
 
     /**
-     * 创建交易（转出）
-     * 1、参数校验
-     * 2、记录交易信息
-     * 3、调用风控方法
-     * 4、风控未通过，则进入人工审核
-     * @param transactionRequest
+     * 转入
+     * @param requestMap
      * @return
      */
-    void create(TransactionRequest transactionRequest);
-
+    public Transaction income(Map<String, Object> requestMap);
 
     /**
      * 转出
@@ -112,8 +119,6 @@ public interface TransactionService {
     Page<Transaction> getPageList(TransactionDTO transactionDTO);
 
     public Transaction getDetail(Map<String, Object> requestMap);
-
-    public Map<String, Object> profitsharing(Map<String, Object> requestMap);
 
     public Map<String, Object> queryOrder(Map<String, Object> requestMap);
 
