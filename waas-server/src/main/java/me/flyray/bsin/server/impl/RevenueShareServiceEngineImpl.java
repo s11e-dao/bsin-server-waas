@@ -65,7 +65,9 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         try {
             // 1. 获取并验证分账配置
             Map<String, Object> requestMap =  new HashMap<>();
-            requestMap.put("serialNo", transaction.getSerialNo());
+            requestMap.put("tenantId", transaction.getTenantId());
+            //  1: 订单 2:  商品
+            requestMap.put("type", transaction.getProfitSharingType());
             ProfitSharingConfig profitSharingConfig = merchantPayService.getProfitSharingConfig(requestMap);
             if (profitSharingConfig != null) {
                 // 2. 根据不同支付通道，执行支付分账
@@ -109,6 +111,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         ProfitSharingService profitSharingService = bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
 
         ProfitSharingReceiverRequest receiverRequest = new ProfitSharingReceiverRequest();
+        receiverRequest.setReceiver("");
         profitSharingService.addReceiver(receiverRequest);
 
         // TODO 根据支付方式，调用不同支付通道分账
@@ -128,6 +131,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     private ProfitSharingRequest buildProfitSharingRequest(Transaction transaction, ProfitSharingConfig config) {
         ProfitSharingRequest request = new ProfitSharingRequest();
         // TODO: 根据实际业务需求设置分账请求参数
+
         return request;
     }
 

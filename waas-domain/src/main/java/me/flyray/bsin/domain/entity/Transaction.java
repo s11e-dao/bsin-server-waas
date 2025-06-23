@@ -135,8 +135,19 @@ public class Transaction extends BaseEntity implements Serializable {
     private boolean profitSharing;
 
     /**
+     * 分账类型： 订单分账还是商品分账
+     */
+    private String profitSharingType;
+
+    /**
      * 分账状态; 1、待分账 2、成功 3、失败 99 无
      */
     private boolean profitSharingStatus;
+
+    /**
+     * 分润总金额
+     */
+    private BigDecimal profitSharingAmount;
+
 
 }

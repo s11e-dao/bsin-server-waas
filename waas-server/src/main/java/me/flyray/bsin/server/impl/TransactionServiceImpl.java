@@ -148,20 +148,26 @@ public class TransactionServiceImpl  implements TransactionService {
             waasTransaction.setCreateTime(new Date());
             waasTransaction.setFromAddress(customerNo);
             waasTransaction.setCreateBy(customerNo);
-            // 查询商户是否有让利配置继续让利分账
-            ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(
-                    new LambdaQueryWrapper<ProfitSharingConfig>()
-                            .eq(ProfitSharingConfig::getMerchantNo, merchantNo)
-                            .eq(ProfitSharingConfig::getTenantId, tenantId));
 
             // 根据分账配置判断是否需要分账
             boolean needProfitSharing = false;
-            if (profitSharingConfig != null) {
-                // 检查分账配置是否有效
-                if (profitSharingConfig.getMerchantSharingRate() != null && 
-                    profitSharingConfig.getMerchantSharingRate().compareTo(BigDecimal.ZERO) > 0) {
+
+            // 判断订单是否基于商品进行分账 1: 订单 2:  商品
+            String profitSharingType = MapUtils.getString(requestMap, "profitSharingType");
+            String profitSharingAmount = MapUtils.getString(requestMap, "profitSharingAmount");
+            if("2".equals(profitSharingType)){
+                needProfitSharing = true;
+                waasTransaction.setProfitSharingAmount(new BigDecimal(profitSharingAmount));
+            }else {
+                // 查询商户是否有让利配置继续让利分账
+                ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(
+                        new LambdaQueryWrapper<ProfitSharingConfig>()
+                                .eq(ProfitSharingConfig::getMerchantNo, merchantNo)
+                                .eq(ProfitSharingConfig::getTenantId, tenantId));
+
+
+                if (profitSharingConfig != null) {
                     needProfitSharing = true;
-                    log.info("商户{}存在分账配置，让利比例：{}%", merchantNo, profitSharingConfig.getMerchantSharingRate());
                 }
             }
             waasTransaction.setProfitSharing(needProfitSharing);
