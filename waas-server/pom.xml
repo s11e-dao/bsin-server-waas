@@ -42,6 +42,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+            <version>${nacos-client.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>me.flyray.bsin</groupId>
             <artifactId>bsin-common-dubbo</artifactId>
             <version>${project.version}</version>

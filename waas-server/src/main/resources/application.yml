@@ -11,6 +11,27 @@ spring:
       port: ${WAAS_REDIS_PORT}
       password: ${WAAS_REDIS_PASSWORD}
 
+  main:
+    web-application-type: none
+    banner-mode: off
+  ai:
+    mcp:
+      server:
+        name: my-weather-server
+        version: 0.0.1
+    # 配置mcp nacos
+    alibaba:
+      mcp:
+        nacos:
+          namespace: public
+          server-addr: 127.0.0.1:8848
+          username: nacos
+          password: nacos
+          registry:
+            enabled: true
+            service-group: waas-server
+            service-name: waas-mcp-server
+
 shenyu:
   register:
     registerType: http #zookeeper #etcd #nacos #consul
