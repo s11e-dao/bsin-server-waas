@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 商户让利配置
@@ -69,6 +70,15 @@ public class ProfitSharingConfig implements Serializable {
      */
     private BigDecimal exchangeDigitalPointsRate;
 
+    /**
+     * 配置时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
