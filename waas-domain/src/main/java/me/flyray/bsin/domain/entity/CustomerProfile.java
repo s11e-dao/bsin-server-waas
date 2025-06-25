@@ -126,10 +126,13 @@ public class CustomerProfile implements Serializable {
      */
     private String description;
 
+    /**
+     * profile DID
+     */
+    private String did;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
-
-
 
 
 }
