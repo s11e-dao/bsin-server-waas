@@ -23,10 +23,9 @@ spring:
     alibaba:
       mcp:
         nacos:
-          namespace: public
-          server-addr: 127.0.0.1:8848
-          username: nacos
-          password: nacos
+          server-addr: ${BSIN_NACOS_SERVER_ADDR} # Nacos 服务器地址
+          username: ${BSIN_NACOS_USERNAME}
+          password: ${BSIN_NACOS_PASSWORD}
           registry:
             enabled: true
             service-group: waas-server
