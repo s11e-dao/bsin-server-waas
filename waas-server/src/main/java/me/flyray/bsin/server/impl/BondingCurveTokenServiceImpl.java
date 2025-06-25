@@ -143,16 +143,16 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     return bondingCurveTokenParam;
   }
 
-  @ApiDoc(desc = "deleteCurve")
-  @ShenyuDubboClient("/deleteCurve")
+  @ApiDoc(desc = "delete")
+  @ShenyuDubboClient("/delete")
   @Override
   public void delete(Map<String, Object> requestMap) {
     String serialNo = MapUtils.getString(requestMap, "serialNo");
     bondingCurveTokenParamMapper.deleteById(serialNo);
   }
 
-  @ApiDoc(desc = "editCurve")
-  @ShenyuDubboClient("/editCurve")
+  @ApiDoc(desc = "edit")
+  @ShenyuDubboClient("/edit")
   @Override
   public Map<String, Object> edit(Map<String, Object> requestMap) {
     throw new BusinessException("100000", "联合曲线参数一经发布，不支持修改！！！");
@@ -162,8 +162,8 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     //    return RespBodyHandler.RespBodyDto();
   }
 
-  @ApiDoc(desc = "getCurvePageList")
-  @ShenyuDubboClient("/getCurvePageList")
+  @ApiDoc(desc = "getPageList")
+  @ShenyuDubboClient("/getPageList")
   @Override
   public IPage<?> getPageList(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
