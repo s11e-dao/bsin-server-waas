@@ -46,7 +46,7 @@ shenyu:
         appName: waas
     http:
       props:
-        port: 9107
+        port: 91070
         contextPath: /callback
         appName: callback
 
