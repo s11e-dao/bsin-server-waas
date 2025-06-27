@@ -135,7 +135,7 @@ public class Transaction extends BaseEntity implements Serializable {
     private boolean profitSharing;
 
     /**
-     * 分账类型： 订单分账还是商品分账
+     * 分账类型： 1 订单分账 2 商品分账
      */
     private String profitSharingType;
 

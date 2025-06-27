@@ -26,6 +26,7 @@ import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,6 +105,14 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      */
     private void executeProfitSharing(Transaction transaction, ProfitSharingConfig profitSharingConfig) throws WxPayException {
         log.info("开始执行支付分账，交易号：{}", transaction.getSerialNo());
+
+        // 判断 transaction.getProfitSharingType() 如果是 1 订单则需要根据交易金额 * profitSharingConfig.getMerchantSharingRate(); 获取分账金额
+        BigDecimal profitSharingAmount = BigDecimal.ZERO;
+        if("1".equals(transaction.getProfitSharingType())){
+            profitSharingAmount = transaction.getProfitSharingAmount();
+        }else {
+            profitSharingAmount = transaction.getTxAmount().multiply(profitSharingConfig.getMerchantSharingRate());
+        }
 
         WxPayConfig wxPayConfig = new WxPayConfig();
         wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
