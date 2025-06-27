@@ -59,7 +59,7 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      */
     @Override
     public void excute(Transaction transaction) throws Exception {
-        Assert.notNull(transaction, "交易信息不能为空");
+        Assert.notNull(transaction, "交易信息不存在");
         log.info("开始执行分账分润，交易号：{}", transaction.getSerialNo());
         
         try {

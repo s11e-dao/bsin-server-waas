@@ -83,7 +83,7 @@ public class TokenParamServiceImpl implements TokenParamService {
     Pagination pagination = new Pagination();
     BeanUtil.copyProperties(paginationObj,pagination);
     Page<TokenParam> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
-    LambdaUpdateWrapper<TokenParam> warapper = new LambdaUpdateWrapper<>();
+    LambdaQueryWrapper<TokenParam> warapper = new LambdaQueryWrapper<>();
     // warapper.eq(TokenReleaseParam::getTenantId, contractProtocol.getTenantId());
     warapper.eq(
         ObjectUtil.isNotNull(tokenReleaseParam.getMerchantNo()),

@@ -486,8 +486,8 @@ public class TransactionServiceImpl  implements TransactionService {
     @Override
     public Transaction profitSharingSettlement(Map<String, Object> requestMap) throws Exception {
         String outSerialNo = MapUtils.getString(requestMap, "outSerialNo");
-        QueryWrapper<Transaction> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("outSerialNo", outSerialNo);
+        LambdaQueryWrapper<Transaction> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Transaction::getOutSerialNo, outSerialNo);
         // 根据订单号查询交易
         Transaction transaction = transactionMapper.selectOne(queryWrapper);
         // 分佣分账引擎

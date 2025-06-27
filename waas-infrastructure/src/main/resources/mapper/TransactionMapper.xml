@@ -12,6 +12,7 @@
             <result property="methodInvokeWay" column="method_invoke_way" jdbcType="VARCHAR"/>
             <result property="transactionType" column="transaction_type" jdbcType="VARCHAR"/>
             <result property="transactionStatus" column="transaction_status" jdbcType="VARCHAR"/>
+            <result property="outSerialNo" column="out_serial_no" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type" jdbcType="VARCHAR"/>
             <result property="bizRoleType" column="biz_role_type_no" jdbcType="INTEGER"/>
             <result property="txAmount" column="tx_amount" jdbcType="DECIMAL"/>
@@ -34,6 +35,7 @@
         c3.chain_name,
         ct.serial_no,
         ct.tx_hash,
+        ct.out_serial_no,
         ct.contract_address,
         ct.contract_method,
         ct.method_invoke_way,
