@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import me.flyray.bsin.domain.enums.BondingCurveTokenType;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -60,7 +61,9 @@ public class BondingCurveTokenParam implements Serializable {
     private BigDecimal cap;
 
     /**
-     * 积分流通量：mint增肌 burn减少
+     * 积分流通量：
+     * mint增加
+     * burn减少
      */
     private BigDecimal circulation;
 
@@ -90,7 +93,10 @@ public class BondingCurveTokenParam implements Serializable {
     private BigDecimal flexible;
 
     /**
-     * 积分曲线类型：0、bancor curve  1、sigmoid curve 
+     * 积分曲线类型：
+     * @see BondingCurveTokenType
+     * 0、bancor curve
+     * 1、sigmoid curve
      */
     private String type;
 

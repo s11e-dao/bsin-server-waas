@@ -73,6 +73,9 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
   }
 
   /**
+   * @desc 添加曲线
+   * 1. 1个商户智能添加一条曲线积分参数
+   * 2. 添加曲线积分参数的同时添加一条初始数据：wass_bonding_curve_token_journal 
    * @param requestMap
    * @return
    */
@@ -98,7 +101,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
 
     LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
     warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(BondingCurveTokenParam::getMerchantNo, merchantNo);
+    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
     warapper.eq(
         ObjectUtil.isNotNull(bondingCurveTokenParam.getType()),
         BondingCurveTokenParam::getType,
@@ -179,7 +182,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
         BsinServiceContext.getReqBodyDto(BondingCurveTokenParam.class, requestMap);
     LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
     warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(BondingCurveTokenParam::getMerchantNo, merchantNo);
+    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
     warapper.eq(
         ObjectUtil.isNotNull(bondingCurveTokenParam.getType()),
         BondingCurveTokenParam::getType,
@@ -197,8 +200,8 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     return pageList;
   }
 
-  @ApiDoc(desc = "getCurveDetail")
-  @ShenyuDubboClient("/getCurveDetail")
+  @ApiDoc(desc = "getDetail")
+  @ShenyuDubboClient("/getDetail")
   @Override
   public BondingCurveTokenParam getDetail(Map<String, Object> requestMap) {
     String serialNo = MapUtils.getString(requestMap, "serialNo");
@@ -224,7 +227,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     }
     LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
     warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(BondingCurveTokenParam::getMerchantNo, merchantNo);
+    warapper.eq(ObjectUtil.isNotNull(merchantNo), BondingCurveTokenParam::getMerchantNo, merchantNo);
     warapper.eq(
         ObjectUtil.isNotNull(bondingCurveTokenParam.getType()),
         BondingCurveTokenParam::getType,
