@@ -13,6 +13,7 @@ import me.flyray.bsin.domain.entity.Account;
 import me.flyray.bsin.domain.entity.BondingCurveTokenJournal;
 import me.flyray.bsin.domain.entity.BondingCurveTokenParam;
 import me.flyray.bsin.domain.enums.AccountCategory;
+import me.flyray.bsin.domain.enums.BondingCurveTokenStatus;
 import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.BondingCurveTokenService;
@@ -75,7 +76,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
   /**
    * @desc 添加曲线
    * 1. 1个商户智能添加一条曲线积分参数
-   * 2. 添加曲线积分参数的同时添加一条初始数据：wass_bonding_curve_token_journal 
+   * 2. 添加曲线积分参数的同时添加一条初始数据：wass_bonding_curve_token_journal
    * @param requestMap
    * @return
    */
@@ -98,26 +99,33 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     if (customerNo == null) {
       customerNo = loginUser.getCustomerNo();
     }
-
-    LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
-    warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
-    warapper.eq(
-        ObjectUtil.isNotNull(bondingCurveTokenParam.getType()),
-        BondingCurveTokenParam::getType,
-        bondingCurveTokenParam.getType());
-    warapper.eq(
-        ObjectUtil.isNotNull(bondingCurveTokenParam.getVersion()),
-        BondingCurveTokenParam::getVersion,
-        bondingCurveTokenParam.getVersion());
-    warapper.eq(
-        ObjectUtil.isNotNull(bondingCurveTokenParam.getSerialNo()),
-        BondingCurveTokenParam::getSerialNo,
-        bondingCurveTokenParam.getSerialNo());
-    BondingCurveTokenParam bondingCurveToken = bondingCurveTokenParamMapper.selectOne(warapper);
-    //    1个商户只能插入一条
-    if (bondingCurveToken != null) {
-      throw new BusinessException(BC_POINTS_EXISTS);
+    if (merchantNo == null) {
+      merchantNo = loginUser.getTenantMerchantNo();
+    }
+    try {
+      LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
+      warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
+      warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
+      warapper.eq(
+          ObjectUtil.isNotNull(bondingCurveTokenParam.getType()),
+          BondingCurveTokenParam::getType,
+          bondingCurveTokenParam.getType());
+      warapper.eq(
+          ObjectUtil.isNotNull(bondingCurveTokenParam.getVersion()),
+          BondingCurveTokenParam::getVersion,
+          bondingCurveTokenParam.getVersion());
+      warapper.eq(
+          ObjectUtil.isNotNull(bondingCurveTokenParam.getSerialNo()),
+          BondingCurveTokenParam::getSerialNo,
+          bondingCurveTokenParam.getSerialNo());
+      BondingCurveTokenParam bondingCurveToken = bondingCurveTokenParamMapper.selectOne(warapper);
+      //    1个商户只能插入一条
+      if (bondingCurveToken != null) {
+        throw new BusinessException(BC_POINTS_EXISTS);
+      }
+    }catch (Exception e) {
+      log.error("查询曲线参数失败", e);
+      throw new BusinessException("10000", e.getMessage());
     }
 
     bondingCurveTokenParam.setTenantId(tenantId);
@@ -172,6 +180,9 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String tenantId = loginUser.getTenantId();
     String merchantNo = loginUser.getMerchantNo();
+    if (merchantNo == null) {
+      merchantNo = loginUser.getTenantMerchantNo();
+    }
     Object paginationObj =  requestMap.get("pagination");
     Pagination pagination = new Pagination();
     BeanUtil.copyProperties(paginationObj, pagination);
@@ -447,7 +458,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
       BsinCacheProvider.put("crm",
           "BondingCurveParam：" + tenantId + "-" + merchantNo, bondingCurveTokenParam);
     }
-    if (!bondingCurveTokenParam.getStatus().equals("1")) {
+    if (!bondingCurveTokenParam.getStatus().equals(BondingCurveTokenStatus.FREEZED.getCode())) {
       throw new BusinessException(TRANSACTION_ON_PAUSE);
     }
     BondingCurveTokenJournal lastBondingCurveTokenJournal =
@@ -513,13 +524,16 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String tenantId = loginUser.getTenantId();
     String merchantNo = loginUser.getMerchantNo();
+    if (merchantNo == null) {
+      merchantNo = loginUser.getTenantMerchantNo();
+    }
     BigInteger limit = new BigInteger(MapUtils.getString(requestMap, "limit"));
     List<BondingCurveTokenJournal> list =
         bondingCurveTokenJournalMapper.selectCurveList(tenantId, merchantNo, limit.intValue());
 
     LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
     warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(BondingCurveTokenParam::getMerchantNo, merchantNo);
+    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
     BondingCurveTokenParam bondingCurveTokenParam =
         bondingCurveTokenParamMapper.selectOne(warapper);
 
@@ -596,11 +610,14 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String tenantId = loginUser.getTenantId();
     String merchantNo = loginUser.getMerchantNo();
+    if (merchantNo == null) {
+      merchantNo = loginUser.getTenantMerchantNo();
+    }
     BigInteger limit = new BigInteger(MapUtils.getString(requestMap, "limit"));
     List<BondingCurveTokenJournal> list = new ArrayList<BondingCurveTokenJournal>();
     LambdaQueryWrapper<BondingCurveTokenParam> warapper = new LambdaQueryWrapper<>();
     warapper.eq(BondingCurveTokenParam::getTenantId, tenantId);
-    warapper.eq(BondingCurveTokenParam::getMerchantNo, merchantNo);
+    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenParam::getMerchantNo, merchantNo);
     BondingCurveTokenParam bondingCurveTokenParam =
         bondingCurveTokenParamMapper.selectOne(warapper);
     if (bondingCurveTokenParam != null) {
@@ -626,6 +643,10 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
   @Override
   public IPage<?> getJournalPageList(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+    String merchantNo = loginUser.getMerchantNo();
+    if (merchantNo == null) {
+      merchantNo = loginUser.getTenantMerchantNo();
+    }
     Object paginationObj =  requestMap.get("pagination");
     Pagination pagination = new Pagination();
     BeanUtil.copyProperties(paginationObj, pagination);
@@ -636,7 +657,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
     LambdaUpdateWrapper<BondingCurveTokenJournal> warapper = new LambdaUpdateWrapper<>();
     warapper.orderByDesc(BondingCurveTokenJournal::getCreateTime);
     warapper.eq(BondingCurveTokenJournal::getTenantId, loginUser.getTenantId());
-    warapper.eq(BondingCurveTokenJournal::getMerchantNo, loginUser.getMerchantNo());
+    warapper.eq(ObjectUtil.isNotNull(merchantNo),BondingCurveTokenJournal::getMerchantNo, merchantNo);
     warapper.eq(
         ObjectUtil.isNotNull(bondingCurveTokenJournal.getMethod()),
         BondingCurveTokenJournal::getMethod,

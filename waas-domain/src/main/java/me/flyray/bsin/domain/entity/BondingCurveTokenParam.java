@@ -102,6 +102,7 @@ public class BondingCurveTokenParam implements Serializable {
 
     /**
      * 曲线状态 0、正常 1、冻结
+     * @see BondingCurveTokenStatus
      */
     private String status;
 
