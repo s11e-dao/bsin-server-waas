@@ -101,7 +101,7 @@ public class TransactionServiceImpl  implements TransactionService {
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         String payWay = MapUtils.getString(requestMap, "payWay");
         String payAmount = MapUtils.getDouble(requestMap, "payAmount").toString();
-        String orderNo = MapUtils.getString(requestMap, "orderNo");
+        String outOrderNo = MapUtils.getString(requestMap, "outOrderNo");
         String tenantId = MapUtils.getString(requestMap, "tenantId");
         if (tenantId == null) {
             tenantId = loginUser.getTenantId();
@@ -127,7 +127,7 @@ public class TransactionServiceImpl  implements TransactionService {
         // 1.创建交易订单
         Transaction waasTransaction =
                 transactionMapper.selectOne(
-                        new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, orderNo));
+                        new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, outOrderNo));
         // 订单已支付成功,直接返回
         if (waasTransaction != null
                 && TransactionStatus.SUCCESS.getCode().equals(waasTransaction.getTransactionStatus())) {
@@ -136,7 +136,7 @@ public class TransactionServiceImpl  implements TransactionService {
         } else if (waasTransaction == null) {
             waasTransaction = new Transaction();
             waasTransaction.setSerialNo(BsinSnowflake.getId());
-            waasTransaction.setOutSerialNo(orderNo);
+            waasTransaction.setOutSerialNo(outOrderNo);
             waasTransaction.setTransactionType(TransactionType.PAY.getCode());
             waasTransaction.setComment(remark);
             waasTransaction.setTxAmount(new BigDecimal(payAmount));
@@ -168,6 +168,10 @@ public class TransactionServiceImpl  implements TransactionService {
 
                 if (profitSharingConfig != null) {
                     needProfitSharing = true;
+                    // 计算分润金额
+                    BigDecimal calculatedProfitSharingAmount = profitSharingConfig.getMerchantSharingRate()
+                            .multiply(new BigDecimal(payAmount));
+                    waasTransaction.setProfitSharingAmount(calculatedProfitSharingAmount);
                 }
             }
             waasTransaction.setProfitSharing(needProfitSharing);
@@ -244,7 +248,7 @@ public class TransactionServiceImpl  implements TransactionService {
                     // 订单备注
                     wxPayRequest.setBody(remark);
                     wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
-                    wxPayRequest.setOutTradeNo(orderNo);
+                    wxPayRequest.setOutTradeNo(outOrderNo);
                     wxPayRequest.setTotalFee(deciPrice.intValue());
                     wxPayRequest.setSpbillCreateIp("127.0.0.1");
                     // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
@@ -254,9 +258,9 @@ public class TransactionServiceImpl  implements TransactionService {
                     // 小程序支付统一下单接口：
                     wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);
                     wxPayRequest.setOpenid(openId);
-                    wxPayMpOrderResult = wxPayService.createOrder(wxPayRequest);
-                    log.info("传递的参数{}", wxPayRequest);
-                    return ObjectToMapConverter(wxPayMpOrderResult);
+//                    wxPayMpOrderResult = wxPayService.createOrder(wxPayRequest);
+//                    log.info("传递的参数{}", wxPayRequest);
+//                    return ObjectToMapConverter(wxPayMpOrderResult);
                 }
             } catch (WxPayException e) {
                 e.printStackTrace();
