@@ -228,7 +228,10 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         Platform platform = platformOpt.get();
         EcologicalValueAllocationType allocationType = EcologicalValueAllocationType
             .getInstanceById(platform.getEcoValueAllocationModel());
-            
+        if(allocationType == null){
+            log.warn("平台未配置价值分配模型，跳过生态价值分配，交易号：{}", platform);
+            return;
+        }
         // 执行生态价值计算分配
         ecologicalValueEngineFactory.getEngine(allocationType).excute(requestMap);
 
