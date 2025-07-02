@@ -83,10 +83,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
-
     @Autowired
     private TransactionJournalMapper transactionJournalMapper;
-
     @Autowired
     private TransactionMapper transactionMapper;
     @Autowired
@@ -95,7 +93,6 @@ public class TransactionServiceImpl implements TransactionService {
     private ChainCoinMapper chainCoinMapper;
     @Autowired
     private WalletAccountMapper walletAccountMapper;
-
     @Autowired
     private ChainTransactionListen chainTransactionListen;
     @Autowired
