@@ -14,12 +14,14 @@ import me.flyray.bsin.infrastructure.mapper.ProfitSharingConfigMapper;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.server.utils.Pagination;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Slf4j
@@ -29,6 +31,39 @@ public class ProfitSharingConfigServiceImpl implements ProfitSharingConfigServic
 
     @Autowired
     private ProfitSharingConfigMapper profitSharingConfigMapper;
+
+    @ApiDoc(desc = "config")
+    @ShenyuDubboClient("/config")
+    @Override
+    public ProfitSharingConfig config(Map<String, Object> requestMap) {
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        String superTenantRate = MapUtils.getString(requestMap, "superTenantRate");
+        String tenantRate = MapUtils.getString(requestMap, "tenantRate");
+        String sysAgentRate = MapUtils.getString(requestMap, "sysAgentRate");
+        String customerRate = MapUtils.getString(requestMap, "customerRate");
+        String distributorRate = MapUtils.getString(requestMap, "distributorRate");
+        LambdaQueryWrapper<ProfitSharingConfig> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(ProfitSharingConfig::getTenantId, loginUser.getTenantId());
+        ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(warapper);
+        if(profitSharingConfig != null){
+            profitSharingConfig.setSuperTenantRate(new BigDecimal(superTenantRate));
+            profitSharingConfigMapper.updateById(profitSharingConfig);
+        }else {
+            profitSharingConfig = new ProfitSharingConfig();
+            profitSharingConfig.setTenantId(loginUser.getTenantId());
+            profitSharingConfig.setSuperTenantRate(new BigDecimal(superTenantRate));
+            profitSharingConfigMapper.insert(profitSharingConfig);
+        }
+        return profitSharingConfig;
+    }
+
+    @ApiDoc(desc = "getDetail")
+    @ShenyuDubboClient("/getDetail")
+    @Override
+    public ProfitSharingConfig getDetail(Map<String, Object> requestMap) {
+
+        return null;
+    }
 
     @ApiDoc(desc = "getPageList")
     @ShenyuDubboClient("/getPageList")

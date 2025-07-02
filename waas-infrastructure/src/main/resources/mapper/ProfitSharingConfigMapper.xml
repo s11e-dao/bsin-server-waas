@@ -12,14 +12,12 @@
             <result property="sysAgentRate" column="sys_agent_rate" jdbcType="DECIMAL"/>
             <result property="customerRate" column="customer_rate" jdbcType="DECIMAL"/>
             <result property="distributorRate" column="distributor_rate" jdbcType="DECIMAL"/>
-            <result property="merchantNo" column="merchant_no" jdbcType="VARCHAR"/>
-            <result property="merchantSharingRate" column="merchant_sharing_rate" jdbcType="DECIMAL"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         tenant_id,serial_no,super_tenant_rate,
         tenant_rate,sys_agent_rate,customer_rate,
-        distributor_rate,merchant_no,merchant_sharing_rate
+        distributor_rate
     </sql>
 
 </mapper>

@@ -7,11 +7,13 @@ import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.ProfitSharingService;
 import lombok.extern.slf4j.Slf4j;
+import me.flyray.bsin.domain.entity.MerchantConfig;
 import me.flyray.bsin.domain.entity.Platform;
 import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.EcologicalValueAllocationType;
 import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
+import me.flyray.bsin.facade.service.MerchantConfigService;
 import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.facade.service.PlatformService;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
@@ -50,9 +52,11 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     private EcologicalValueAllocationEngineFactory ecologicalValueEngineFactory;
     @Autowired
     private TransactionMapper transactionMapper;
-    
-    @DubboReference(version = "dev")
+
+    @DubboReference(version = "${dubbo.provider.version}")
     private PlatformService platformService;
+    @DubboReference(version = "${dubbo.provider.version}")
+    private MerchantConfigService merchantConfigService;
 
     /**
      * 执行分账分润操作
@@ -73,11 +77,16 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         log.info("开始执行分账分润流程，交易号：{}", serialNo);
         
         try {
+            // 获得商户让利配置
+            Map requestMap = new HashMap<>();
+            requestMap.put("merchantNo", "merchantNo");
+            MerchantConfig merchantConfig = merchantConfigService.getDetail(requestMap);
+
             // 获取分账配置并执行分账
             Optional<ProfitSharingConfig> configOpt = getProfitSharingConfig(transaction);
-            configOpt.ifPresent(config -> {
+            configOpt.ifPresent(profitSharingConfig -> {
                 try {
-                    executeProfitSharing(transaction, config);
+                    executeProfitSharing(transaction, merchantConfig, profitSharingConfig);
                 } catch (WxPayException e) {
                     log.error("支付分账执行失败，交易号：{}", serialNo, e);
                     throw new RuntimeException("支付分账执行失败", e);
@@ -131,18 +140,18 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      * 执行支付分账
      * 包括计算分账金额、配置支付服务、执行分账请求、更新交易状态
      */
-    private void executeProfitSharing(Transaction transaction, ProfitSharingConfig config) throws WxPayException {
+    private void executeProfitSharing(Transaction transaction, MerchantConfig merchantConfig, ProfitSharingConfig profitSharingConfig) throws WxPayException {
         final String serialNo = transaction.getSerialNo();
         log.info("开始执行支付分账，交易号：{}", serialNo);
 
         // 计算分账金额
-        BigDecimal profitSharingAmount = calculateProfitSharingAmount(transaction, config);
+        BigDecimal profitSharingAmount = calculateProfitSharingAmount(transaction, merchantConfig);
         log.info("计算得出分账金额：{}，交易号：{}", profitSharingAmount, serialNo);
 
         // 执行分账流程
         ProfitSharingService profitSharingService = createProfitSharingService();
         addProfitSharingReceiver(profitSharingService);
-        executeProfitSharingRequest(profitSharingService, transaction, config);
+        executeProfitSharingRequest(profitSharingService, transaction, profitSharingConfig);
         updateTransactionStatus(transaction);
 
         log.info("支付分账执行完成，交易号：{}", serialNo);
@@ -153,11 +162,11 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      * 订单类型：使用预设分账金额
      * 商品类型：交易金额 × 商户分润比例
      */
-    private BigDecimal calculateProfitSharingAmount(Transaction transaction, ProfitSharingConfig config) {
+    private BigDecimal calculateProfitSharingAmount(Transaction transaction, MerchantConfig merchantConfig) {
         if (ORDER_TYPE.equals(transaction.getProfitSharingType())) {
             return transaction.getProfitSharingAmount();
         } else {
-            return transaction.getTxAmount().multiply(config.getMerchantSharingRate());
+            return transaction.getTxAmount().multiply(merchantConfig.getProfitSharingRate());
         }
     }
 

@@ -4,12 +4,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import me.flyray.bsin.domain.entity.PayChannelConfig;
-import me.flyray.bsin.domain.entity.ProfitSharingConfig;
+import me.flyray.bsin.domain.entity.*;
 import me.flyray.bsin.domain.entity.Transaction;
-import me.flyray.bsin.domain.entity.WalletAccount;
 import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
+import me.flyray.bsin.facade.service.MerchantConfigService;
 import me.flyray.bsin.infrastructure.mapper.PayChannelConfigMapper;
 import me.flyray.bsin.infrastructure.mapper.ProfitSharingConfigMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
@@ -20,6 +19,7 @@ import me.flyray.bsin.mq.producer.RocketMQProducer;
 import me.flyray.bsin.security.domain.LoginUser;
 import me.flyray.bsin.utils.BsinSnowflake;
 import me.flyray.bsin.utils.StringUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.slf4j.Logger;
@@ -51,7 +51,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TransactionBiz {
@@ -82,6 +84,9 @@ public class TransactionBiz {
     private RocketMQProducer rocketMQProducer;
     @Value("${rocketmq.consumer.topic}")
     private String topic;
+
+    @DubboReference(version = "${dubbo.provider.version}")
+    private MerchantConfigService merchantConfigService;
 
 
 
@@ -487,14 +492,17 @@ public class TransactionBiz {
             }
         } else {
             // 查询商户让利配置
+            Map requestMap = new HashMap<>();
+            requestMap.put("","");
+            MerchantConfig merchantConfig = merchantConfigService.getDetail(requestMap);
+
             ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(
                 new LambdaQueryWrapper<ProfitSharingConfig>()
-                    .eq(ProfitSharingConfig::getMerchantNo, merchantNo)
                     .eq(ProfitSharingConfig::getTenantId, tenantId));
 
             if (profitSharingConfig != null) {
                 needProfitSharing = true;
-                java.math.BigDecimal calculatedAmount = profitSharingConfig.getMerchantSharingRate()
+                java.math.BigDecimal calculatedAmount = merchantConfig.getProfitSharingRate()
                     .multiply(new java.math.BigDecimal(payAmount));
                 transaction.setProfitSharingAmount(calculatedAmount);
                 transaction.setProfitSharingType(profitSharingType);

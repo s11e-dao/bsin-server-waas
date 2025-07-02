@@ -20,15 +20,15 @@ import java.util.Date;
 public class ProfitSharingConfig implements Serializable {
 
     /**
+     *
+     */
+    private String serialNo;
+
+    /**
      * 设置规则的租户
      */
     @TableId
     private String tenantId;
-
-    /**
-     * 
-     */
-    private String serialNo;
 
     /**
      * 运营平台分佣比例
@@ -54,16 +54,6 @@ public class ProfitSharingConfig implements Serializable {
      * 分销模型的分销者比例
      */
     private BigDecimal distributorRate;
-
-    /**
-     * 设置规则的商户
-     */
-    private String merchantNo;
-
-    /**
-     * 商户让利比例
-     */
-    private BigDecimal merchantSharingRate;
 
     /**
      * 佣金兑换数字积分比例
