@@ -67,17 +67,25 @@ import static me.flyray.bsin.utils.Utils.ObjectToMapConverter;
 
 @Slf4j
 @ApiModule(value = "transaction")
-@ShenyuDubboService(value = "/transaction" ,timeout = 5000)
+@ShenyuDubboService(value = "/transaction", timeout = 5000)
 @Transactional(rollbackFor = Exception.class)
-public class TransactionServiceImpl  implements TransactionService {
+public class TransactionServiceImpl implements TransactionService {
+
+    // 常量定义
+    private static final String PRODUCT_PROFIT_SHARING_TYPE = "2";
+    private static final String WX_PAY_API_V3 = "V3";
+    private static final String PAY_RESULT_SUCCESS = "success";
+    private static final String DEFAULT_IP = "127.0.0.1";
+    private static final int PRICE_MULTIPLY_FACTOR = 100;
 
     @Value("${wx.pay.callbackUrl}")
     private String wxCallbackUrl;
 
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
-    @Autowired private PayChannelConfigMapper payChannelConfigMapper;
-    @Autowired private TransactionJournalMapper transactionJournalMapper;
+
+    @Autowired
+    private TransactionJournalMapper transactionJournalMapper;
 
     @Autowired
     private TransactionMapper transactionMapper;
@@ -87,231 +95,176 @@ public class TransactionServiceImpl  implements TransactionService {
     private ChainCoinMapper chainCoinMapper;
     @Autowired
     private WalletAccountMapper walletAccountMapper;
+
     @Autowired
-    private ProfitSharingConfigMapper profitSharingConfigMapper;
+    private ChainTransactionListen chainTransactionListen;
     @Autowired
-    private ChainTransactionListen transactionBiz;
-    @Autowired
-    private TransactionBiz transferBiz;
+    private TransactionBiz transactionBiz;
     @Autowired
     private RevenueShareServiceEngine revenueShareServiceEngine;
 
+    /**
+     * 创建交易订单
+     * 
+     * @param requestMap 创建交易请求参数
+     * @return 交易创建结果
+     */
     @Override
     public Map<String, Object> create(Map<String, Object> requestMap) {
+        log.info("开始创建交易订单");
+        
+        // 获取登录用户信息
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        
+        // 提取请求参数
         String payWay = MapUtils.getString(requestMap, "payWay");
-        String payAmount = MapUtils.getDouble(requestMap, "payAmount").toString();
+        Double payAmountDouble = MapUtils.getDouble(requestMap, "payAmount");
         String outOrderNo = MapUtils.getString(requestMap, "outOrderNo");
-        String tenantId = MapUtils.getString(requestMap, "tenantId");
-        if (tenantId == null) {
-            tenantId = loginUser.getTenantId();
-        }
-        String merchantNo = MapUtils.getString(requestMap, "merchantNo");
-        if (merchantNo == null) {
-            merchantNo = loginUser.getMerchantNo();
-        }
-        String customerNo = MapUtils.getString(requestMap, "customerNo");
-        if (customerNo == null) {
-            customerNo = loginUser.getCustomerNo();
-        }
-        String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
-        // 小程序ID
-        String appId = MapUtils.getString(requestMap, "appId");
-        // 商戶应用ID
-        String bizRoleAppId = MapUtils.getString(requestMap, "appId");
-        String remark = MapUtils.getString(requestMap, "remark");
-        if (payWay.isEmpty() || payAmount.isEmpty()) {
+        
+        // 参数验证
+        if (StringUtils.isEmpty(payWay) || payAmountDouble == null || StringUtils.isEmpty(outOrderNo)) {
+            log.warn("创建交易失败：必填参数缺失");
             throw new BusinessException(ResponseCode.PARAM_ERROR);
         }
+        
+        String payAmount = payAmountDouble.toString();
+        
+        // 设置默认值
+        String tenantId = StringUtils.isEmpty(MapUtils.getString(requestMap, "tenantId")) 
+            ? loginUser.getTenantId() : MapUtils.getString(requestMap, "tenantId");
+        String merchantNo = StringUtils.isEmpty(MapUtils.getString(requestMap, "merchantNo")) 
+            ? loginUser.getMerchantNo() : MapUtils.getString(requestMap, "merchantNo");
+        String customerNo = StringUtils.isEmpty(MapUtils.getString(requestMap, "customerNo")) 
+            ? loginUser.getCustomerNo() : MapUtils.getString(requestMap, "customerNo");
+            
+        String notifyUrl = MapUtils.getString(requestMap, "notifyUrl");
+        String appId = MapUtils.getString(requestMap, "appId");
+        String bizRoleAppId = MapUtils.getString(requestMap, "appId");
+        String remark = MapUtils.getString(requestMap, "remark");
 
-        // 1.创建交易订单
-        Transaction waasTransaction =
-                transactionMapper.selectOne(
-                        new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, outOrderNo));
-        // 订单已支付成功,直接返回
-        if (waasTransaction != null
+        // 1. 创建或获取交易订单（包含分账配置处理）
+        String profitSharingType = MapUtils.getString(requestMap, "profitSharingType");
+        String profitSharingAmountStr = MapUtils.getString(requestMap, "profitSharingAmount");
+        
+        Transaction waasTransaction = transactionBiz.createOrGetTransactionWithProfitSharing(
+            outOrderNo, payAmount, loginUser, tenantId, merchantNo, customerNo, 
+            remark, profitSharingType, profitSharingAmountStr);
+            
+        // 如果订单已支付成功，直接返回
+        if (waasTransaction != null 
                 && TransactionStatus.SUCCESS.getCode().equals(waasTransaction.getTransactionStatus())) {
-            requestMap.put("payResult", "success");
+            log.info("订单已支付成功，直接返回，outOrderNo: {}", outOrderNo);
+            requestMap.put("payResult", PAY_RESULT_SUCCESS);
             return requestMap;
-        } else if (waasTransaction == null) {
-            waasTransaction = new Transaction();
-            waasTransaction.setSerialNo(BsinSnowflake.getId());
-            waasTransaction.setOutSerialNo(outOrderNo);
-            waasTransaction.setTransactionType(TransactionType.PAY.getCode());
-            waasTransaction.setComment(remark);
-            waasTransaction.setTxAmount(new BigDecimal(payAmount));
-            waasTransaction.setFromAddress(customerNo);
-            waasTransaction.setToAddress(merchantNo);
-            waasTransaction.setBizRoleType(loginUser.getBizRoleType());
-            waasTransaction.setBizRoleTypeNo(loginUser.getBizRoleTypeNo());
-            waasTransaction.setTenantId(tenantId);
-            waasTransaction.setCreateTime(new Date());
-            waasTransaction.setFromAddress(customerNo);
-            waasTransaction.setCreateBy(customerNo);
-
-            // 根据分账配置判断是否需要分账
-            boolean needProfitSharing = false;
-
-            // 判断订单是否基于商品进行分账 1: 订单 2:  商品
-            String profitSharingType = MapUtils.getString(requestMap, "profitSharingType");
-            String profitSharingAmount = MapUtils.getString(requestMap, "profitSharingAmount");
-            if("2".equals(profitSharingType)){
-                needProfitSharing = true;
-                waasTransaction.setProfitSharingAmount(new BigDecimal(profitSharingAmount));
-            }else {
-                // 查询商户是否有让利配置继续让利分账
-                ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(
-                        new LambdaQueryWrapper<ProfitSharingConfig>()
-                                .eq(ProfitSharingConfig::getMerchantNo, merchantNo)
-                                .eq(ProfitSharingConfig::getTenantId, tenantId));
-
-
-                if (profitSharingConfig != null) {
-                    needProfitSharing = true;
-                    // 计算分润金额
-                    BigDecimal calculatedProfitSharingAmount = profitSharingConfig.getMerchantSharingRate()
-                            .multiply(new BigDecimal(payAmount));
-                    waasTransaction.setProfitSharingAmount(calculatedProfitSharingAmount);
-                }
-            }
-            waasTransaction.setProfitSharing(needProfitSharing);
-            transactionMapper.insert(waasTransaction);
         }
-        // 2、创建支付转账流水
-        TransactionJournal waasTransactionJournal =
-                transactionJournalMapper.selectOne(
-                        new LambdaQueryWrapper<TransactionJournal>()
-                                .eq(TransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
+        // 2. 创建支付流水记录
+        // 查询是否已存在支付流水，避免重复创建
+        TransactionJournal waasTransactionJournal = transactionJournalMapper.selectOne(
+            new LambdaQueryWrapper<TransactionJournal>()
+                .eq(TransactionJournal::getTransactionNo, waasTransaction.getSerialNo()));
+                
         if (waasTransactionJournal == null) {
+            // 创建新的支付流水记录
             waasTransactionJournal = new TransactionJournal();
             waasTransactionJournal.setTransactionNo(waasTransaction.getSerialNo());
             waasTransactionJournal.setPayAmount(new BigDecimal(payAmount));
             waasTransactionJournal.setSerialNo(BsinSnowflake.getId());
             waasTransactionJournal.setStatus(TransactionStatus.PENDING.getCode());
             transactionJournalMapper.insert(waasTransactionJournal);
+            log.info("支付流水记录创建成功，journalNo: {}", waasTransactionJournal.getSerialNo());
         }
 
         WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
-        // 3、支付
+        
+        // 3. 支付处理
         if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
+            log.info("开始处理微信支付，outOrderNo: {}", outOrderNo);
+            
+            // 验证微信支付必填参数
             String openId = MapUtils.getString(requestMap, "openId");
             if (StringUtils.isEmpty(openId)) {
+                log.error("微信支付失败：openId不能为空");
                 throw new BusinessException(ResponseCode.OPEN_ID_NOT_EXISTS);
             }
-            Double deciPrice = Double.parseDouble(payAmount) * 100;
-            // 支付配置应用: 从商户应用配置的支付应用中获取
-            LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
-            warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
-            warapper.orderByDesc(PayChannelConfig::getCreateTime);
-            PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
-            if (payChannelConfig == null) {
-                throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
-            }
-            JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
-
+            
+            // 计算支付金额（转换为分）
+            Integer deciPrice = (int) (Double.parseDouble(payAmount) * PRICE_MULTIPLY_FACTOR);
+            
+            // 获取支付渠道配置参数
+            String configParamsStr = transactionBiz.getPayChannelConfigParamsString(bizRoleAppId);
+            JSONObject payChannelConfigParams = JSONObject.parseObject(configParamsStr);
+            
+            // 提取微信支付配置参数
             String apiVersion = payChannelConfigParams.getString("apiVersion");
             String key = payChannelConfigParams.getString("key");
             String keyPath = payChannelConfigParams.getString("keyPath");
             appId = payChannelConfigParams.getString("appId");
             String mchId = payChannelConfigParams.getString("mchId");
             notifyUrl = payChannelConfigParams.getString("notifyUrl");
-
+            
+            // 构建微信支付配置对象
             WxPayConfig wxPayConfig = new WxPayConfig();
             wxPayConfig.setAppId(appId);
             wxPayConfig.setMchId(mchId);
             wxPayConfig.setMchKey(key);
             wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
-            String apiV3Key = payChannelConfigParams.getString("apiV3Key");
-            wxPayConfig.setApiV3Key(apiV3Key);
+            wxPayConfig.setApiV3Key(payChannelConfigParams.getString("apiV3Key"));
             wxPayConfig.setNotifyUrl(notifyUrl);
             wxPayConfig.setKeyPath(keyPath);
             wxPayConfig.setPrivateKeyPath(keyPath);
-            //      wxPayConfig.setCertSerialNo(certSerialNo);
-            //      wxPayConfig.setPrivateKeyContent(
-            //          payChannelConfigParams.getString("privateKey").getBytes(StandardCharsets.UTF_8));
-            //      wxPayConfig.setPrivateCertString(payChannelConfigParams.getString("privateCert"));
             wxPayConfig.setUseSandboxEnv(false);
+            
+            // 创建微信支付服务实例
             WxPayService wxPayService = bsinWxPayServiceUtil.getWxPayService(wxPayConfig);
+            
             try {
-                if ("V3".equals(apiVersion)) {
-                    // 统一下单 V3
+                if (WX_PAY_API_V3.equals(apiVersion)) {
+                    // 使用微信支付 API V3 创建订单
                     WxPayUnifiedOrderV3Request wxPayUnifiedOrderV3Request = new WxPayUnifiedOrderV3Request();
-                    wxPayMpOrderResult =
-                            wxPayService.createOrderV3(TradeTypeEnum.APP, wxPayUnifiedOrderV3Request);
-                    log.info("传递的参数{}", wxPayUnifiedOrderV3Request);
+                    wxPayMpOrderResult = wxPayService.createOrderV3(TradeTypeEnum.APP, wxPayUnifiedOrderV3Request);
+                    log.info("微信支付V3统一下单成功，请求参数: {}", wxPayUnifiedOrderV3Request);
                     return ObjectToMapConverter(wxPayMpOrderResult);
                 } else {
-                    // 统一下单 V2
+                    // 使用微信支付 API V2 创建订单
                     WxPayUnifiedOrderRequest wxPayRequest = new WxPayUnifiedOrderRequest();
                     wxPayRequest.setAppid(appId);
                     wxPayRequest.setMchId(mchId);
-                    // 订单备注
-                    wxPayRequest.setBody(remark);
-                    wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));
-                    wxPayRequest.setOutTradeNo(outOrderNo);
-                    wxPayRequest.setTotalFee(deciPrice.intValue());
-                    wxPayRequest.setSpbillCreateIp("127.0.0.1");
-                    // ! 微信收到后的回调地址，会自动回调该地址： ？？ 是否需要配置在app
-                    //      wxPayRequest.setNotifyUrl(wxCallbackUrl);
-//                    notifyUrl = payChannelConfigParams.getString("notifyUrl");
-                    wxPayRequest.setNotifyUrl(notifyUrl);
-                    // 小程序支付统一下单接口：
-                    wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);
-                    wxPayRequest.setOpenid(openId);
-//                    wxPayMpOrderResult = wxPayService.createOrder(wxPayRequest);
-//                    log.info("传递的参数{}", wxPayRequest);
-//                    return ObjectToMapConverter(wxPayMpOrderResult);
+                    wxPayRequest.setBody(remark);  // 商品描述
+                    wxPayRequest.setDetail(MapUtils.getString(requestMap, "detail"));  // 商品详情
+                    wxPayRequest.setOutTradeNo(outOrderNo);  // 商户订单号
+                    wxPayRequest.setTotalFee(deciPrice);  // 支付金额（分）
+                    wxPayRequest.setSpbillCreateIp(DEFAULT_IP);  // 用户IP
+                    wxPayRequest.setNotifyUrl(notifyUrl);  // 异步通知地址
+                    wxPayRequest.setTradeType(WxPayConstants.TradeType.JSAPI);  // 小程序支付
+                    wxPayRequest.setOpenid(openId);  // 用户OpenID
+                    
+                    wxPayMpOrderResult = wxPayService.createOrder(wxPayRequest);
+                    log.info("微信支付V2统一下单成功，请求参数: {}", wxPayRequest);
+                    return ObjectToMapConverter(wxPayMpOrderResult);
                 }
             } catch (WxPayException e) {
-                e.printStackTrace();
-                //        log.info("支付异常{}", e);
+                log.error("微信支付创建订单失败，outOrderNo: {}, 错误信息: {}", outOrderNo, e.getMessage(), e);
                 throw new BusinessException("100000", "微信支付创建订单失败：" + e.getMessage());
             }
-            // 火源支付
         } else if (PayWayEnum.FIRE_DIAMOND.getCode().equals(payWay)) {
-            //      // 查询订单金额
-            //      UniflyOrder uniflyOrder = orderMapper.selectById(orderNo);
-            //      // 查询用户余额进行扣除
-            //      Map reqMap = new HashMap();
-            //      reqMap.put("customerNo", customerNo);
-            //      reqMap.put("ccy", CcyType.CNY.getCode());
-            //      reqMap.put("category", AccountCategory.BALANCE.getCode());
-            //      // TODO 需要后端根据兑换积分数量计算
-            //      reqMap.put("amount", uniflyOrder.getPayAmount());
-            //      reqMap.put("decimals", "2");
-            //      customerAccountService.outAccount(reqMap);
-            //      // 更新订单状态
-            //      uniflyOrder.setPayTime(new Date());
-            //      uniflyOrder.setPayStatus("20");
-            //      orderMapper.updateById(uniflyOrder);
-        }
-        // 品牌积分支付
-        else if (PayWayEnum.BRAND_POINT.getCode().equals(payWay)) {
-            //      // 查询订单金额
-            //      UniflyOrder uniflyOrder = orderMapper.selectById(orderNo);
-            //      // 查询商户的品牌积分币种和小数位数
-            //      Map<String, Object> tokenReq = new HashMap();
-            //      tokenReq.put("merchantNo", uniflyOrder.getMerchantNo());
-            //      TokenParam tokenParamMap = tokenParamService.getDetailByMerchantNo(tokenReq);
-            //      Account accountDetail = null;
-            //      String ccy = tokenParamMap.getSymbol();
-            //      Integer decimals = (Integer) tokenParamMap.getDecimals();
-            //
-            //      Map reqMap = new HashMap();
-            //      reqMap.put("customerNo", customerNo);
-            //      reqMap.put("ccy", ccy);
-            //      reqMap.put("category", AccountCategory.BALANCE.getCode());
-            //      // TODO 需要后端根据兑换积分数量计算
-            //      reqMap.put("amount", uniflyOrder.getPayAmount());
-            //      reqMap.put("decimals", decimals);
-            //      customerAccountService.outAccount(reqMap);
-            //      // 更新订单状态
-            //      uniflyOrder.setPayTime(new Date());
-            //      uniflyOrder.setPayStatus("20");
-            //      orderMapper.updateById(uniflyOrder);
+            // 火源支付 - 基于平台火钻进行支付
+            log.info("开始处理火源支付，outOrderNo: {}", outOrderNo);
+            // TODO: 实现火源支付逻辑 - 包括余额验证、扣减等
+            log.warn("火源支付功能尚未实现");
+            
+        } else if (PayWayEnum.BRAND_POINT.getCode().equals(payWay)) {
+            // 品牌积分支付 - 使用商户品牌积分进行支付
+            log.info("开始处理品牌积分支付，outOrderNo: {}", outOrderNo);
+            // TODO: 实现品牌积分支付逻辑 - 包括积分余额验证、扣减等
+            log.warn("品牌积分支付功能尚未实现");
+            
         } else {
+            // 不支持的支付方式
+            log.error("不支持的支付方式：{}", payWay);
             throw new BusinessException(NOT_SUPPORTED_PAY_WAY);
         }
+        
+        log.info("交易订单创建完成，outOrderNo: {}", outOrderNo);
         return requestMap;
     }
 
@@ -359,7 +312,7 @@ public class TransactionServiceImpl  implements TransactionService {
 
             // 风控审核通过，则执行转出动作
             if(true){
-                transactionBiz.transferOut();
+                chainTransactionListen.transferOut();
             }else {
                 // 风控拦截交易，进入人工审核
                 TransactionAudit transactionAudit = new TransactionAudit();
@@ -439,15 +392,10 @@ public class TransactionServiceImpl  implements TransactionService {
     @Override
     public Transaction refund(Map<String, Object> requestMap) {
         String bizRoleAppId = MapUtils.getString(requestMap, "appId");
-        // 支付配置应用: 从商户应用配置的支付应用中获取
-        LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
-        warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
-        warapper.orderByDesc(PayChannelConfig::getCreateTime);
-        PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
-        if (payChannelConfig == null) {
-            throw new BusinessException(ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST);
-        }
-        JSONObject payChannelConfigParams = JSONObject.parseObject(payChannelConfig.getParams());
+        
+        // 获取支付渠道配置参数
+        String configParamsStr = transactionBiz.getPayChannelConfigParamsString(bizRoleAppId);
+        JSONObject payChannelConfigParams = JSONObject.parseObject(configParamsStr);
 
         String apiVersion = payChannelConfigParams.getString("apiVersion");
         String key = payChannelConfigParams.getString("key");
@@ -541,7 +489,7 @@ public class TransactionServiceImpl  implements TransactionService {
             throw new BusinessException("非平台钱包账户地址");
         }
         log.info("开始提现交易，账户余额为：{}",walletAccount.getBalance());
-        transferBiz.tokenTransfer(fromAddress,toAddress,contractAddress,txAmount.toBigInteger(), chainCoin.getCoinDecimal());
+        transactionBiz.tokenTransfer(fromAddress,toAddress,contractAddress,txAmount.toBigInteger(), chainCoin.getCoinDecimal());
         BigDecimal balance = walletAccount.getBalance().subtract(txAmount);
         log.info("提现交易结束，账户余额为：{}",balance);
         walletAccount.setBalance(balance);
