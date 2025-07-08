@@ -1,7 +1,7 @@
 package me.flyray.bsin.facade.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import me.flyray.bsin.domain.entity.CustomerProfile;
+import me.flyray.bsin.domain.entity.DidProfile;
 import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 
 import java.util.Map;
@@ -17,13 +17,13 @@ public interface CustomerProfileService {
     /**
      * 创建Profile
      */
-    public CustomerProfile create(Map<String, Object> requestMap) throws Exception;
+    public DidProfile create(Map<String, Object> requestMap) throws Exception;
 
 
     /**
      * 更新Profile basic information
      */
-    public CustomerProfile update(Map<String, Object> requestMap) throws Exception;
+    public DidProfile update(Map<String, Object> requestMap) throws Exception;
 
 
     /**
@@ -52,12 +52,12 @@ public interface CustomerProfileService {
     /**
      * 详情
      */
-    public CustomerProfile getDetail(Map<String, Object> requestMap);
+    public DidProfile getDetail(Map<String, Object> requestMap);
 
 
     /**
      * 租户下所有
      */
-    public IPage<CustomerProfile> getPageList(Map<String, Object> requestMap);
+    public IPage<DidProfile> getPageList(Map<String, Object> requestMap);
 
 }

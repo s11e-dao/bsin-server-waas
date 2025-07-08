@@ -15,17 +15,16 @@ import me.flyray.bsin.constants.ResponseCode;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.Contract;
 import me.flyray.bsin.domain.entity.ContractProtocol;
-import me.flyray.bsin.domain.entity.CustomerProfile;
+import me.flyray.bsin.domain.entity.DidProfile;
 import me.flyray.bsin.domain.entity.DigitalAssetsCollection;
 import me.flyray.bsin.domain.enums.AssetsCollectionType;
 import me.flyray.bsin.domain.enums.ProfileType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.CustomerProfileService;
-import me.flyray.bsin.infrastructure.biz.CustomerInfoBiz;
 import me.flyray.bsin.infrastructure.biz.MerchantInfoBiz;
 import me.flyray.bsin.infrastructure.mapper.ContractMapper;
 import me.flyray.bsin.infrastructure.mapper.ContractProtocolMapper;
-import me.flyray.bsin.infrastructure.mapper.CustomerProfileMapper;
+import me.flyray.bsin.infrastructure.mapper.DidProfileMapper;
 import me.flyray.bsin.infrastructure.mapper.DigitalAssetsCollectionMapper;
 import me.flyray.bsin.security.contex.LoginInfoContextHelper;
 import me.flyray.bsin.security.domain.LoginUser;
@@ -33,14 +32,12 @@ import me.flyray.bsin.server.utils.Pagination;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
@@ -62,7 +59,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
   @Value("${bsin.oss.ipfs.gateway}")
   private String ipfsGateway;
 
-  @Autowired private CustomerProfileMapper customerProfileMapper;
+  @Autowired private DidProfileMapper customerProfileMapper;
   @Autowired private ContractMapper contractMapper;
   @Autowired private BsinBlockChainEngineFactory bsinBlockChainEngineFactory;
   @Autowired private MerchantInfoBiz merchantInfoBiz;
@@ -79,7 +76,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
   @ApiDoc(desc = "create")
   @Override
   @Transactional
-  public CustomerProfile create(Map<String, Object> requestMap) throws Exception {
+  public DidProfile create(Map<String, Object> requestMap) throws Exception {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String merchantNo = MapUtils.getString(requestMap, "merchantNo");
     if (merchantNo == null) {
@@ -93,8 +90,8 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
       customerNo = loginUser.getCustomerNo();
     }
     String tenantId = loginUser.getTenantId();
-    CustomerProfile customerProfile =
-        BsinServiceContext.getReqBodyDto(CustomerProfile.class, requestMap);
+    DidProfile customerProfile =
+        BsinServiceContext.getReqBodyDto(DidProfile.class, requestMap);
     customerProfile.setTenantId(tenantId);
     customerProfile.setMerchantNo(merchantNo);
 
@@ -295,7 +292,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
   @ShenyuDubboClient("/update")
   @ApiDoc(desc = "update")
   @Override
-  public CustomerProfile update(Map<String, Object> requestMap) throws Exception {
+  public DidProfile update(Map<String, Object> requestMap) throws Exception {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
     String merchantNo = MapUtils.getString(requestMap, "merchantNo");
     if (merchantNo == null) {
@@ -316,7 +313,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     }
     // 1.找到 customer 的 profile 合约
     // get customer S11eProfile
-    CustomerProfile customerProfile = customerProfileMapper.selectById(serialId);
+    DidProfile customerProfile = customerProfileMapper.selectById(serialId);
     if (customerProfile == null) {
       throw new BusinessException("100000", "未找到客户的profile合约！！！");
     }
@@ -460,7 +457,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
     // 1.找到 customer 的 profile 合约
     // get customer S11eProfile
-    CustomerProfile customerProfile = customerProfileMapper.selectById(serialId);
+    DidProfile customerProfile = customerProfileMapper.selectById(serialId);
     if (customerProfile == null) {
       throw new BusinessException("100000", "未找到客户的profile合约！！！");
     }
@@ -662,7 +659,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     Map<String, Object> contractRWRet = new HashMap<>();
     // 1.找到 customer 的 profile 合约
     // get customer S11eProfile
-    CustomerProfile customerProfile = customerProfileMapper.selectById(serialId);
+    DidProfile customerProfile = customerProfileMapper.selectById(serialId);
     if (customerProfile == null) {
       contractRWRet.put("code", "100000");
       contractRWRet.put("message", "未找到客户的profile合约！！！");
@@ -727,40 +724,40 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
   @ApiDoc(desc = "edit")
   @Override
   public void edit(Map<String, Object> requestMap) {
-    CustomerProfile customerProfile =
-        BsinServiceContext.getReqBodyDto(CustomerProfile.class, requestMap);
+    DidProfile customerProfile =
+        BsinServiceContext.getReqBodyDto(DidProfile.class, requestMap);
     customerProfileMapper.updateById(customerProfile);
   }
 
   @ShenyuDubboClient("/getDetail")
   @ApiDoc(desc = "getDetail")
   @Override
-  public CustomerProfile getDetail(Map<String, Object> requestMap) {
+  public DidProfile getDetail(Map<String, Object> requestMap) {
     String serialNo = MapUtils.getString(requestMap, "serialNo");
-    CustomerProfile customerProfile = customerProfileMapper.selectById(serialNo);
+    DidProfile customerProfile = customerProfileMapper.selectById(serialNo);
     return customerProfile;
   }
 
   @ShenyuDubboClient("/getPageList")
   @ApiDoc(desc = "getPageList")
   @Override
-  public IPage<CustomerProfile> getPageList(Map<String, Object> requestMap) {
+  public IPage<DidProfile> getPageList(Map<String, Object> requestMap) {
     LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
-    CustomerProfile customerProfile =
-        BsinServiceContext.getReqBodyDto(CustomerProfile.class, requestMap);
+    DidProfile customerProfile =
+        BsinServiceContext.getReqBodyDto(DidProfile.class, requestMap);
     Object paginationObj =  requestMap.get("pagination");
     me.flyray.bsin.server.utils.Pagination pagination = new Pagination();
     BeanUtil.copyProperties(paginationObj,pagination);
-    Page<CustomerProfile> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
-    LambdaUpdateWrapper<CustomerProfile> warapper = new LambdaUpdateWrapper<>();
-    warapper.orderByDesc(CustomerProfile::getCreateTime);
-    warapper.eq(CustomerProfile::getTenantId, loginUser.getTenantId());
-    warapper.eq(CustomerProfile::getMerchantNo, loginUser.getMerchantNo());
+    Page<DidProfile> page = new Page<>(pagination.getPageNum(), pagination.getPageSize());
+    LambdaUpdateWrapper<DidProfile> warapper = new LambdaUpdateWrapper<>();
+    warapper.orderByDesc(DidProfile::getCreateTime);
+    warapper.eq(DidProfile::getTenantId, loginUser.getTenantId());
+    warapper.eq(DidProfile::getMerchantNo, loginUser.getMerchantNo());
     warapper.eq(
             StringUtils.isNotBlank(customerProfile.getType()),
-        CustomerProfile::getType,
+        DidProfile::getType,
         customerProfile.getType());
-    IPage<CustomerProfile> pageList = customerProfileMapper.selectPage(page, warapper);
+    IPage<DidProfile> pageList = customerProfileMapper.selectPage(page, warapper);
     return pageList;
   }
 

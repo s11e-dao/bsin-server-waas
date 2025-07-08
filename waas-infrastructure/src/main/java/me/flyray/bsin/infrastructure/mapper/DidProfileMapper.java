@@ -1,7 +1,7 @@
 package me.flyray.bsin.infrastructure.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import me.flyray.bsin.domain.entity.CustomerProfile;
+import me.flyray.bsin.domain.entity.DidProfile;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
-public interface CustomerProfileMapper extends BaseMapper<CustomerProfile> {
+public interface DidProfileMapper extends BaseMapper<DidProfile> {
 
 }
 

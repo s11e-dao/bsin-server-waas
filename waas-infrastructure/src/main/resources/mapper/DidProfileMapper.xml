@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="me.flyray.bsin.infrastructure.mapper.CustomerProfileMapper">
+<mapper namespace="me.flyray.bsin.infrastructure.mapper.DidProfileMapper">
 
-    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.CustomerProfile">
+    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.DidProfile">
             <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
             <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -22,7 +22,6 @@
             <result property="externalUri" column="external_uri" jdbcType="VARCHAR"/>
             <result property="chainType" column="chain_type" jdbcType="VARCHAR"/>
             <result property="chainEnv" column="chain_env" jdbcType="VARCHAR"/>
-
             <result property="description" column="description" jdbcType="VARCHAR"/>
     </resultMap>
 

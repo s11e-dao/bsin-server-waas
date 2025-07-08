@@ -15,8 +15,8 @@ import lombok.Data;
  */
 
 @Data
-@TableName(value ="waas_customer_profile")
-public class CustomerProfile implements Serializable {
+@TableName(value ="waas_did_profile")
+public class DidProfile implements Serializable {
     /**
      * 序列号
      */
@@ -130,6 +130,14 @@ public class CustomerProfile implements Serializable {
      * profile DID
      */
     private String did;
+
+    /**
+     * profile didDoc
+     */
+    private String didDoc;
+
+
+    private String didkeyDataJson;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
