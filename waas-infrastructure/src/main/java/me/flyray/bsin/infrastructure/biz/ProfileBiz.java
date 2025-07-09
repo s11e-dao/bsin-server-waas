@@ -35,4 +35,5 @@ public class ProfileBiz {
   public Map createProfile(DidProfile customerProfile) {
     return null;
   }
+
 }

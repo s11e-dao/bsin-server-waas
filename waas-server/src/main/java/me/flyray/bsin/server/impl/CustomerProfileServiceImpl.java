@@ -93,7 +93,6 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     DidProfile customerProfile =
         BsinServiceContext.getReqBodyDto(DidProfile.class, requestMap);
     customerProfile.setTenantId(tenantId);
-    customerProfile.setMerchantNo(merchantNo);
 
     if (!customerProfile.getType().equals(ProfileType.BRAND.getDesc())
         && !customerProfile.getType().equals(ProfileType.INDIVIDUAL.getDesc())) {
@@ -262,9 +261,6 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
 
       customerProfile.setSerialNo(BsinSnowflake.getId());
       customerProfile.setContractAddress(profileAddress);
-      customerProfile.setMerchantNo(merchantNo);
-      customerProfile.setCustomerNo(customerNo);
-      customerProfile.setMemberNo(new BigInteger("0"));
       customerProfile.setCreateBy(customerNo);
       customerProfile.setProfileNum(profileCountInt);
       customerProfileMapper.insert(customerProfile);
@@ -752,7 +748,6 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     LambdaUpdateWrapper<DidProfile> warapper = new LambdaUpdateWrapper<>();
     warapper.orderByDesc(DidProfile::getCreateTime);
     warapper.eq(DidProfile::getTenantId, loginUser.getTenantId());
-    warapper.eq(DidProfile::getMerchantNo, loginUser.getMerchantNo());
     warapper.eq(
             StringUtils.isNotBlank(customerProfile.getType()),
         DidProfile::getType,

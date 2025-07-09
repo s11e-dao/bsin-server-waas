@@ -12,17 +12,18 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="delFlag" column="del_flag" jdbcType="INTEGER"/>
             <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
-            <result property="merchantNo" column="merchant_no" jdbcType="VARCHAR"/>
+            <result property="bizRoleType" column="biz_role_type" jdbcType="VARCHAR"/>
+            <result property="bizRoleTypeNo" column="biz_role_type_no" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="contractAddress" column="contract_address" jdbcType="VARCHAR"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
-            <result property="memberNo" column="member_no" jdbcType="INTEGER"/>
             <result property="profileNum" column="profile_num" jdbcType="INTEGER"/>
             <result property="assetsCount" column="assets_count" jdbcType="INTEGER"/>
             <result property="externalUri" column="external_uri" jdbcType="VARCHAR"/>
             <result property="chainType" column="chain_type" jdbcType="VARCHAR"/>
             <result property="chainEnv" column="chain_env" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">

@@ -58,14 +58,14 @@ public class DidProfile implements Serializable {
     private String tenantId;
 
     /**
-     * 商户编码
+     * 业务角色类型
      */
-    private String merchantNo;
+    private String bizRoleType;
 
     /**
-     * 客户编码
+     * 业务角色ID
      */
-    private String customerNo;
+    private String bizRoleTypeNo;
 
     /**
      * profile名称
@@ -78,12 +78,6 @@ public class DidProfile implements Serializable {
      */
 //    @NotBlank(message = "profile符号不能为空！")
     private String symbol;
-
-
-    /**
-     * profile会员数量
-     */
-    private BigInteger memberNo;
 
     /**
      * profile 合约地址
@@ -137,7 +131,7 @@ public class DidProfile implements Serializable {
     private String didDoc;
 
 
-    private String didkeyDataJson;
+    private String didKeyData;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -10,7 +10,7 @@ public interface DidProfileServiceEngine {
      * 可信身份注册
      * 身份类型： 设备、客户、商户
      */
-    void create(Map<String, Object> requestMap);
+    DidProfile create(Map<String, Object> requestMap);
 
 
     /**
