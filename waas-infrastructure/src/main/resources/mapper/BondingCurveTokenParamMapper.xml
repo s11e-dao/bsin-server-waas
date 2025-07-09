@@ -24,6 +24,14 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="delFlag" column="del_flag" jdbcType="INTEGER"/>
             <result property="circulation" column="circulation" jdbcType="DECIMAL"/>
+            <!-- 新增：分段衰减释放相关字段 -->
+            <result property="totalTargetToken" column="total_target_token" jdbcType="DECIMAL"/>
+            <result property="estimatedLaborValue" column="estimated_labor_value" jdbcType="DECIMAL"/>
+            <result property="decayFactor" column="decay_factor" jdbcType="DECIMAL"/>
+            <result property="levelWidth" column="level_width" jdbcType="DECIMAL"/>
+            <result property="totalLevels" column="total_levels" jdbcType="INTEGER"/>
+            <result property="firstLevelReward" column="first_level_reward" jdbcType="DECIMAL"/>
+            <result property="releaseThreshold" column="release_threshold" jdbcType="DECIMAL"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -32,6 +40,8 @@
         decimals,cap,initial_price,
         final_price,flexible,type,
         status,create_time,update_time,
-        del_flag,description,digital_point_no,circulation
+        del_flag,description,digital_point_no,circulation,
+        total_target_token,estimated_labor_value,decay_factor,
+        level_width,total_levels,first_level_reward,release_threshold
     </sql>
 </mapper>

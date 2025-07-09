@@ -74,7 +74,7 @@ public class BondingCurveTokenServiceImpl implements BondingCurveTokenService {
   }
 
   /**
-   * @desc 添加曲线
+   * @desc 添加曲线： waas_bonding_curve_token_param
    * 1. 1个商户智能添加一条曲线积分参数
    * 2. 添加曲线积分参数的同时添加一条初始数据：wass_bonding_curve_token_journal
    * @param requestMap

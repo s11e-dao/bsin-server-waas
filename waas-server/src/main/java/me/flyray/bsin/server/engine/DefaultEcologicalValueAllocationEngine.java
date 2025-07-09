@@ -422,7 +422,7 @@ public class DefaultEcologicalValueAllocationEngine implements EcologicalValueAl
             return false;
         }
         
-        boolean shouldRelease = bondingCurveTokenParam.getReleaseThreshold().compareTo(0) > 0;
+        boolean shouldRelease = bondingCurveTokenParam.getReleaseThreshold().compareTo(BigDecimal.ZERO) > 0;
         log.debug("是否应该释放数字积分：{}，阈值：{}", shouldRelease, bondingCurveTokenParam.getReleaseThreshold());
         
         // TODO 实现实际的判断逻辑，而不是仅仅检查阈值

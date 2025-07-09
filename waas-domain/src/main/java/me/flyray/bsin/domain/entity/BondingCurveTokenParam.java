@@ -80,7 +80,7 @@ public class BondingCurveTokenParam implements Serializable {
     /**
      * 释放数字积分的曲线价值阀值
      */
-    private Integer releaseThreshold;
+    private BigDecimal releaseThreshold;
 
     /**
      * 积分最终价格
@@ -105,6 +105,37 @@ public class BondingCurveTokenParam implements Serializable {
      * @see BondingCurveTokenStatus
      */
     private String status;
+
+    // 新增：分段衰减释放相关参数
+    /**
+     * 总积分目标 (T)
+     */
+    private BigDecimal totalTargetToken;
+
+    /**
+     * 预估劳动价值 (Tv)
+     */
+    private BigDecimal estimatedLaborValue;
+
+    /**
+     * 衰减系数 (k)
+     */
+    private BigDecimal decayFactor;
+
+    /**
+     * 档位宽度 (δC)
+     */
+    private BigDecimal levelWidth;
+
+    /**
+     * 档位总数 (N)
+     */
+    private Integer totalLevels;
+
+    /**
+     * 首档奖励 (R₀)
+     */
+    private BigDecimal firstLevelReward;
 
     /**
      * 创建时间
