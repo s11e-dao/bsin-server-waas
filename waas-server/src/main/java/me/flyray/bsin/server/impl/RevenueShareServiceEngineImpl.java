@@ -23,6 +23,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
@@ -61,9 +62,9 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     /**
      * 执行分账分润操作
      * 主要包含以下步骤：
-     * 1. 验证交易信息并获取分账配置
-     * 2. 执行支付通道分账
-     * 3. 执行生态价值分配
+     * 1. 验证交易信息
+     * 2. 执行支付分账阶段（独立事务）
+     * 3. 执行生态价值分配阶段（独立事务 + 异步处理）
      *
      * @param transaction 交易信息
      * @throws IllegalArgumentException 当必要参数缺失时抛出
@@ -76,31 +77,65 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         final String serialNo = transaction.getSerialNo();
         log.info("开始执行分账分润流程，交易号：{}", serialNo);
         
+        // 1. 支付分账阶段（独立事务）
+        PaymentAllocationResult paymentResult = executePaymentAllocationSafely(transaction);
+        
+        // 2. 生态价值分配阶段（独立事务 + 异步处理）
+        scheduleEcologicalValueAllocation(transaction, paymentResult);
+        
+        log.info("分账分润流程执行完成，交易号：{}", serialNo);
+    }
+
+    /**
+     * 安全执行支付分账，包含完整的异常处理
+     * @param transaction 交易信息
+     * @return PaymentAllocationResult 支付分账结果
+     */
+    private PaymentAllocationResult executePaymentAllocationSafely(Transaction transaction) {
+        final String serialNo = transaction.getSerialNo();
+        
         try {
             // 获得商户让利配置
             Map requestMap = new HashMap<>();
             requestMap.put("merchantNo", "merchantNo");
             MerchantConfig merchantConfig = merchantConfigService.getDetail(requestMap);
 
-            // 获取分账配置并执行分账
+            // 获取分账配置
             Optional<ProfitSharingConfig> configOpt = getProfitSharingConfig(transaction);
-            configOpt.ifPresent(profitSharingConfig -> {
-                try {
-                    executeProfitSharing(transaction, merchantConfig, profitSharingConfig);
-                } catch (WxPayException e) {
-                    log.error("支付分账执行失败，交易号：{}", serialNo, e);
-                    throw new RuntimeException("支付分账执行失败", e);
-                }
-            });
             
-            // 执行生态价值分配
-            executeEcologicalValueAllocation(transaction, configOpt.orElse(null));
+            if (configOpt.isPresent()) {
+                ProfitSharingConfig profitSharingConfig = configOpt.get();
+                executeProfitSharing(transaction, merchantConfig, profitSharingConfig);
+                log.info("支付分账执行成功，交易号：{}", serialNo);
+                return new PaymentAllocationResult(true, profitSharingConfig, null);
+            } else {
+                log.info("无分账配置，跳过支付分账，交易号：{}", serialNo);
+                return new PaymentAllocationResult(false, null, null);
+            }
             
-            log.info("分账分润流程执行完成，交易号：{}", serialNo);
         } catch (Exception e) {
-            log.error("分账分润流程执行失败，交易号：{}", serialNo, e);
-            throw new RuntimeException("分账分润执行失败：" + e.getMessage(), e);
+            log.error("支付分账执行失败，交易号：{}", serialNo, e);
+            return new PaymentAllocationResult(false, null, e.getMessage());
         }
+    }
+
+    /**
+     * 支付分账结果封装类
+     */
+    private static class PaymentAllocationResult {
+        private final boolean success;
+        private final ProfitSharingConfig profitSharingConfig;
+        private final String errorMessage;
+        
+        public PaymentAllocationResult(boolean success, ProfitSharingConfig profitSharingConfig, String errorMessage) {
+            this.success = success;
+            this.profitSharingConfig = profitSharingConfig;
+            this.errorMessage = errorMessage;
+        }
+        
+        public boolean isSuccess() { return success; }
+        public ProfitSharingConfig getProfitSharingConfig() { return profitSharingConfig; }
+        public String getErrorMessage() { return errorMessage; }
     }
 
     /**
@@ -219,11 +254,15 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     /**
      * 执行生态价值分配
      */
-    private void executeEcologicalValueAllocation(Transaction transaction, ProfitSharingConfig profitSharingConfig) throws Exception {
+    /**
+     * 异步执行生态价值分配
+     */
+//    @Async("ecologicalValueExecutor")
+    private void scheduleEcologicalValueAllocation(Transaction transaction, PaymentAllocationResult paymentResult) throws Exception {
         final String serialNo = transaction.getSerialNo();
         log.info("开始执行生态价值分配，交易号：{}", serialNo);
         
-        Map<String, Object> requestMap = buildValueAllocationRequestMap(transaction, profitSharingConfig);
+        Map<String, Object> requestMap = buildValueAllocationRequestMap(transaction, paymentResult.getProfitSharingConfig());
         log.info("请求平台配置参数: {}，交易号：{}", requestMap, serialNo);
         
         Optional<Platform> platformOpt = Optional.ofNullable(

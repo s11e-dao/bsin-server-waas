@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1000" viewBox="0 0 1400 1000">
+  <defs>
+    <!-- 阴影效果 -->
+    <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+    
+    <!-- 箭头标记定义 -->
+    <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+      <polygon points="0 0, 6 2, 0 4" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="1400" height="1000" fill="#f8f9fa"/>
+  
+  <!-- 整体内容居中组 -->
+  <g transform="translate(100, 50)">
+  
+  <!-- 标题 -->
+  <text x="600" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#333">
+    BSIN生态价值分配体系流程图
+  </text>
+  
+  <!-- 第一阶段：触发阶段 -->
+  <g>
+    <text x="70" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1976d2">触发阶段</text>
+    
+    <rect x="50" y="100" width="140" height="50" rx="10" fill="#2196f3" filter="url(#dropshadow)"/>
+    <text x="120" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">业务订单完成</text>
+    <text x="120" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Order Completion</text>
+    
+    <rect x="50" y="180" width="140" height="50" rx="10" fill="#9c27b0" filter="url(#dropshadow)"/>
+    <text x="120" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">定时任务触发</text>
+    <text x="120" y="215" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Scheduled Trigger</text>
+    
+    <rect x="50" y="260" width="140" height="50" rx="10" fill="#2196f3" filter="url(#dropshadow)"/>
+    <text x="120" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">分佣结算调用</text>
+    <text x="120" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Settlement Call</text>
+  </g>
+  
+  <!-- 第二阶段：准备验证 -->
+  <g>
+    <text x="270" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388e3c">准备验证</text>
+    
+    <rect x="250" y="160" width="140" height="50" rx="10" fill="#4caf50" filter="url(#dropshadow)"/>
+    <text x="320" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">验证交易信息</text>
+    <text x="320" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Validate Transaction</text>
+    
+    <rect x="250" y="240" width="140" height="50" rx="10" fill="#4caf50" filter="url(#dropshadow)"/>
+    <text x="320" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">获取配置信息</text>
+    <text x="320" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Get Configuration</text>
+  </g>
+  
+  <!-- 决策节点 -->
+  <g>
+    <polygon points="470,160 520,185 470,210 420,185" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="470" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">是否有</text>
+    <text x="470" y="192" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">分账配置?</text>
+  </g>
+  
+  <!-- 第三阶段：支付分账 -->
+  <g>
+    <text x="600" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f57c00">支付分账</text>
+    
+    <rect x="580" y="100" width="140" height="45" rx="8" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="650" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">计算分账金额</text>
+    <text x="650" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Calculate Amount</text>
+    
+    <polygon points="800,100 850,122.5 800,145 750,122.5" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="800" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">分账类型</text>
+    <text x="800" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">判断</text>
+    
+    <rect x="900" y="80" width="110" height="35" rx="6" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="955" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">订单类型</text>
+    <text x="955" y="107" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">预设金额</text>
+    
+    <rect x="900" y="130" width="110" height="35" rx="6" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="955" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">商品类型</text>
+    <text x="955" y="157" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">交易额×比例</text>
+    
+    <rect x="580" y="180" width="140" height="45" rx="8" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="650" y="198" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">创建分账服务</text>
+    <text x="650" y="212" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Create Service</text>
+    
+    <rect x="580" y="260" width="140" height="45" rx="8" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="650" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">执行分账请求</text>
+    <text x="650" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Execute Request</text>
+    
+    <rect x="580" y="340" width="140" height="45" rx="8" fill="#ff9800" filter="url(#dropshadow)"/>
+    <text x="650" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">更新交易状态</text>
+    <text x="650" y="372" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Update Status</text>
+  </g>
+  
+  <!-- 跳过分账 -->
+  <g>
+    <rect x="420" y="310" width="100" height="40" rx="8" fill="#9e9e9e" filter="url(#dropshadow)"/>
+    <text x="470" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">跳过分账</text>
+    <text x="470" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">Skip</text>
+  </g>
+  
+  <!-- 第四阶段：生态价值分配 -->
+  <g>
+    <text x="300" y="460" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388e3c">生态价值分配</text>
+    
+    <rect x="250" y="480" width="140" height="50" rx="10" fill="#4caf50" filter="url(#dropshadow)"/>
+    <text x="320" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">价值分配调用</text>
+    <text x="320" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Value Allocation</text>
+    
+    <rect x="450" y="480" width="140" height="50" rx="10" fill="#4caf50" filter="url(#dropshadow)"/>
+    <text x="520" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">获取平台配置</text>
+    <text x="520" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Get Platform Config</text>
+    
+    <polygon points="710,480 760,505 710,530 660,505" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="710" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">价值分配</text>
+    <text x="710" y="512" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">启用?</text>
+  </g>
+  
+  <!-- 第五阶段：参与者角色分配 -->
+  <g>
+    <text x="100" y="590" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f9a825">参与者分配</text>
+    
+    <rect x="50" y="610" width="100" height="45" rx="8" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="100" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">运营平台</text>
+    <text x="100" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#333">superTenant</text>
+    
+    <rect x="170" y="610" width="100" height="45" rx="8" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="220" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">租户平台</text>
+    <text x="220" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#333">tenant</text>
+    
+    <rect x="290" y="610" width="100" height="45" rx="8" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="340" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">系统代理</text>
+    <text x="340" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#333">sysAgent</text>
+    
+    <rect x="410" y="610" width="100" height="45" rx="8" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="460" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">客户返利</text>
+    <text x="460" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#333">customer</text>
+    
+    <rect x="530" y="610" width="100" height="45" rx="8" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="580" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">分销者</text>
+    <text x="580" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#333">distributor</text>
+  </g>
+  
+  <!-- 第六阶段：分销者细分 -->
+  <g>
+    <text x="750" y="590" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#c2185b">分销者细分</text>
+    
+    <rect x="700" y="610" width="120" height="45" rx="8" fill="#e91e63" filter="url(#dropshadow)"/>
+    <text x="760" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">分销者细分</text>
+    <text x="760" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">Distribution Detail</text>
+    
+    <rect x="670" y="690" width="90" height="40" rx="6" fill="#e91e63" filter="url(#dropshadow)"/>
+    <text x="715" y="706" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">关系链查询</text>
+    <text x="715" y="718" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white">Relation Chain</text>
+    
+    <rect x="780" y="690" width="90" height="40" rx="6" fill="#e91e63" filter="url(#dropshadow)"/>
+    <text x="825" y="706" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">比例计算</text>
+    <text x="825" y="718" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white">Rate Calculation</text>
+  </g>
+  
+  <!-- 第七阶段：价值转换机制 -->
+  <g>
+    <text x="1050" y="460" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#00695c">价值转换机制</text>
+    
+    <rect x="980" y="480" width="140" height="50" rx="10" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="1050" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">价值转换机制</text>
+    <text x="1050" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Value Conversion</text>
+    
+    <polygon points="1050,550 1100,575 1050,600 1000,575" fill="#ffeb3b" filter="url(#dropshadow)"/>
+    <text x="1050" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">按兑换比例</text>
+    <text x="1050" y="582" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">分配</text>
+    
+    <rect x="950" y="640" width="120" height="45" rx="8" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="1010" y="658" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">曲线价值</text>
+    <text x="1010" y="670" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">升值潜力</text>
+    
+    <rect x="1090" y="640" width="120" height="45" rx="8" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="1150" y="658" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">优惠价值</text>
+    <text x="1150" y="670" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="white">立即可用</text>
+    
+    <rect x="950" y="710" width="120" height="35" rx="6" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="1010" y="724" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">数字积分</text>
+    <text x="1010" y="734" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white">Digital Points</text>
+    
+    <rect x="1090" y="710" width="120" height="35" rx="6" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="1150" y="724" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">入账</text>
+    <text x="1150" y="734" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white">Account Credit</text>
+  </g>
+  
+  <!-- 完成节点 -->
+  <g>
+    <rect x="600" y="820" width="200" height="50" rx="10" fill="#009688" filter="url(#dropshadow)"/>
+    <text x="700" y="840" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">生态价值分配流程完成</text>
+    <text x="700" y="855" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Process Completed</text>
+  </g>
+  
+  <!-- 连接线 -->
+  <!-- 主流程线 - 触发阶段 -->
+  <path d="M 120 150 L 120 180" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 120 230 L 120 260" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 触发到验证 -->
+  <path d="M 190 285 L 250 185" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 320 210 L 320 240" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 验证到决策 -->
+  <path d="M 390 265 L 420 185" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 分账分支 - 是 -->
+  <path d="M 520 185 L 580 122" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <text x="540" y="145" font-family="Arial, sans-serif" font-size="12" fill="#2e7d32" font-weight="bold">是</text>
+  
+  <!-- 分账类型判断 -->
+  <path d="M 720 122 L 750 122" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 850 122 L 900 97" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 850 122 L 900 147" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 分账流程 -->
+  <path d="M 650 145 L 650 180" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 650 225 L 650 260" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 650 305 L 650 340" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 跳过分账分支 - 否 -->
+  <path d="M 470 210 L 470 310" stroke="#999" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <text x="480" y="245" font-family="Arial, sans-serif" font-size="12" fill="#999" font-weight="bold">否</text>
+  
+  <!-- 到生态价值分配 -->
+  <path d="M 650 385 L 650 420 L 320 420 L 320 480" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 470 350 L 470 420 L 320 420" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- 生态价值分配流程 -->
+  <path d="M 390 505 L 450 505" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 590 505 L 660 505" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 价值分配启用的决策分支 -->
+  <path d="M 710 530 L 710 550 L 100 550 L 100 610" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <text x="680" y="545" font-family="Arial, sans-serif" font-size="11" fill="#2e7d32" font-weight="bold">启用</text>
+  
+  <!-- 参与者分配 -->
+  <path d="M 220 550 L 220 610" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 340 550 L 340 610" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 460 550 L 460 610" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 580 550 L 580 610" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 分销者细分 -->
+  <path d="M 630 632 L 700 632" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 760 655 L 715 690" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 760 655 L 825 690" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 价值转换 -->
+  <path d="M 760 505 L 980 505" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 1050 530 L 1050 550" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 1050 600 L 1010 640" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 1050 600 L 1150 640" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 价值转换详细 -->
+  <path d="M 1010 685 L 1010 710" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 1150 685 L 1150 710" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 数字积分到入账 -->
+  <path d="M 1070 727 L 1090 727" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- 汇聚到完成 -->
+  <path d="M 1150 745 L 1150 790 L 700 790 L 700 820" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 825 730 L 825 790 L 700 790" stroke="#333" stroke-width="2" fill="none"/>
+  <path d="M 580 655 L 580 790 L 700 790" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- 图例 -->
+  <g transform="translate(50, 850)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">图例说明：</text>
+    
+    <rect x="0" y="10" width="15" height="15" fill="#2196f3"/>
+    <text x="20" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">触发阶段</text>
+    
+    <rect x="80" y="10" width="15" height="15" fill="#4caf50"/>
+    <text x="100" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">准备验证</text>
+    
+    <rect x="160" y="10" width="15" height="15" fill="#ff9800"/>
+    <text x="180" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">支付分账</text>
+    
+    <rect x="240" y="10" width="15" height="15" fill="#ffeb3b"/>
+    <text x="260" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">参与者分配</text>
+    
+    <rect x="340" y="10" width="15" height="15" fill="#e91e63"/>
+    <text x="360" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">分销细分</text>
+    
+    <rect x="420" y="10" width="15" height="15" fill="#009688"/>
+    <text x="440" y="22" font-family="Arial, sans-serif" font-size="10" fill="#333">价值转换</text>
+  </g>
+  
+  </g> <!-- 关闭整体内容居中组 -->
+  
+</svg> 
