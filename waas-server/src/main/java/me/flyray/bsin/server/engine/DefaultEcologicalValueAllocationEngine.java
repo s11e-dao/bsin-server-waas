@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 曲线价值分配模型
+ */
 @Slf4j
 @Component
 public class DefaultEcologicalValueAllocationEngine implements EcologicalValueAllocationEngine {

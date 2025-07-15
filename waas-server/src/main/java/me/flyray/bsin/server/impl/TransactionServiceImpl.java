@@ -439,7 +439,7 @@ public class TransactionServiceImpl implements TransactionService {
         queryWrapper.eq(Transaction::getOutSerialNo, outSerialNo);
         // 根据订单号查询交易
         Transaction transaction = transactionMapper.selectOne(queryWrapper);
-        // 分佣分账引擎
+        // 生态价值分配引擎
         revenueShareServiceEngine.excute(transaction);
         return transaction;
     }

@@ -5,8 +5,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * 排队免单价值分配模型
+ */
 @Component
-public class HybridAllocationEngine implements EcologicalValueAllocationEngine {
+public class QueueFreeBillAllocationEngine implements EcologicalValueAllocationEngine {
 
     /**
      * 排队免单模式

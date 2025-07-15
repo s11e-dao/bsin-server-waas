@@ -15,14 +15,16 @@ public class EcologicalValueAllocationEngineFactory {
     private ContributionBasedAllocationEngine contributionBasedEngine;
 
     @Autowired
-    private HybridAllocationEngine hybridEngine;
+    private QueueFreeBillAllocationEngine queueFreeBillAllocationEngine;
 
     public EcologicalValueAllocationEngine getEngine(EcologicalValueAllocationModel type) {
         switch (type) {
+            // 等比例价值分配
             case PROPORTIONAL_DISTRIBUTION:
                 return contributionBasedEngine;
-            case HYBRID:
-                return hybridEngine;
+            case QUEUE_FREE_BILLING:
+                return queueFreeBillAllocationEngine;
+            // 曲线价值分配
             case CURVE_BASED:
             default:
                 return defaultEngine;

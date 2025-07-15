@@ -62,11 +62,11 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         log.info("开始执行生态价值分配流程，交易号：{}", serialNo);
 
         // 判断价值分配方式
-        EcologicalValueAllocationModel allocationType = determineValueAllocationType(transaction);
-        log.info("确定价值分配方式：{}，交易号：{}", allocationType, serialNo);
+        EcologicalValueAllocationModel allocationModel = determineValueAllocationType(transaction);
+        log.info("确定价值分配方式：{}，交易号：{}", allocationModel, serialNo);
         
         // 生态价值分配阶段（独立事务 + 异步处理）
-        scheduleEcologicalValueAllocation(transaction, allocationType);
+        scheduleEcologicalValueAllocation(transaction, allocationModel);
         
         log.info("生态价值分配流程执行完成，交易号：{}", serialNo);
     }
@@ -98,31 +98,13 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
                 }
             }
             
-            // 2. 如果平台未配置，则根据交易金额判断
-            // 小额交易使用等比例价值分配模型，大额交易使用曲线价值分配模型
-            BigDecimal transactionAmount = transaction.getTxAmount();
-            if (transactionAmount.compareTo(new BigDecimal("100")) <= 0) {
-                log.info("小额交易使用等比例价值分配模型，交易金额：{}，交易号：{}", transactionAmount, serialNo);
-                return EcologicalValueAllocationModel.PROPORTIONAL_DISTRIBUTION;
-            } else {
-                log.info("大额交易使用曲线价值分配模型，交易金额：{}，交易号：{}", transactionAmount, serialNo);
-                return EcologicalValueAllocationModel.CURVE_BASED;
-            }
-            
+            // 2. 如果平台未配置，则根据交易金额等比例入账
+            return EcologicalValueAllocationModel.PROPORTIONAL_DISTRIBUTION;
+
         } catch (Exception e) {
             log.error("判断价值分配方式失败，使用默认方式，交易号：{}, 错误：{}", serialNo, e.getMessage());
             return EcologicalValueAllocationModel.PROPORTIONAL_DISTRIBUTION; // 默认使用等比例价值分配模型
         }
-    }
-
-    /**
-     * 获取分账配置
-     * @param transaction 交易信息
-     * @return 分账配置
-     */
-    private ProfitSharingConfig getProfitSharingConfig(Transaction transaction) {
-        // TODO: 根据交易信息获取分账配置
-        return null;
     }
 
     /**
@@ -138,15 +120,15 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
      * 异步执行生态价值分配
      */
 //    @Async("ecologicalValueExecutor")
-    private void scheduleEcologicalValueAllocation(Transaction transaction, EcologicalValueAllocationModel allocationType) throws Exception {
+    private void scheduleEcologicalValueAllocation(Transaction transaction, EcologicalValueAllocationModel allocationModel) throws Exception {
         final String serialNo = transaction.getSerialNo();
         log.info("开始执行生态价值分配，交易号：{}", serialNo);
         
         Map<String, Object> requestMap = buildValueAllocationRequestMap(transaction);
         log.info("请求平台配置参数: {}，交易号：{}", requestMap, serialNo);
         
-        log.info("开始执行生态价值分配，分配模型：{}，交易号：{}", allocationType, serialNo);
-        ecologicalValueEngineFactory.getEngine(allocationType).excute(requestMap);
+        log.info("开始执行生态价值分配，分配模型：{}，交易号：{}", allocationModel, serialNo);
+        ecologicalValueEngineFactory.getEngine(allocationModel).excute(requestMap);
 
         log.info("生态价值分配执行完成，交易号：{}", serialNo);
     }

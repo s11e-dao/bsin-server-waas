@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * 等比列价值分配
+ */
 @Component
 public class ContributionBasedAllocationEngine implements EcologicalValueAllocationEngine {
 
