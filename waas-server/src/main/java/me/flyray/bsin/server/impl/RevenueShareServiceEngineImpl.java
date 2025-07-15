@@ -1,19 +1,11 @@
 package me.flyray.bsin.server.impl;
 
-import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingReceiverRequest;
-import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
-import com.github.binarywang.wxpay.config.WxPayConfig;
-import com.github.binarywang.wxpay.constant.WxPayConstants;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.ProfitSharingService;
 import lombok.extern.slf4j.Slf4j;
-import me.flyray.bsin.domain.entity.MerchantConfig;
 import me.flyray.bsin.domain.entity.Platform;
 import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.domain.entity.Transaction;
-import me.flyray.bsin.domain.enums.EcologicalValueAllocationType;
+import me.flyray.bsin.domain.enums.EcologicalValueAllocationModel;
 import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
-import me.flyray.bsin.facade.service.MerchantConfigService;
 import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.facade.service.PlatformService;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
@@ -23,7 +15,6 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
@@ -39,10 +30,6 @@ import java.util.Optional;
 @ShenyuDubboService(path = "/revenueShare", timeout = 6000)
 @ApiModule(value = "revenueShare")
 public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine {
-
-    // 常量定义
-    private static final String ORDER_TYPE = "1";
-    private static final String PRODUCT_TYPE = "2";
     
     // 依赖注入
     @Autowired
@@ -56,16 +43,13 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
 
     @DubboReference(version = "${dubbo.provider.version}")
     private PlatformService platformService;
-    @DubboReference(version = "${dubbo.provider.version}")
-    private MerchantConfigService merchantConfigService;
 
     /**
-     * 执行分账分润操作
+     * 执行生态价值分配操作
      * 主要包含以下步骤：
      * 1. 验证交易信息
-     * 2. 执行支付分账阶段（独立事务）
+     * 2、判断是直接分配固定汇率积分还是数字积分
      * 3. 执行生态价值分配阶段（独立事务 + 异步处理）
-     *
      * @param transaction 交易信息
      * @throws IllegalArgumentException 当必要参数缺失时抛出
      * @throws Exception 其他业务异常
@@ -75,67 +59,70 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
         validateTransaction(transaction);
         
         final String serialNo = transaction.getSerialNo();
-        log.info("开始执行分账分润流程，交易号：{}", serialNo);
+        log.info("开始执行生态价值分配流程，交易号：{}", serialNo);
+
+        // 判断价值分配方式
+        EcologicalValueAllocationModel allocationType = determineValueAllocationType(transaction);
+        log.info("确定价值分配方式：{}，交易号：{}", allocationType, serialNo);
         
-        // 1. 支付分账阶段（独立事务）
-        PaymentAllocationResult paymentResult = executePaymentAllocationSafely(transaction);
+        // 生态价值分配阶段（独立事务 + 异步处理）
+        scheduleEcologicalValueAllocation(transaction, allocationType);
         
-        // 2. 生态价值分配阶段（独立事务 + 异步处理）
-        scheduleEcologicalValueAllocation(transaction, paymentResult);
-        
-        log.info("分账分润流程执行完成，交易号：{}", serialNo);
+        log.info("生态价值分配流程执行完成，交易号：{}", serialNo);
     }
 
     /**
-     * 安全执行支付分账，包含完整的异常处理
+     * 判断价值分配方式
      * @param transaction 交易信息
-     * @return PaymentAllocationResult 支付分账结果
+     * @return 价值分配类型
      */
-    private PaymentAllocationResult executePaymentAllocationSafely(Transaction transaction) {
+    private EcologicalValueAllocationModel determineValueAllocationType(Transaction transaction) {
         final String serialNo = transaction.getSerialNo();
         
         try {
-            // 获得商户让利配置
-            Map requestMap = new HashMap<>();
-            requestMap.put("merchantNo", "merchantNo");
-            MerchantConfig merchantConfig = merchantConfigService.getDetail(requestMap);
-
-            // 获取分账配置
-            Optional<ProfitSharingConfig> configOpt = getProfitSharingConfig(transaction);
+            // 1. 首先从平台配置中获取默认的价值分配模型
+            Map<String, Object> requestMap = new HashMap<>();
+            requestMap.put("tenantId", transaction.getTenantId());
             
-            if (configOpt.isPresent()) {
-                ProfitSharingConfig profitSharingConfig = configOpt.get();
-                executeProfitSharing(transaction, merchantConfig, profitSharingConfig);
-                log.info("支付分账执行成功，交易号：{}", serialNo);
-                return new PaymentAllocationResult(true, profitSharingConfig, null);
+            Optional<Platform> platformOpt = Optional.ofNullable(
+                platformService.getEcologicalValueAllocationModel(requestMap));
+            
+            if (platformOpt.isPresent()) {
+                Platform platform = platformOpt.get();
+                EcologicalValueAllocationModel allocationType = EcologicalValueAllocationModel
+                    .getInstanceById(platform.getEcoValueAllocationModel());
+                
+                if (allocationType != null) {
+                    log.info("从平台配置获取价值分配方式：{}，交易号：{}", allocationType, serialNo);
+                    return allocationType;
+                }
+            }
+            
+            // 2. 如果平台未配置，则根据交易金额判断
+            // 小额交易使用等比例价值分配模型，大额交易使用曲线价值分配模型
+            BigDecimal transactionAmount = transaction.getTxAmount();
+            if (transactionAmount.compareTo(new BigDecimal("100")) <= 0) {
+                log.info("小额交易使用等比例价值分配模型，交易金额：{}，交易号：{}", transactionAmount, serialNo);
+                return EcologicalValueAllocationModel.PROPORTIONAL_DISTRIBUTION;
             } else {
-                log.info("无分账配置，跳过支付分账，交易号：{}", serialNo);
-                return new PaymentAllocationResult(false, null, null);
+                log.info("大额交易使用曲线价值分配模型，交易金额：{}，交易号：{}", transactionAmount, serialNo);
+                return EcologicalValueAllocationModel.CURVE_BASED;
             }
             
         } catch (Exception e) {
-            log.error("支付分账执行失败，交易号：{}", serialNo, e);
-            return new PaymentAllocationResult(false, null, e.getMessage());
+            log.error("判断价值分配方式失败，使用默认方式，交易号：{}, 错误：{}", serialNo, e.getMessage());
+            return EcologicalValueAllocationModel.PROPORTIONAL_DISTRIBUTION; // 默认使用等比例价值分配模型
         }
     }
 
     /**
-     * 支付分账结果封装类
+     * 获取分账配置
+     * @param transaction 交易信息
+     * @return 分账配置
      */
-    private static class PaymentAllocationResult {
-        private final boolean success;
-        private final ProfitSharingConfig profitSharingConfig;
-        private final String errorMessage;
-        
-        public PaymentAllocationResult(boolean success, ProfitSharingConfig profitSharingConfig, String errorMessage) {
-            this.success = success;
-            this.profitSharingConfig = profitSharingConfig;
-            this.errorMessage = errorMessage;
-        }
-        
-        public boolean isSuccess() { return success; }
-        public ProfitSharingConfig getProfitSharingConfig() { return profitSharingConfig; }
-        public String getErrorMessage() { return errorMessage; }
+    private ProfitSharingConfig getProfitSharingConfig(Transaction transaction) {
+        // TODO: 根据交易信息获取分账配置
+        return null;
     }
 
     /**
@@ -148,139 +135,17 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     }
 
     /**
-     * 获取分账配置
-     */
-    private Optional<ProfitSharingConfig> getProfitSharingConfig(Transaction transaction) {
-        Map<String, Object> requestMap = buildConfigRequestMap(transaction);
-        ProfitSharingConfig config = merchantPayService.getProfitSharingConfig(requestMap);
-        
-        if (config == null) {
-            log.info("未找到分账配置，跳过支付分账，交易号：{}", transaction.getSerialNo());
-        }
-        
-        return Optional.ofNullable(config);
-    }
-
-    /**
-     * 构建分账配置请求参数
-     */
-    private Map<String, Object> buildConfigRequestMap(Transaction transaction) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("tenantId", transaction.getTenantId());
-        requestMap.put("type", transaction.getProfitSharingType());
-        return requestMap;
-    }
-
-    /**
-     * 执行支付分账
-     * 包括计算分账金额、配置支付服务、执行分账请求、更新交易状态
-     */
-    private void executeProfitSharing(Transaction transaction, MerchantConfig merchantConfig, ProfitSharingConfig profitSharingConfig) throws WxPayException {
-        final String serialNo = transaction.getSerialNo();
-        log.info("开始执行支付分账，交易号：{}", serialNo);
-
-        // 计算分账金额
-        BigDecimal profitSharingAmount = calculateProfitSharingAmount(transaction, merchantConfig);
-        log.info("计算得出分账金额：{}，交易号：{}", profitSharingAmount, serialNo);
-
-        // 执行分账流程
-        ProfitSharingService profitSharingService = createProfitSharingService();
-        addProfitSharingReceiver(profitSharingService);
-        executeProfitSharingRequest(profitSharingService, transaction, profitSharingConfig);
-        updateTransactionStatus(transaction);
-
-        log.info("支付分账执行完成，交易号：{}", serialNo);
-    }
-
-    /**
-     * 计算分账金额
-     * 订单类型：使用预设分账金额
-     * 商品类型：交易金额 × 商户分润比例
-     */
-    private BigDecimal calculateProfitSharingAmount(Transaction transaction, MerchantConfig merchantConfig) {
-        if (ORDER_TYPE.equals(transaction.getProfitSharingType())) {
-            return transaction.getProfitSharingAmount();
-        } else {
-            return transaction.getTxAmount().multiply(merchantConfig.getProfitSharingRate());
-        }
-    }
-
-    /**
-     * 创建分账服务
-     */
-    private ProfitSharingService createProfitSharingService() throws WxPayException {
-        WxPayConfig wxPayConfig = new WxPayConfig();
-        wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
-        wxPayConfig.setUseSandboxEnv(false);
-        return bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
-    }
-
-    /**
-     * 添加分账接收方
-     */
-    private void addProfitSharingReceiver(ProfitSharingService profitSharingService) throws WxPayException {
-        ProfitSharingReceiverRequest receiverRequest = new ProfitSharingReceiverRequest();
-        receiverRequest.setReceiver("");
-        profitSharingService.addReceiver(receiverRequest);
-    }
-
-    /**
-     * 执行分账请求
-     */
-    private void executeProfitSharingRequest(ProfitSharingService profitSharingService, 
-                                           Transaction transaction, 
-                                           ProfitSharingConfig config) throws WxPayException {
-        ProfitSharingRequest profitSharingRequest = buildProfitSharingRequest(transaction, config);
-        profitSharingService.multiProfitSharing(profitSharingRequest);
-    }
-
-    /**
-     * 更新交易状态
-     */
-    private void updateTransactionStatus(Transaction transaction) {
-        transaction.setProfitSharingStatus(true);
-        transactionMapper.updateById(transaction);
-    }
-
-    /**
-     * 构建分账请求对象
-     */
-    private ProfitSharingRequest buildProfitSharingRequest(Transaction transaction, ProfitSharingConfig config) {
-        ProfitSharingRequest request = new ProfitSharingRequest();
-        // TODO: 根据实际业务需求设置分账请求参数
-        return request;
-    }
-
-    /**
-     * 执行生态价值分配
-     */
-    /**
      * 异步执行生态价值分配
      */
 //    @Async("ecologicalValueExecutor")
-    private void scheduleEcologicalValueAllocation(Transaction transaction, PaymentAllocationResult paymentResult) throws Exception {
+    private void scheduleEcologicalValueAllocation(Transaction transaction, EcologicalValueAllocationModel allocationType) throws Exception {
         final String serialNo = transaction.getSerialNo();
         log.info("开始执行生态价值分配，交易号：{}", serialNo);
         
-        Map<String, Object> requestMap = buildValueAllocationRequestMap(transaction, paymentResult.getProfitSharingConfig());
+        Map<String, Object> requestMap = buildValueAllocationRequestMap(transaction);
         log.info("请求平台配置参数: {}，交易号：{}", requestMap, serialNo);
         
-        Optional<Platform> platformOpt = Optional.ofNullable(
-            platformService.getEcologicalValueAllocationModel(requestMap));
-            
-        if (!platformOpt.isPresent()) {
-            log.warn("未找到平台配置，跳过生态价值分配，交易号：{}", serialNo);
-            return;
-        }
-
-        Platform platform = platformOpt.get();
-        EcologicalValueAllocationType allocationType = EcologicalValueAllocationType
-            .getInstanceById(platform.getEcoValueAllocationModel());
-        if(allocationType == null){
-            log.warn("平台未配置价值分配模型，跳过生态价值分配，交易号：{}", platform);
-            return;
-        }
-        // 执行生态价值计算分配
+        log.info("开始执行生态价值分配，分配模型：{}，交易号：{}", allocationType, serialNo);
         ecologicalValueEngineFactory.getEngine(allocationType).excute(requestMap);
 
         log.info("生态价值分配执行完成，交易号：{}", serialNo);
@@ -289,10 +154,9 @@ public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine 
     /**
      * 构建生态价值分配请求参数
      */
-    private Map<String, Object> buildValueAllocationRequestMap(Transaction transaction, ProfitSharingConfig profitSharingConfig) {
+    private Map<String, Object> buildValueAllocationRequestMap(Transaction transaction) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("transaction", transaction);
-        requestMap.put("profitSharingConfig", profitSharingConfig);
         requestMap.put("tenantId", transaction.getTenantId());
         return requestMap;
     }
