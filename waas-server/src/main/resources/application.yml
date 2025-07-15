@@ -23,6 +23,7 @@ spring:
     alibaba:
       mcp:
         nacos:
+          namespace: ${BSIN_NACOS_NAMESPACE}
           server-addr: ${BSIN_NACOS_SERVER_ADDR} # Nacos 服务器地址
           username: ${BSIN_NACOS_USERNAME}
           password: ${BSIN_NACOS_PASSWORD}
