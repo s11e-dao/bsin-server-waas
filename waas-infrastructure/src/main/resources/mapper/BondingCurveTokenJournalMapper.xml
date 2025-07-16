@@ -28,7 +28,7 @@
     <select id="selectLastOne" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from crm_bonding_curve_token_journal
+        from waas_bonding_curve_token_journal
         <where>
             <if test="tenantId != null">
                 and tenant_id = #{tenantId}
@@ -44,7 +44,7 @@
     <select id="selectCurveList" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from crm_bonding_curve_token_journal
+        from waas_bonding_curve_token_journal
         <where>
             <if test="tenantId != null">
                 and tenant_id = #{tenantId}

@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * 
- * @TableName crm_bonding_curve_token_journal
+ * @TableName waas_bonding_curve_token_journal
  */
 
 @Data

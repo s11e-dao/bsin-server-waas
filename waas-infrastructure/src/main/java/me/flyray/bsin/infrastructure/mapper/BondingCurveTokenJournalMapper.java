@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
 * @author bolei
-* @description 针对表【crm_bonding_curve_token_journal】的数据库操作Mapper
+* @description 针对表【waas_bonding_curve_token_journal】的数据库操作Mapper
 * @createDate 2023-08-06 13:47:44
 * @Entity me.flyray.bsin.infrastructure.domain.BondingCurveTokenJournal
 */
