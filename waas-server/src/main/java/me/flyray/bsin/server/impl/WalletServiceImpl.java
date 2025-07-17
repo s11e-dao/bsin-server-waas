@@ -26,6 +26,8 @@ import me.flyray.bsin.security.enums.BizRoleType;
 import me.flyray.bsin.utils.BsinSnowflake;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
+import me.flyray.bsin.facade.service.PlatformService;
+import me.flyray.bsin.domain.entity.Platform;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
@@ -55,6 +57,9 @@ public class WalletServiceImpl implements WalletService {
   private WalletAccountBiz walletAccountBiz;
   @Autowired
   private CustomerChainCoinMapper customerChainCoinMapper;
+
+  @DubboReference(version = "${dubbo.provider.version}")
+  private PlatformService platformService;
 
   /**
    * 1、生成普通账户
@@ -151,7 +156,30 @@ public class WalletServiceImpl implements WalletService {
     LoginUser user = LoginInfoContextHelper.getLoginUser();
     Pagination pagination = walletDTO.getPagination();
     walletDTO.setTenantId(user.getTenantId());
-    return walletMapper.pageList(new Page<>(pagination.getPageNum(),pagination.getPageSize()),walletDTO);
+
+    // 获取钱包分页数据
+    Page<WalletVO> page = walletMapper.pageList(new Page<>(pagination.getPageNum(),pagination.getPageSize()),walletDTO);
+
+    // 在业务层获取平台信息，避免跨数据库查询
+    if (page != null && page.getRecords() != null && !page.getRecords().isEmpty()) {
+      try {
+        // 获取当前租户的平台信息
+        Map<String, Object> platformRequestMap = new HashMap<>();
+        platformRequestMap.put("tenantId", user.getTenantId());
+        Platform platform = platformService.getEcologicalValueAllocationModel(platformRequestMap);
+
+        // 为每个钱包设置平台名称
+        String platformName = platform != null ? platform.getPlatformName() : null;
+        for (WalletVO walletVO : page.getRecords()) {
+          walletVO.setPlatformName(platformName);
+        }
+      } catch (Exception e) {
+        log.warn("获取平台信息失败，tenantId: {}, error: {}", user.getTenantId(), e.getMessage());
+        // 平台信息获取失败不影响钱包列表查询
+      }
+    }
+
+    return page;
   }
 
   @Override

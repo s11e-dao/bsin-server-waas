@@ -44,14 +44,11 @@
         T1.balance as balance,
         cw.out_user_id as outUserId,
         cw.remark as remark,
-        cp.platform_name as platformName,
         cw.create_time as createTime,
         cw.create_by as createBy,
         cw.update_time as updateTime,
         cw.update_by as updateBy
         from waas_wallet as cw
-        left join crm_platform as cp
-        on cw.tenant_id = cp.tenant_id and cp.del_flag = '0'
         left join (
             select wallet_no,sum(balance) as balance from waas_wallet_account group by wallet_no
         )as T1

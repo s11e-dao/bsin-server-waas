@@ -75,8 +75,8 @@
         c4.tenant_id as tenantId,
         c4.create_by as createBy,
         c4.create_time as createTime
-        from crm_customer_chain_coin as c4
-        left join crm_chain_coin as c3
+        from waas_customer_chain_coin as c4
+        left join waas_chain_coin as c3
         on c3.serial_no = c4.chain_coin_no and c3.del_flag = '0'
         <trim prefix="where" prefixOverrides="and">
             <if test="params.coin != null and params.coin !=''">

@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 /**
  * 钱包;
- * @TableName crm_wallet
+ * @TableName waas_wallet
  */
 @Data
 @TableName(value ="waas_wallet")
