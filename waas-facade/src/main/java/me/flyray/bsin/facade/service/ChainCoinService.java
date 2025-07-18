@@ -52,6 +52,12 @@ public interface ChainCoinService {
     List<ChainCoin> getList(ChainCoinDTO coinDTO);
 
     /**
+     * 查询币种详情
+     * @param coinDTO
+     * @return
+     */
+    ChainCoin getDetail(ChainCoinDTO coinDTO);
+    /**
      * coin下拉
      */
     List<String> coinDropDown();

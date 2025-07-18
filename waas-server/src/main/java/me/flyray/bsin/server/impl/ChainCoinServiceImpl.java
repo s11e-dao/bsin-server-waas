@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
 * @author Admin
-* @description 针对表【crm_coin(币;)】的数据库操作Service实现
+* @description 针对表【waas_chain_coin】的数据库操作Service实现
 * @createDate 2024-04-24 20:36:46
 */
 
@@ -206,6 +206,17 @@ public class ChainCoinServiceImpl implements ChainCoinService {
         QueryWrapper<ChainCoin>  queryWrapper = new QueryWrapper();
         queryWrapper.eq("status", 1);
         return chainCoinMapper.selectList(queryWrapper);
+    }
+
+
+    @Override
+    @ShenyuDubboClient("/getDetail")
+    @ApiDoc(desc = "getDetail")
+    public ChainCoin getDetail(ChainCoinDTO coinDTO) {
+        log.debug("请求ChainCoinService.getList,参数:{}", coinDTO);
+        QueryWrapper<ChainCoin>  queryWrapper = new QueryWrapper();
+        queryWrapper.eq("status", 1);
+        return chainCoinMapper.selectById(coinDTO.getSerialNo());
     }
 
     @Override
