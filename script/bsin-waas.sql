@@ -891,7 +891,7 @@ CREATE TABLE `waas_profit_sharing_config` (
   `type` varchar(255) DEFAULT NULL COMMENT '1: 订单 2:  商品',
   `super_tenant_rate` decimal(10,2) DEFAULT '0.00' COMMENT '运营平台分佣比例',
   `tenant_rate` decimal(10,2) DEFAULT '0.00' COMMENT '租户平台分佣比例',
-  `sys_agent_rate` decimal(10,2) DEFAULT '0.00' COMMENT '代理商分佣比例',
+  `sys_agent_rate` decimal(10,2) DEFAULT '0.00' COMMENT '合伙人分佣比例',
   `customer_rate` decimal(10,2) DEFAULT '0.00' COMMENT '消费者返利比例',
   `distributor_rate` decimal(10,2) DEFAULT '0.00' COMMENT '分销模型的分销者比例',
   `exchange_digital_points_rate` decimal(10,2) DEFAULT '0.00' COMMENT '佣金兑换数字积分比例',
@@ -973,7 +973,7 @@ DROP TABLE IF EXISTS `waas_transaction`;
 CREATE TABLE `waas_transaction` (
   `serial_no` varchar(32) NOT NULL COMMENT '交易id',
   `tenant_id` varchar(32) DEFAULT NULL COMMENT '租户',
-  `biz_role_type` varchar(10) DEFAULT NULL COMMENT '业务角色类型;1、平台 2、商户 3、代理商 4、用户',
+  `biz_role_type` varchar(10) DEFAULT NULL COMMENT '业务角色类型;1、平台 2、商户 3、合伙人 4、用户',
   `biz_role_type_no` varchar(32) DEFAULT NULL COMMENT '业务角色类型编号',
   `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易hash',
   `out_serial_no` varchar(255) DEFAULT NULL COMMENT '商户业务唯一标识',
