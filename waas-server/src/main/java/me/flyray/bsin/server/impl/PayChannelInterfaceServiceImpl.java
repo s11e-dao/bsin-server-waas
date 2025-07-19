@@ -117,8 +117,11 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
     @ShenyuDubboClient("/getDetail")
     @Override
     public PayChannelInterface getDetail(Map<String, Object> requestMap){
-        String serialNo = MapUtils.getString(requestMap, "serialNo");
-        PayChannelInterface payChannelInterface = payChannelInterfaceMapper.selectById(serialNo);
+        String payChannelCode = MapUtils.getString(requestMap, "payChannelCode");
+        LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
+        warapper.eq(PayChannelInterface::getPayChannelCode, payChannelCode);
+        warapper.eq(PayChannelInterface::getTenantId, LoginInfoContextHelper.getLoginUser().getTenantId());
+        PayChannelInterface payChannelInterface = payChannelInterfaceMapper.selectOne(warapper);
         return payChannelInterface;
     }
 
