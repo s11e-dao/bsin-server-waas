@@ -114,7 +114,7 @@ public class Transaction extends BaseEntity implements Serializable {
     private String outSerialNo;
 
     /**
-     * 用户角色类型，1.系统运营 2.平台租户 3.商户 4.代理商 5.客户 6.门店 99.无
+     * 用户角色类型，1.系统运营 2.平台租户 3.商户 4.合伙人 5.客户 6.门店 99.无
      * @see BizRoleType
      */
     private String bizRoleType;

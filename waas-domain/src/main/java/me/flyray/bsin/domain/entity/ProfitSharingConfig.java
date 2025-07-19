@@ -41,7 +41,7 @@ public class ProfitSharingConfig implements Serializable {
     private BigDecimal tenantRate;
 
     /**
-     * 代理商分佣比例
+     * 合伙人分佣比例
      */
     private BigDecimal sysAgentRate;
 

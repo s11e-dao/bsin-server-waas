@@ -38,7 +38,7 @@ public class ParticipantRoleAllocationDTO implements Serializable {
     private BigDecimal tenantValue;
 
     /**
-     * 代理商分佣比例
+     * 合伙人分佣比例
      */
     private BigDecimal sysAgentValue;
 
