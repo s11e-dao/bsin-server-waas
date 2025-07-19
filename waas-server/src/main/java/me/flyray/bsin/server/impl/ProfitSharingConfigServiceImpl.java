@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.context.BsinServiceContext;
+import me.flyray.bsin.domain.entity.DisCommissionConfig;
 import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.exception.BusinessException;
@@ -120,6 +121,7 @@ public class ProfitSharingConfigServiceImpl implements ProfitSharingConfigServic
         
         return profitSharingConfig;
     }
+
 
     @ApiDoc(desc = "getPageList")
     @ShenyuDubboClient("/getPageList")
