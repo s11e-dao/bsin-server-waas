@@ -54,7 +54,7 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         PayChannelConfig payChannelConfig = BsinServiceContext.getReqBodyDto(PayChannelConfig.class, requestMap);
         payChannelConfig.setTenantId(loginUser.getTenantId());
-        payChannelConfig.setSerialNo(BsinSnowflake.getId());
+        
         // 构建查询条件
         LambdaQueryWrapper<PayChannelConfig> wrapper = new LambdaQueryWrapper<PayChannelConfig>()
                 .eq(PayChannelConfig::getTenantId, loginUser.getTenantId())
@@ -64,9 +64,11 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         PayChannelConfig existingPayChannelConfig = payChannelConfigMapper.selectOne(wrapper);
         if (existingPayChannelConfig == null) {
             // 记录不存在，插入新记录
+            payChannelConfig.setSerialNo(BsinSnowflake.getId());
             payChannelConfigMapper.insert(payChannelConfig);
         } else {
             // 记录存在，更新记录
+            payChannelConfig.setSerialNo(existingPayChannelConfig.getSerialNo());
             payChannelConfigMapper.updateById(payChannelConfig);
         }
         return payChannelConfig;
