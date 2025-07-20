@@ -26,6 +26,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>me.flyray.bsin</groupId>
+            <artifactId>crm-domain</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

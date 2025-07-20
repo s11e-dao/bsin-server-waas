@@ -1,6 +1,7 @@
 package me.flyray.bsin.facade.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import me.flyray.bsin.domain.entity.DisCommissionConfig;
 import me.flyray.bsin.domain.entity.PayWay;
 import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 
@@ -21,6 +22,7 @@ public interface ProfitSharingConfigService {
      */
     public ProfitSharingConfig getDetail(Map<String, Object> requestMap);
 
+    public DisCommissionConfig getDetailForCrm(Map<String, Object> requestMap);
 
     public IPage<?> getPageList(Map<String, Object> requestMap);
 

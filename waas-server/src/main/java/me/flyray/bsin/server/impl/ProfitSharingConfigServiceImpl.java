@@ -122,6 +122,26 @@ public class ProfitSharingConfigServiceImpl implements ProfitSharingConfigServic
         return profitSharingConfig;
     }
 
+    @ApiDoc(desc = "getDetail")
+    @ShenyuDubboClient("/getDetail")
+    @Override
+    public DisCommissionConfig getDetailForCrm(Map<String, Object> requestMap) {
+        log.debug("获取分账配置详情，参数: {}", requestMap);
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+
+        LambdaQueryWrapper<ProfitSharingConfig> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProfitSharingConfig::getTenantId, loginUser.getTenantId());
+
+        ProfitSharingConfig profitSharingConfig = profitSharingConfigMapper.selectOne(wrapper);
+        if (profitSharingConfig == null) {
+            log.warn("未找到租户的分账配置，tenantId: {}", loginUser.getTenantId());
+        }
+        DisCommissionConfig disCommissionConfig = new DisCommissionConfig();
+        BeanUtil.copyProperties(profitSharingConfig,disCommissionConfig);
+
+        return disCommissionConfig;
+    }
+
 
     @ApiDoc(desc = "getPageList")
     @ShenyuDubboClient("/getPageList")
