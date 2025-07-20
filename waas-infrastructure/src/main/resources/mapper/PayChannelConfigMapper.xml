@@ -13,6 +13,11 @@
             <result property="feeRatio" column="fee_ratio" jdbcType="DECIMAL"/>
             <result property="status" column="status" jdbcType="VARCHAR"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="isNormalMerchanMode" column="is_normal_merchan_mode" jdbcType="VARCHAR"/>
+            <result property="isServiceSubMerchantMode" column="is_service_sub_merchant_mode" jdbcType="VARCHAR"/>
+            <result property="normalMerchantParams" column="normal_merchant_params" jdbcType="VARCHAR"/>
+            <result property="specialMerchantParams" column="special_merchant_params" jdbcType="VARCHAR"/> 
+            <result property="serviceSubMerchantParams" column="service_sub_merchant_params" jdbcType="VARCHAR"/>
             <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
@@ -23,6 +28,8 @@
         serial_no,tenant_id,biz_role_app_id,pay_interface_code,
         params,fee_ratio,status,
         remark,create_by,create_time,
-        update_by,update_time
+        update_by,update_time,
+        is_normal_merchan_mode,is_service_sub_merchant_mode,
+        normal_merchant_params,special_merchant_params,service_sub_merchant_params
     </sql>
 </mapper>
