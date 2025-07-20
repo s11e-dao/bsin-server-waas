@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
-import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
@@ -15,14 +14,13 @@ import com.github.binarywang.wxpay.bean.transfer.TransferBatchesRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.ProfitSharingService;
 import com.github.binarywang.wxpay.service.TransferService;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.constants.ResponseCode;
 import me.flyray.bsin.context.BsinServiceContext;
 import me.flyray.bsin.domain.entity.*;
-import me.flyray.bsin.domain.enums.PayWayEnum;
+import me.flyray.bsin.domain.enums.PayChannelInterfaceEnum;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.domain.request.TransactionDTO;
 import me.flyray.bsin.domain.request.TransactionRequest;
@@ -41,8 +39,6 @@ import me.flyray.bsin.utils.BsinSnowflake;
 import me.flyray.bsin.utils.StringUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.shenyu.client.apache.dubbo.annotation.ShenyuDubboService;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
@@ -174,7 +170,7 @@ public class TransactionServiceImpl implements TransactionService {
         WxPayMpOrderResult wxPayMpOrderResult = new WxPayMpOrderResult();
         
         // 3. 支付处理
-        if (PayWayEnum.WXPAY.getCode().equals(payWay)) {
+        if (PayChannelInterfaceEnum.WXPAY.getCode().equals(payWay)) {
             log.info("开始处理微信支付，outOrderNo: {}", outOrderNo);
             
             // 验证微信支付必填参数
@@ -243,13 +239,13 @@ public class TransactionServiceImpl implements TransactionService {
                 log.error("微信支付创建订单失败，outOrderNo: {}, 错误信息: {}", outOrderNo, e.getMessage(), e);
                 throw new BusinessException("100000", "微信支付创建订单失败：" + e.getMessage());
             }
-        } else if (PayWayEnum.FIRE_DIAMOND.getCode().equals(payWay)) {
+        } else if (PayChannelInterfaceEnum.FIRE_DIAMOND.getCode().equals(payWay)) {
             // 火源支付 - 基于平台火钻进行支付
             log.info("开始处理火源支付，outOrderNo: {}", outOrderNo);
             // TODO: 实现火源支付逻辑 - 包括余额验证、扣减等
             log.warn("火源支付功能尚未实现");
             
-        } else if (PayWayEnum.BRAND_POINT.getCode().equals(payWay)) {
+        } else if (PayChannelInterfaceEnum.BRAND_POINT.getCode().equals(payWay)) {
             // 品牌积分支付 - 使用商户品牌积分进行支付
             log.info("开始处理品牌积分支付，outOrderNo: {}", outOrderNo);
             // TODO: 实现品牌积分支付逻辑 - 包括积分余额验证、扣减等

@@ -8,43 +8,31 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 支付渠道表
- * @TableName waas_pay_way
- */
+/** 支付渠道表 @TableName waas_pay_way */
 @Data
-@TableName(value ="waas_pay_way")
+@TableName(value = "waas_pay_way")
 public class PayWay implements Serializable {
-    /**
-     * 支付方式代码： WX_JSAPI(微信小程序)
-     * @see me.flyray.bsin.domain.enums.PayWayEnum
-     */
-    private String payWayCode;
+  /**
+   * 支付方式代码： WX_JSAPI(微信小程序)
+   *
+   * @see me.flyray.bsin.domain.enums.PayWayEnum
+   */
+  private String payWayCode;
 
-    private String tenantId;
+  private String tenantId;
 
-    /**
-     * 支付渠道名称
-     */
-    private String payWayName;
+  /** 支付渠道名称 */
+  private String payWayName;
 
-    /**
-     * 创建时间
-     */
-    private Date createTime;
+  /** 创建时间 */
+  private Date createTime;
 
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
+  /** 更新时间 */
+  private Date updateTime;
 
-    /**
-     * 
-     */
-    @TableId
-    private String serialNo;
+  /** */
+  @TableId private String serialNo;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
-
+  @TableField(exist = false)
+  private static final long serialVersionUID = 1L;
 }

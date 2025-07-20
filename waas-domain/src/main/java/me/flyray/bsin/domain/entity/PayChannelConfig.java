@@ -31,18 +31,18 @@ public class PayChannelConfig implements Serializable {
     private String bizRoleAppId;
 
     /**
-     * 支付接口代码
+     * 支付通道代码
      */
     private String payChannelCode;
 
     /**
-     * 接口配置参数,json字符串
-     * 根据接口定义的参数具体赋值
+     * 通道配置参数,json字符串
+     * 根据通道定义的参数具体赋值
      */
     private String params;
 
     /**
-     * 支付接口费率
+     * 支付通道费率
      */
     private BigDecimal feeRatio;
 

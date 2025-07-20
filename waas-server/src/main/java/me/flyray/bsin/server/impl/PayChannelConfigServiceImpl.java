@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
+import static me.flyray.bsin.constants.ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST;
 
 /**
 * @author rednet
@@ -42,7 +43,7 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
     private PayChannelConfigMapper payChannelConfigMapper;
 
     /**
-     * 一个bizRoleAppId在一个payChannelCode中只会存在一条
+     * 一个bizRoleAppId在一个payChannelCode中只会存在一条,无则添加，有则修改
      * @param requestMap
      * @return
      */
@@ -57,6 +58,7 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         // 构建查询条件
         LambdaQueryWrapper<PayChannelConfig> wrapper = new LambdaQueryWrapper<PayChannelConfig>()
                 .eq(PayChannelConfig::getTenantId, loginUser.getTenantId())
+                .eq(PayChannelConfig::getBizRoleAppId, payChannelConfig.getBizRoleAppId())
                 .eq(PayChannelConfig::getPayChannelCode, payChannelConfig.getPayChannelCode());
         // 查询记录
         PayChannelConfig existingPayChannelConfig = payChannelConfigMapper.selectOne(wrapper);
@@ -76,7 +78,7 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
     public void delete(Map<String, Object> requestMap) {
         String serialNo = MapUtils.getString(requestMap, "serialNo");
         if (payChannelConfigMapper.deleteById(serialNo) == 0){
-            throw new BusinessException(GRADE_NOT_EXISTS);
+            throw new BusinessException(PAY_CHANNEL_CONFIG_NOT_EXIST);
         }
     }
 
@@ -87,8 +89,9 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         PayChannelConfig payChannelConfig = BsinServiceContext.getReqBodyDto(PayChannelConfig.class, requestMap);
         payChannelConfig.setTenantId(loginUser.getTenantId());
+//        payChannelConfig.setSerialNo(serialNo);
         if (payChannelConfigMapper.updateById(payChannelConfig) == 0){
-            throw new BusinessException(GRADE_NOT_EXISTS);
+            throw new BusinessException(PAY_CHANNEL_CONFIG_NOT_EXIST);
         }
         return payChannelConfig;
     }
@@ -147,8 +150,11 @@ public class PayChannelConfigServiceImpl implements PayChannelConfigService {
     @Override
     public PayChannelConfig getBizRoleAppPayChannelConfig(Map<String, Object> requestMap){
         String bizRoleAppId = MapUtils.getString(requestMap, "bizRoleAppId");
+        String payChannelCode = MapUtils.getString(requestMap, "payChannelCode");
         LambdaQueryWrapper<PayChannelConfig> warapper = new LambdaQueryWrapper<>();
         warapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
+        warapper.eq(PayChannelConfig::getPayChannelCode, payChannelCode);
+        warapper.eq(PayChannelConfig::getTenantId, LoginInfoContextHelper.getLoginUser().getTenantId());
         warapper.orderByDesc(PayChannelConfig::getCreateTime);
         PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(warapper);
         return payChannelConfig;

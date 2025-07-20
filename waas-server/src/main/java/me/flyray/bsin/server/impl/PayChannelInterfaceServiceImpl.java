@@ -56,8 +56,15 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
     @ShenyuDubboClient("/delete")
     @Override
     public void delete(Map<String, Object> requestMap) {
-        String serialNo = MapUtils.getString(requestMap, "serialNo");
-        if (payChannelInterfaceMapper.deleteById(serialNo) == 0){
+        String payChannelCode = MapUtils.getString(requestMap, "payChannelCode");
+        LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
+        
+        // 使用复合主键条件进行删除
+        LambdaQueryWrapper<PayChannelInterface> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PayChannelInterface::getPayChannelCode, payChannelCode);
+        wrapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
+        
+        if (payChannelInterfaceMapper.delete(wrapper) == 0){
             throw new BusinessException(GRADE_NOT_EXISTS);
         }
     }
@@ -69,7 +76,13 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         LoginUser loginUser = LoginInfoContextHelper.getLoginUser();
         PayChannelInterface payChannelInterface = BsinServiceContext.getReqBodyDto(PayChannelInterface.class, requestMap);
         payChannelInterface.setTenantId(loginUser.getTenantId());
-        if (payChannelInterfaceMapper.updateById(payChannelInterface) == 0){
+        
+        // 使用复合主键条件进行更新，避免主键冲突
+        LambdaQueryWrapper<PayChannelInterface> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PayChannelInterface::getPayChannelCode, payChannelInterface.getPayChannelCode());
+        wrapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
+        
+        if (payChannelInterfaceMapper.update(payChannelInterface, wrapper) == 0){
             throw new BusinessException(GRADE_NOT_EXISTS);
         }
         return payChannelInterface;
