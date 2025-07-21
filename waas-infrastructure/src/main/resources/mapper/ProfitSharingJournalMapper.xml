@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.flyray.bsin.infrastructure.mapper.ProfitSharingJournalMapper">
+
+
+    <!-- batch_order_id 去重， 查询出所有的 分账已受理状态的订单， 支持分页。  -->
+    <select id="distinctBatchOrderIdList" resultType="me.flyray.bsin.infrastructure.mapper.ProfitSharingJournalMapper">
+
+        select DISTINCT batch_order_id, pay_order_id from t_pay_order_division_record
+
+        <where>
+            <if test="ew != null">
+                ${ew.sqlSegment} <!-- mp条件构造器 -->
+            </if>
+        </where>
+
+    </select>
+
+</mapper>
