@@ -358,6 +358,11 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
+    /**
+     * 基于链账户的交易
+     * @param requestMap
+     * @return
+     */
     @ApiDoc(desc = "withdrawApply")
     @ShenyuDubboClient("/withdrawApply")
     @Override
@@ -374,6 +379,10 @@ public class TransactionServiceImpl implements TransactionService {
         return transaction;
     }
 
+    /**
+     * 基于链账户的交易
+     * @param requestMap
+     */
     @ApiDoc(desc = "withdrawAudit")
     @ShenyuDubboClient("/withdrawAudit")
     @Override
