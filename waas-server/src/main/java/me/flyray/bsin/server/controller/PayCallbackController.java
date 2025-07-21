@@ -218,6 +218,9 @@ public class PayCallbackController {
   /**
    * 执行支付分账
    * 包括计算分账金额、配置支付服务、执行分账请求、更新交易状态
+   * 1、计算分账金额
+   * 2、调用微信设置分账用户
+   * 3、执行分账
    */
   private void executeProfitSharing(Transaction transaction, MerchantConfig merchantConfig) throws WxPayException {
     final String serialNo = transaction.getSerialNo();
@@ -229,7 +232,9 @@ public class PayCallbackController {
 
     // 执行分账流程
     ProfitSharingService profitSharingService = createProfitSharingService();
+    // 绑定收框人接口
     addProfitSharingReceiver(profitSharingService);
+    // 执行分账
     executeProfitSharingRequest(profitSharingService, transaction);
     updateTransactionStatus(transaction);
 
@@ -263,9 +268,11 @@ public class PayCallbackController {
    * 添加分账接收方
    */
   private void addProfitSharingReceiver(ProfitSharingService profitSharingService) throws WxPayException {
+    // TODO 查询是否已经绑定过，绑定过则不需要绑定
     ProfitSharingReceiverRequest receiverRequest = new ProfitSharingReceiverRequest();
     receiverRequest.setReceiver("");
     profitSharingService.addReceiver(receiverRequest);
+
   }
 
   /**
