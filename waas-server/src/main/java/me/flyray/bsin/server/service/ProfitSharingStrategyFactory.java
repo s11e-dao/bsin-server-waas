@@ -5,6 +5,7 @@ import me.flyray.bsin.facade.service.ProfitSharingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,16 +20,21 @@ public class ProfitSharingStrategyFactory {
     private final Map<String, ProfitSharingStrategy> strategyMap = new HashMap<>();
 
     @Autowired
-    public ProfitSharingStrategyFactory(ProfitSharingStrategy wxProfitSharingStrategy,
-                                       ProfitSharingStrategy aliProfitSharingStrategy) {
-        // 注册微信分账策略
-        strategyMap.put("wxPay", wxProfitSharingStrategy);
+    private Map<String, ProfitSharingStrategy> profitSharingStrategies;
+
+    @PostConstruct
+    public void init() {
+        // 自动注册所有策略实现
+        for (Map.Entry<String, ProfitSharingStrategy> entry : profitSharingStrategies.entrySet()) {
+            String beanName = entry.getKey();
+            ProfitSharingStrategy strategy = entry.getValue();
+            String payChannelType = strategy.getPayChannelType();
+            
+            strategyMap.put(payChannelType, strategy);
+            log.info("注册分账策略：{} -> {}", payChannelType, beanName);
+        }
         
-        // 注册支付宝分账策略
-        strategyMap.put("aliPay", aliProfitSharingStrategy);
-        
-        // 后续可以注册其他支付渠道的分账策略
-        // strategyMap.put("unionPay", unionProfitSharingStrategy);
+        log.info("分账策略工厂初始化完成，支持渠道：{}", strategyMap.keySet());
     }
 
     /**
