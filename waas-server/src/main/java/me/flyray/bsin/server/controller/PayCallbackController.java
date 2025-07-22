@@ -4,27 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
-import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingReceiverRequest;
-import com.github.binarywang.wxpay.bean.profitsharing.request.ProfitSharingRequest;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.ProfitSharingService;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.MerchantConfig;
-import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
 import me.flyray.bsin.exception.BusinessException;
-import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
 import me.flyray.bsin.facade.service.MerchantConfigService;
 import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
-import me.flyray.bsin.server.impl.RevenueShareServiceEngineImpl;
+import me.flyray.bsin.server.service.ProfitSharingService;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
@@ -53,6 +48,7 @@ public class PayCallbackController {
   // 常量定义
   private static final String ORDER_TYPE = "1";
   private static final String PRODUCT_TYPE = "2";
+  private static final String WX_PAY_CHANNEL = "wxPay";
 
   @Value("${bsin.oms.aesKey}")
   private String aesKey;
@@ -77,12 +73,16 @@ public class PayCallbackController {
   private TransactionMapper transactionMapper;
   @Autowired
   private TransactionJournalMapper waasTransactionJournalMapper;
+  @Autowired
   private MerchantConfigService merchantConfigService;
+  @Autowired
+  private ProfitSharingService profitSharingService;
 
   /**
    * 1、解析回调结果
    * 2、验证更新交易状态
-   * 3、调用oms模块处理业务订单
+   * 3、执行分账（如果配置了分账）
+   * 4、调用oms模块处理业务订单
    * 参考：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
    *
    * @param body
@@ -97,13 +97,11 @@ public class PayCallbackController {
     WxPayOrderNotifyResult result = null;
     try {
       // 1、解析回调结果
-//      BizRoleApp bizRoleApp = new BizRoleApp();
-//      bizRoleApp.setAppChannel(AppChannel.WX_PAY.getType());
-//      bizRoleApp.setMchId(mchId);
-      WxPayService wxPayService = null ; //getWxService(null);
+      WxPayService wxPayService = getWxService(mchId);
       result = wxPayService.parseOrderNotifyResult(body);
       log.info("处理腾讯支付平台的订单支付");
       log.info(JSONObject.toJSONString(result));
+      
       // 处理微信支付成功回调
       Map<String, Object> requestMap = new HashMap<>();
       requestMap.put("resultCode", result.getResultCode());
@@ -114,14 +112,20 @@ public class PayCallbackController {
 
       // 2、验证更新交易状态
       Transaction transaction = updateTransactionStatus(result);
+      if (transaction == null) {
+        log.warn("未找到对应的交易记录，订单号：{}", result.getOutTradeNo());
+        return WxPayNotifyResponse.fail("未找到交易记录");
+      }
 
       // 3. 支付分账阶段（独立事务）
-      executePaymentAllocationSafely(transaction);
+      if ("SUCCESS".equals(result.getResultCode())) {
+        executePaymentAllocationSafely(transaction);
+      }
 
       // 4、异步调用（泛化调用解耦）订单完成方法统一处理： 根据订单类型后续处理
       bsinServiceInvoke.genericInvoke("UniflyOrderService", "completePay", "dev", requestMap);
     } catch (Exception e) {
-      System.out.println(e.getCause());
+      log.error("微信支付回调处理失败", e);
       return WxPayNotifyResponse.fail("支付失败");
     }
     return WxPayNotifyResponse.success("success");
@@ -132,50 +136,98 @@ public class PayCallbackController {
    * @param transaction 交易信息
    * @return PaymentAllocationResult 支付分账结果
    */
-  private PayCallbackController.PaymentAllocationResult executePaymentAllocationSafely(Transaction transaction) {
+  private PaymentAllocationResult executePaymentAllocationSafely(Transaction transaction) {
     final String serialNo = transaction.getSerialNo();
 
     try {
-      // 获得商户让利配置
-      Map requestMap = new HashMap<>();
-      requestMap.put("merchantNo", "merchantNo");
-      MerchantConfig merchantConfig = merchantConfigService.getDetail(requestMap);
+      // 检查是否需要分账
+      if (!shouldExecuteProfitSharing(transaction)) {
+        log.info("无需分账，跳过支付分账，交易号：{}", serialNo);
+        return new PaymentAllocationResult(false, null);
+      }
 
-      if (merchantConfig != null) {
-        executeProfitSharing(transaction, merchantConfig);
+      // 执行分账
+      var result = profitSharingService.executeProfitSharing(transaction, WX_PAY_CHANNEL);
+      
+      if (result.isSuccess()) {
         log.info("支付分账执行成功，交易号：{}", serialNo);
-        return new PayCallbackController.PaymentAllocationResult(true, null);
+        return new PaymentAllocationResult(true, null);
       } else {
-        log.info("无分账配置，跳过支付分账，交易号：{}", serialNo);
-        return new PayCallbackController.PaymentAllocationResult(false, null);
+        log.warn("支付分账执行失败，交易号：{}，错误信息：{}", serialNo, result.getMessage());
+        return new PaymentAllocationResult(false, result.getMessage());
       }
 
     } catch (Exception e) {
       log.error("支付分账执行失败，交易号：{}", serialNo, e);
-      return new PayCallbackController.PaymentAllocationResult(false, e.getMessage());
+      return new PaymentAllocationResult(false, e.getMessage());
     }
   }
 
-//  private WxPayService getWxService(BizRoleApp merchantWxApp) {
-//    WxPayService wxPayService = null;
-//    if (StringUtils.equals(merchantWxApp.getAppChannel(), AppChannel.WX_PAY.getType())) {
-//      log.info("微信支付应用");
-//      WxPayConfig config = new WxPayConfig();
-////      config.setMchId(merchantWxApp.getMchId());
-//      //      SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, aesKey.getBytes());
-//      //      config.setSecret(aes.decryptStr(merchantWxApp.getAppSecret(),
-//      // CharsetUtil.CHARSET_UTF_8));
-//      if (wxRedisConfig == null) {
-//        wxRedisConfig = new WxRedisConfig();
-//        wxRedisConfig.setHost(wxRedisHost);
-//        wxRedisConfig.setPort(wxRedisPort);
-//        wxRedisConfig.setPassword(wxRedisPassword);
-//      }
-//      wxPayService = (WxPayService) bsinWxPayServiceUtil.getWxPayService(config);
-//    } else {
-//    }
-//    return wxPayService;
-//  }
+  /**
+   * 判断是否需要执行分账
+   */
+  private boolean shouldExecuteProfitSharing(Transaction transaction) {
+    // 检查交易金额是否满足分账条件
+    if (transaction.getTxAmount() == null || transaction.getTxAmount().compareTo(BigDecimal.ZERO) <= 0) {
+      return false;
+    }
+
+    // 检查是否配置了分账
+    MerchantConfig merchantConfig = getMerchantConfig(transaction);
+    if (merchantConfig == null || merchantConfig.getProfitSharingRate() == null) {
+      return false;
+    }
+
+    // 检查分账类型
+    String profitSharingType = transaction.getProfitSharingType();
+    if (ORDER_TYPE.equals(profitSharingType)) {
+      // 订单类型：检查是否有预设分账金额
+      return transaction.getProfitSharingAmount() != null && 
+             transaction.getProfitSharingAmount().compareTo(BigDecimal.ZERO) > 0;
+    } else if (PRODUCT_TYPE.equals(profitSharingType)) {
+      // 商品类型：检查分账比例
+      return merchantConfig.getProfitSharingRate().compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    return false;
+  }
+
+  /**
+   * 获取商户配置
+   */
+  private MerchantConfig getMerchantConfig(Transaction transaction) {
+    try {
+      Map<String, Object> requestMap = new HashMap<>();
+      // 使用toAddress作为商户号，因为Transaction中toAddress存储的是商户号
+      requestMap.put("merchantNo", transaction.getToAddress());
+      requestMap.put("tenantId", transaction.getTenantId());
+      return merchantConfigService.getDetail(requestMap);
+    } catch (Exception e) {
+      log.error("获取商户配置失败，商户号：{}", transaction.getToAddress(), e);
+      return null;
+    }
+  }
+
+  /**
+   * 获取微信支付服务
+   */
+  private WxPayService getWxService(String mchId) {
+    // TODO: 根据mchId获取对应的微信支付配置
+    // 这里需要根据商户信息获取对应的微信支付配置
+    WxPayConfig config = new WxPayConfig();
+    config.setMchId(mchId);
+    config.setSignType(WxPayConstants.SignType.MD5);
+    config.setUseSandboxEnv(false);
+    
+    if (wxRedisConfig == null) {
+      wxRedisConfig = new WxRedisConfig();
+      wxRedisConfig.setHost(wxRedisHost);
+      wxRedisConfig.setPort(wxRedisPort);
+      wxRedisConfig.setPassword(wxRedisPassword);
+    }
+    
+    return bsinWxPayServiceUtil.getWxPayService(config);
+  }
 
   /**
    * 更新交易状态
@@ -189,6 +241,7 @@ public class PayCallbackController {
     if (waasTransaction == null) {
       return null;
     }
+    
     // 更新交易流水
     if ("SUCCESS".equals(result.getResultCode())) {
       waasTransaction.setTransactionStatus(TransactionStatus.SUCCESS.getCode());
@@ -216,76 +269,6 @@ public class PayCallbackController {
   }
 
   /**
-   * 执行支付分账
-   * 包括计算分账金额、配置支付服务、执行分账请求、更新交易状态
-   * 1、计算分账金额
-   * 2、调用微信设置分账用户
-   * 3、执行分账
-   */
-  private void executeProfitSharing(Transaction transaction, MerchantConfig merchantConfig) throws WxPayException {
-    final String serialNo = transaction.getSerialNo();
-    log.info("开始执行支付分账，交易号：{}", serialNo);
-
-    // 计算分账金额
-    BigDecimal profitSharingAmount = calculateProfitSharingAmount(transaction, merchantConfig);
-    log.info("计算得出分账金额：{}，交易号：{}", profitSharingAmount, serialNo);
-
-    // 执行分账流程
-    ProfitSharingService profitSharingService = createProfitSharingService();
-    // 绑定收框人接口
-    addProfitSharingReceiver(profitSharingService);
-    // 执行分账
-    executeProfitSharingRequest(profitSharingService, transaction);
-    updateTransactionStatus(transaction);
-
-    log.info("支付分账执行完成，交易号：{}", serialNo);
-  }
-
-  /**
-   * 计算分账金额
-   * 订单类型：使用预设分账金额
-   * 商品类型：交易金额 × 商户分润比例
-   */
-  private BigDecimal calculateProfitSharingAmount(Transaction transaction, MerchantConfig merchantConfig) {
-    if (ORDER_TYPE.equals(transaction.getProfitSharingType())) {
-      return transaction.getProfitSharingAmount();
-    } else {
-      return transaction.getTxAmount().multiply(merchantConfig.getProfitSharingRate());
-    }
-  }
-
-  /**
-   * 创建分账服务
-   */
-  private ProfitSharingService createProfitSharingService() throws WxPayException {
-    WxPayConfig wxPayConfig = new WxPayConfig();
-    wxPayConfig.setSignType(WxPayConstants.SignType.MD5);
-    wxPayConfig.setUseSandboxEnv(false);
-    return bsinWxPayServiceUtil.getProfitSharingService(wxPayConfig);
-  }
-
-  /**
-   * 添加分账接收方
-   */
-  private void addProfitSharingReceiver(ProfitSharingService profitSharingService) throws WxPayException {
-    // TODO 查询是否已经绑定过，绑定过则不需要绑定
-    // 查询 waas_profit_sharing_receiver 表,存在支付商户账号，则认为已经绑定，直接查询出接收方信息，return
-    ProfitSharingReceiverRequest receiverRequest = new ProfitSharingReceiverRequest();
-    receiverRequest.setReceiver("");
-    profitSharingService.addReceiver(receiverRequest);
-
-  }
-
-  /**
-   * 执行分账请求
-   */
-  private void executeProfitSharingRequest(ProfitSharingService profitSharingService,
-                                           Transaction transaction) throws WxPayException {
-    ProfitSharingRequest profitSharingRequest = buildProfitSharingRequest(transaction);
-    profitSharingService.multiProfitSharing(profitSharingRequest);
-  }
-
-  /**
    * 支付分账结果封装类
    */
   private static class PaymentAllocationResult {
@@ -302,22 +285,28 @@ public class PayCallbackController {
   }
 
   /**
-   * 构建分账配置请求参数
+   * 支付宝支付回调接口（预留）
    */
-  private Map<String, Object> buildConfigRequestMap(Transaction transaction) {
-    Map<String, Object> requestMap = new HashMap<>();
-    requestMap.put("tenantId", transaction.getTenantId());
-    requestMap.put("type", transaction.getProfitSharingType());
-    return requestMap;
+  @PostMapping("/alipay/{mchId}")
+  @ApiDoc(desc = "alipay")
+  public Object alipay(
+      @RequestBody(required = false) String body, @PathVariable("mchId") String mchId)
+      throws Exception {
+    // TODO: 实现支付宝支付回调处理
+    log.info("支付宝支付回调，商户号：{}", mchId);
+    return "success";
   }
 
   /**
-   * 构建分账请求对象
+   * 银联支付回调接口（预留）
    */
-  private ProfitSharingRequest buildProfitSharingRequest(Transaction transaction) {
-    ProfitSharingRequest request = new ProfitSharingRequest();
-    // TODO: 根据实际业务需求设置分账请求参数
-    return request;
+  @PostMapping("/unionpay/{mchId}")
+  @ApiDoc(desc = "unionpay")
+  public Object unionpay(
+      @RequestBody(required = false) String body, @PathVariable("mchId") String mchId)
+      throws Exception {
+    // TODO: 实现银联支付回调处理
+    log.info("银联支付回调，商户号：{}", mchId);
+    return "success";
   }
-
 }
