@@ -56,6 +56,24 @@
 │  │  (WxJava)       │  │  (Alipay SDK)   │  │  (UnionPay) │ │
 │  └─────────────────┘  └─────────────────┘  └─────────────┘ │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              ProfitSharingApiServiceImpl                    │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │ /request        │  │ /query          │  │ /return     │ │
+│  │ /addReceiver    │  │ /deleteReceiver │  │ /unfreeze   │ │
+│  │ /applyBill      │  │ /downloadBill   │  │ /remaining  │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    后台管理UI                               │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   分账操作      │  │   接收方管理    │  │   账单管理  │ │
+│  │   查询结果      │  │   历史记录      │  │   配置管理  │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### 依赖注入解决方案
@@ -146,6 +164,34 @@ public class ProfitSharingStrategyFactory {
 - **特点**: 根据支付渠道类型自动选择对应的分账策略
 - **异常处理**: 统一的异常处理和日志记录
 
+### 5. HTTP API接口
+
+#### ProfitSharingApiService
+- **位置**: `me.flyray.bsin.facade.service.ProfitSharingApiService`
+- **作用**: 定义后台管理UI所需的分账操作HTTP接口
+- **特点**: 接口定义，不包含具体实现
+
+#### ProfitSharingApiServiceImpl
+- **位置**: `me.flyray.bsin.server.impl.ProfitSharingApiServiceImpl`
+- **作用**: 实现后台管理UI所需的分账操作HTTP接口
+- **基础路径**: `/wx/profitShare`
+- **主要接口**:
+  - `/request` - 请求分账
+  - `/query` - 查询分账结果
+  - `/return` - 请求分账回退
+  - `/returnQuery` - 查询分账回退结果
+  - `/unfreeze` - 解冻剩余资金
+  - `/remaining` - 查询剩余待分金额
+  - `/addReceiver` - 添加分账接收方
+  - `/deleteReceiver` - 删除分账接收方
+  - `/applyBill` - 申请分账账单
+  - `/downloadBill` - 下载账单
+- **特点**: 
+  - 统一的响应格式
+  - 完整的参数验证
+  - 详细的日志记录
+  - 友好的错误处理
+
 ## 使用流程
 
 ### 1. 支付回调处理
@@ -195,6 +241,21 @@ public ProfitSharingResult executeProfitSharing(Transaction transaction, String 
 }
 ```
 
+### 4. HTTP API调用
+
+```java
+// 在ProfitSharingApiServiceImpl中
+@Override
+@ShenyuSpringMvcClient("/request")
+@ApiDoc(desc = "请求分账")
+public ResponseEntity<Map<String, Object>> requestProfitShare(Map<String, Object> requestMap) {
+    // 1. 参数验证
+    // 2. 获取交易信息
+    // 3. 执行分账
+    // 4. 返回结果
+}
+```
+
 ## 扩展新支付渠道
 
 ### 1. 创建策略实现
@@ -231,6 +292,18 @@ public Object newpay(@RequestBody String body, @PathVariable String mchId) {
 }
 ```
 
+### 4. 添加HTTP API接口
+
+```java
+// 在ProfitSharingApiServiceImpl中
+@Override
+@ShenyuSpringMvcClient("/newpay/request")
+@ApiDoc(desc = "新支付渠道请求分账")
+public ResponseEntity<Map<String, Object>> newPayRequest(Map<String, Object> requestMap) {
+    // 实现新支付渠道的HTTP API接口
+}
+```
+
 ## 数据模型
 
 ### 1. 分账流水 (ProfitSharingJournal)
@@ -264,6 +337,8 @@ public Object newpay(@RequestBody String body, @PathVariable String mchId) {
 4. **日志记录**: 详细记录分账操作的日志
 5. **监控告警**: 分账失败需要监控告警
 6. **依赖注入**: 使用Map自动收集策略实现，避免手动注册
+7. **API安全**: HTTP API接口需要适当的认证和授权机制
+8. **项目结构**: 接口定义在facade层，实现在server层
 
 ## 后续优化
 
@@ -272,4 +347,6 @@ public Object newpay(@RequestBody String body, @PathVariable String mchId) {
 3. **监控面板**: 提供分账操作的监控面板
 4. **配置管理**: 提供分账配置的管理界面
 5. **缓存优化**: 缓存商户配置和接收方信息
-6. **性能监控**: 添加分账操作的性能监控 
+6. **性能监控**: 添加分账操作的性能监控
+7. **API限流**: 对HTTP API接口添加调用频率限制
+8. **文档生成**: 自动生成API接口文档 
