@@ -1,131 +1,83 @@
 package me.flyray.bsin.domain.entity;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 交易让利分账流水
+ * @TableName waas_profit_sharing_journal
+ */
+
 @Data
+@TableName(value ="waas_profit_sharing_journal")
 public class ProfitSharingJournal implements Serializable {
-
-    private static final long serialVersionUID = 1L;
     /**
-     * 分账记录ID
+     * 
      */
-    private String recordId;
+    @TableId
+    private String serialNo;
 
     /**
-     * 服务商ID:
+     * 所属租户
      */
-    private String isvId;
+    private String tenantId;
 
     /**
-     * 收款配置类型 1-服务商 2-商户 3-店铺
+     * 分润商户
      */
-    private Integer infoType;
+    private Integer merchantNo;
 
     /**
-     * 服务商号（服务商支付参数）或应用AppId（商户支付参数）
+     * 交易单号
      */
-    private String infoId;
+    private String transactionNo;
 
     /**
-     * 支付接口代码
+     * 外部(oms)订单号
      */
-    private String ifCode;
+    private Integer outSerialNo;
 
     /**
-     * 类型: 1-普通商户, 2-特约商户(服务商模式)
+     * 分润角色类型
      */
-    private Integer merchantType;
+    private String bizRoleType;
 
     /**
-     * 系统支付订单号
+     * 分润角色编号
      */
-    private String payOrderId;
+    private String bizRoleNo;
 
     /**
-     * 支付订单渠道支付订单号
-     */
-    private String payOrderChannelOrderNo;
-
-    /**
-     * 订单金额,单位元
-     */
-    private BigDecimal payOrderAmount;
-
-    /**
-     * 订单实际分账金额, 单位：元（订单金额 - 商户手续费 - 已退款金额）
-     */
-    private BigDecimal payOrderDivisionAmount;
-
-    /**
-     * 系统分账批次号
-     */
-    private String batchOrderId;
-
-    /**
-     * 上游分账批次号
-     */
-    private String channelBatchOrderId;
-
-    /**
-     * 状态: 0-待分账 1-分账成功（明确成功）, 2-分账失败（明确失败）, 3-分账已受理（上游受理）
-     */
-    private Integer state;
-
-    /**
-     * 上游返回数据包
-     */
-    private String channelRespResult;
-
-    /**
-     * 账号快照》 分账接收者ID
+     * 资金接受者账号
      */
     private String receiverId;
 
     /**
-     * 账号快照》 分账接收账号类型: 0-个人 1-商户
+     * 接受者的支付渠道
      */
-    private Integer accType;
+    private String receiverChannel;
 
     /**
-     * 账号快照》 分账接收账号
+     * 分润金额
      */
-    private String accNo;
+    private String profitSharingAmount;
 
     /**
-     * 账号快照》 分账接收账号名称
+     * 状态
      */
-    private String accName;
+    private String status;
 
     /**
-     * 账号快照》 分账关系类型（参考微信）, 如： SERVICE_PROVIDER 服务商等
+     * 分润时间
      */
-    private String relationType;
+    private Date createdTime;
 
-    /**
-     * 账号快照》 当选择自定义时，需要录入该字段。 否则为对应的名称
-     */
-    private String relationTypeName;
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * 计算该接收方的分账金额,单位元
-     */
-    private BigDecimal calDivisionAmount;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
-
-    /**
-     * 向下游回调状态, 0-未发送,  1-已发送
-     */
-    private Integer notifyState;
 }

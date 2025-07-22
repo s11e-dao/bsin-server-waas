@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="me.flyray.bsin.infrastructure.mapper.ProfitSharingJournalMapper">
 
+    <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.ProfitSharingJournal">
+            <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
+            <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+            <result property="merchantNo" column="merchant_no" jdbcType="INTEGER"/>
+            <result property="transactionNo" column="transaction_no" jdbcType="VARCHAR"/>
+            <result property="outSerialNo" column="out_serial_no" jdbcType="INTEGER"/>
+            <result property="bizRoleType" column="biz_role_type" jdbcType="VARCHAR"/>
+            <result property="bizRoleNo" column="biz_role_no" jdbcType="VARCHAR"/>
+            <result property="receiverId" column="receiver_id" jdbcType="VARCHAR"/>
+            <result property="receiverChannel" column="receiver_channel" jdbcType="VARCHAR"/>
+            <result property="profitSharingAmount" column="profit_sharing_amount" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
 
-    <!-- batch_order_id 去重， 查询出所有的 分账已受理状态的订单， 支持分页。  -->
-    <select id="distinctBatchOrderIdList" resultType="me.flyray.bsin.infrastructure.mapper.ProfitSharingJournalMapper">
-
-        select DISTINCT batch_order_id, pay_order_id from t_pay_order_division_record
-
-        <where>
-            <if test="ew != null">
-                ${ew.sqlSegment} <!-- mp条件构造器 -->
-            </if>
-        </where>
-
-    </select>
-
+    <sql id="Base_Column_List">
+        serial_no,tenant_id,merchant_no,
+        transaction_no,out_serial_no,biz_role_type,
+        biz_role_no,receiver_id,receiver_channel,
+        profit_sharing_amount,status,created_time
+    </sql>
 </mapper>
