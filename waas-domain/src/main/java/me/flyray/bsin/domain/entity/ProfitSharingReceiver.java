@@ -28,6 +28,11 @@ public class ProfitSharingReceiver implements Serializable {
     private String tenantId;
 
     /**
+     * 商户号:分账方商户ID
+     */
+    private String senderMerchantNo;
+
+    /**
      * 型: 1-普通商户, 2-特约商户(服务商模式)
      */
     private String type;
@@ -43,7 +48,7 @@ public class ProfitSharingReceiver implements Serializable {
     private String receiverId;
 
     /**
-     * 绑定状态
+     * 绑定状态:（本系统状态，并不调用上游关联关系）: 1-正常分账, 0-暂停分账
      */
     private String status;
 
@@ -53,9 +58,9 @@ public class ProfitSharingReceiver implements Serializable {
     private Date createTime;
 
     /**
-     * 支付渠道
+     * 支付通道代码：全小写  wxpay alipay
      */
-    private String channel;
+    private String payChannelCode;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

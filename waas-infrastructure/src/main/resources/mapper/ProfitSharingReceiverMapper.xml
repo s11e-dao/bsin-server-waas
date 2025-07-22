@@ -7,17 +7,18 @@
     <resultMap id="BaseResultMap" type="me.flyray.bsin.domain.entity.ProfitSharingReceiver">
             <id property="serialNo" column="serial_no" jdbcType="VARCHAR"/>
             <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+            <result property="senderMerchantNo" column="sender_merchant_no" jdbcType="VARCHAR"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
             <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
             <result property="receiverId" column="receiver_id" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="channel" column="channel" jdbcType="VARCHAR"/>
+            <result property="payChannelCode" column="pay_channel_code" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        serial_no,tenant_id,type,
+        serial_no,tenant_id,type,sender_merchant_no,
         receiver_name,receiver_id,status,
-        create_time,channel
+        create_time,pay_channel_code
     </sql>
 </mapper>

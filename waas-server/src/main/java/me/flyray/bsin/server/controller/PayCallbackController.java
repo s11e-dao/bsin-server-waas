@@ -269,6 +269,7 @@ public class PayCallbackController {
    */
   private void addProfitSharingReceiver(ProfitSharingService profitSharingService) throws WxPayException {
     // TODO 查询是否已经绑定过，绑定过则不需要绑定
+    // 查询 waas_profit_sharing_receiver 表,存在支付商户账号，则认为已经绑定，直接查询出接收方信息，return
     ProfitSharingReceiverRequest receiverRequest = new ProfitSharingReceiverRequest();
     receiverRequest.setReceiver("");
     profitSharingService.addReceiver(receiverRequest);
