@@ -51,7 +51,7 @@ public class PayChannelInterface implements Serializable {
     /**
      * 是否支持普通商户模式
      */
-    private Boolean isNormalMerchanMode;
+    private Boolean isNormalMerchantMode;
     
     /**
      * 是否支持服务商子商户模式

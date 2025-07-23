@@ -12,7 +12,7 @@
             <result property="icon" column="icon" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
-            <result property="isNormalMerchanMode" column="is_normal_merchan_mode" jdbcType="VARCHAR"/>
+            <result property="isNormalMerchantMode" column="is_normal_merchant_mode" jdbcType="VARCHAR"/>
              <result property="isIsvSubMerchantMode" column="is_isv_sub_merchant_mode" jdbcType="VARCHAR"/>
             <result property="normalMerchantParams" column="normal_merchant_params" jdbcType="VARCHAR"/>
             <result property="specialMerchantParams" column="special_merchant_params" jdbcType="VARCHAR"/>
@@ -28,7 +28,7 @@
         params,way_code,icon,
         status,remark,create_time,
         update_time,tenant_id,
-        is_normal_merchan_mode,is_isv_sub_merchant_mode,
+        is_normal_merchant_mode,is_isv_sub_merchant_mode,
         normal_merchant_params,special_merchant_params,isv_params
     </sql>
 
