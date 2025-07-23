@@ -44,12 +44,6 @@ public class PayChannelConfig implements Serializable {
     private String payChannelCode;
 
     /**
-     * 通道配置参数,json字符串
-     * 根据通道定义的参数具体赋值
-     */
-    private String params;
-
-    /**
      * 支付通道费率
      */
     private BigDecimal feeRatio;
@@ -62,27 +56,28 @@ public class PayChannelConfig implements Serializable {
     /**
      * 是否支持普通商户模式
      */
-    private Boolean isNormalMerchanMode;
+    private Boolean isNormalMerchantMode;
     
     /**
      * 是否支持服务商子商户模式
      */
-    private Boolean isServiceSubMerchantMode;
+    private Boolean isIsvSubMerchantMode;
 
     /**
-     * 普通商户模式参数
+     * 普通商户参数: json
+     *
      */
     private String normalMerchantParams;
 
     /**
-     * 特殊商户模式参数
+     * 特约商户参数: json
      */
     private String specialMerchantParams;
 
     /**
-     * 服务商子商户模式参数
+     * 服务商参数
      */
-    private String serviceSubMerchantParams;
+    private String isvParams;
 
     /**
      * 备注

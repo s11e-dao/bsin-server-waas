@@ -33,12 +33,6 @@ public class PayChannelInterface implements Serializable {
     private Integer configPageType;
 
     /**
-     * 普通商户接口配置定义描述,json字符串
-     * 定义支付接口需要配置的参数，在config里面根据定义赋值具体的值
-     */
-    private String params;
-
-    /**
      * 支持的支付方式 ["wxpay_jsapi", "wxpay_bar"]
      * @see PayWayEnum
      */
@@ -62,22 +56,23 @@ public class PayChannelInterface implements Serializable {
     /**
      * 是否支持服务商子商户模式
      */
-    private Boolean isServiceSubMerchantMode;
+    private Boolean isIsvSubMerchantMode;
 
     /**
-     * 普通商户模式参数
+     *
+     * 定义普通商户模式参数支付接口需要配置的参数，在config里面根据定义赋值具体的值
      */
     private String normalMerchantParams;
 
     /**
-     * 特殊商户模式参数
+     * 定义特约商户模式参数支付接口需要配置的参数，在config里面根据定义赋值具体的值
      */
     private String specialMerchantParams;
 
     /**
-     * 服务商子商户模式参数
+     * 定义服务商接口参数支付接口需要配置的参数，在config里面根据定义赋值具体的值
      */
-    private String serviceSubMerchantParams;
+    private String isvParams;
 
     /**
      * 备注

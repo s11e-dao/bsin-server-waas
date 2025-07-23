@@ -21,12 +21,10 @@ import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-import static me.flyray.bsin.constants.ResponseCode.GRADE_NOT_EXISTS;
 import static me.flyray.bsin.constants.ResponseCode.PAY_CHANNEL_CONFIG_NOT_EXIST;
 
 /**

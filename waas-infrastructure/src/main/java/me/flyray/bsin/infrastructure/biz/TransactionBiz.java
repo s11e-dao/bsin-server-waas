@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import me.flyray.bsin.domain.entity.*;
 import me.flyray.bsin.domain.entity.Transaction;
+import me.flyray.bsin.domain.enums.PayMerchantModeEnum;
 import me.flyray.bsin.enums.TransactionType;
 import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.MerchantConfigService;
@@ -59,10 +60,10 @@ import java.util.Map;
 public class TransactionBiz {
 
     private static final Logger log = LoggerFactory.getLogger(TransactionBiz.class);
-    
+
     // 常量定义
     private static final String PRODUCT_PROFIT_SHARING_TYPE = "2";
-    
+
     @Autowired
     private WalletAccountMapper walletAccountMapper;
     @Autowired
@@ -130,7 +131,7 @@ public class TransactionBiz {
         String data = FunctionEncoder.encode(function);
 
         // 预估gas费
-        org.web3j.protocol.core.methods.request.Transaction transaction = 
+        org.web3j.protocol.core.methods.request.Transaction transaction =
             org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction(fromAddress, contractAddress, data);
         EthEstimateGas gasLimit = web3.ethEstimateGas(transaction).send();
         if(gasLimit.hasError()){
@@ -412,7 +413,7 @@ public class TransactionBiz {
 
     /**
      * 创建或获取交易订单，并处理分账配置
-     * 
+     *
      * @param outOrderNo 外部订单号
      * @param payAmount 支付金额
      * @param loginUser 登录用户信息
@@ -425,20 +426,20 @@ public class TransactionBiz {
      * @return 交易订单
      */
     public Transaction createOrGetTransactionWithProfitSharing(
-            String outOrderNo, String payAmount, LoginUser loginUser, 
+            String outOrderNo, String payAmount, LoginUser loginUser,
             String tenantId, String merchantNo, String customerNo, String remark,
             String profitSharingType, String profitSharingAmountStr) {
-        
+
         log.info("开始创建或获取交易订单，outOrderNo: {}", outOrderNo);
-        
+
         // 查询是否已存在交易订单
         Transaction waasTransaction = transactionMapper.selectOne(
             new LambdaQueryWrapper<Transaction>().eq(Transaction::getOutSerialNo, outOrderNo));
-            
+
         // 如果交易不存在，创建新交易
         if (waasTransaction == null) {
             log.info("创建新交易订单，outOrderNo: {}", outOrderNo);
-            
+
             waasTransaction = new Transaction();
             waasTransaction.setSerialNo(BsinSnowflake.getId());
             waasTransaction.setOutSerialNo(outOrderNo);
@@ -455,20 +456,20 @@ public class TransactionBiz {
 
             // 处理分账配置
             boolean needProfitSharing = processProfitSharingConfig(
-                waasTransaction, profitSharingType, profitSharingAmountStr, 
+                waasTransaction, profitSharingType, profitSharingAmountStr,
                 merchantNo, tenantId, payAmount);
-            
+
             waasTransaction.setProfitSharing(needProfitSharing);
             transactionMapper.insert(waasTransaction);
             log.info("交易订单创建成功，transactionNo: {}", waasTransaction.getSerialNo());
         }
-        
+
         return waasTransaction;
     }
 
     /**
      * 处理分账配置逻辑
-     * 
+     *
      * @param transaction 交易对象
      * @param profitSharingType 分账类型
      * @param profitSharingAmountStr 分账金额字符串
@@ -477,11 +478,11 @@ public class TransactionBiz {
      * @param payAmount 支付金额
      * @return 是否需要分账
      */
-    private boolean processProfitSharingConfig(Transaction transaction, String profitSharingType, 
+    private boolean processProfitSharingConfig(Transaction transaction, String profitSharingType,
             String profitSharingAmountStr, String merchantNo, String tenantId, String payAmount) {
-        
+
         boolean needProfitSharing = false;
-        
+
         if (PRODUCT_PROFIT_SHARING_TYPE.equals(profitSharingType)) {
             // 基于商品进行分账
             if (StringUtils.isNotEmpty(profitSharingAmountStr)) {
@@ -509,31 +510,29 @@ public class TransactionBiz {
                 log.debug("基于商户让利配置分账，分账金额: {}", calculatedAmount);
             }
         }
-        
+
         return needProfitSharing;
     }
 
     /**
      * 根据业务角色应用ID查询支付渠道配置
-     * 
+     *
      * @param bizRoleAppId 业务角色应用ID
      * @return 支付渠道配置的参数JSON字符串
      */
-    public String getPayChannelConfigParamsString(String bizRoleAppId) {
+    public PayChannelConfig getPayChannelConfigParamsString(String bizRoleAppId) {
         log.info("查询支付渠道配置，bizRoleAppId: {}", bizRoleAppId);
-        
+
         // 查询支付渠道配置
         LambdaQueryWrapper<PayChannelConfig> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PayChannelConfig::getBizRoleAppId, bizRoleAppId);
-        wrapper.orderByDesc(PayChannelConfig::getCreateTime);
+//        wrapper.eq(PayChannelConfig::getPayMerchantMode, payMerchantMode.getCode());
         PayChannelConfig payChannelConfig = payChannelConfigMapper.selectOne(wrapper);
-        
-        if (payChannelConfig == null) {
-            log.error("支付渠道配置不存在，bizRoleAppId: {}", bizRoleAppId);
-            throw new BusinessException("支付渠道配置不存在");
-        }
-        
-        log.debug("支付渠道配置查询成功");
-        return payChannelConfig.getParams();
+//        if (payChannelConfig == null) {
+//            log.error("支付渠道配置不存在，bizRoleAppId: {}", bizRoleAppId);
+//            throw new BusinessException("支付渠道配置参数不存在");
+//        }
+//        log.debug("支付渠道配置查询成功");
+        return payChannelConfig;
     }
 }

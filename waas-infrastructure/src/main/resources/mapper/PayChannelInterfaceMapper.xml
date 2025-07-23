@@ -8,28 +8,28 @@
             <id property="payChannelCode" column="pay_interface_code" jdbcType="VARCHAR"/>
             <result property="payChannelName" column="pay_channel_name" jdbcType="VARCHAR"/>
             <result property="configPageType" column="config_page_type" jdbcType="TINYINT"/>
-            <result property="params" column="params" jdbcType="VARCHAR"/>
             <result property="wayCode" column="way_code" jdbcType="VARCHAR"/>
             <result property="icon" column="icon" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="remark" column="remark" jdbcType="VARCHAR"/>
             <result property="isNormalMerchanMode" column="is_normal_merchan_mode" jdbcType="VARCHAR"/>
-            <result property="isServiceSubMerchantMode" column="is_service_sub_merchant_mode" jdbcType="VARCHAR"/>
+             <result property="isIsvSubMerchantMode" column="is_isv_sub_merchant_mode" jdbcType="VARCHAR"/>
             <result property="normalMerchantParams" column="normal_merchant_params" jdbcType="VARCHAR"/>
             <result property="specialMerchantParams" column="special_merchant_params" jdbcType="VARCHAR"/>
-            <result property="serviceSubMerchantParams" column="service_sub_merchant_params" jdbcType="VARCHAR"/>
+            <result property="isvParams" column="isv_params" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        pay_interface_code,pay_channel_name,config_page_type,
+        pay_interface_code
+        ,pay_channel_name,config_page_type,
         params,way_code,icon,
         status,remark,create_time,
         update_time,tenant_id,
-        is_normal_merchan_mode,is_service_sub_merchant_mode,
-        normal_merchant_params,special_merchant_params,service_sub_merchant_params
+        is_normal_merchan_mode,is_isv_sub_merchant_mode,
+        normal_merchant_params,special_merchant_params,isv_params
     </sql>
 
 </mapper>
