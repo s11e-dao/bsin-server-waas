@@ -101,6 +101,8 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
         warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelCode()), PayChannelInterface::getPayChannelCode, payChannelInterface.getPayChannelCode());
         warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelName()), PayChannelInterface::getPayChannelName, payChannelInterface.getPayChannelName());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getWayCode()), PayChannelInterface::getWayCode, payChannelInterface.getWayCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getStatus()), PayChannelInterface::getStatus, payChannelInterface.getStatus());
         warapper.orderByDesc(PayChannelInterface::getCreateTime);
         warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
         IPage<PayChannelInterface> pageList = payChannelInterfaceMapper.selectPage(page, warapper);
@@ -116,6 +118,8 @@ public class PayChannelInterfaceServiceImpl implements PayChannelInterfaceServic
         LambdaQueryWrapper<PayChannelInterface> warapper = new LambdaQueryWrapper<>();
         warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelCode()), PayChannelInterface::getPayChannelCode, payChannelInterface.getPayChannelCode());
         warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getPayChannelName()), PayChannelInterface::getPayChannelName, payChannelInterface.getPayChannelName());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getWayCode()), PayChannelInterface::getWayCode, payChannelInterface.getWayCode());
+        warapper.eq(ObjectUtil.isNotNull(payChannelInterface.getStatus()), PayChannelInterface::getStatus, payChannelInterface.getStatus());
         warapper.orderByDesc(PayChannelInterface::getCreateTime);
         warapper.eq(PayChannelInterface::getTenantId, loginUser.getTenantId());
         return payChannelInterfaceMapper.selectList(warapper);
