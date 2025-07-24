@@ -6,22 +6,18 @@ import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
-import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.MerchantConfig;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.TransactionStatus;
 import me.flyray.bsin.dubbo.invoke.BsinServiceInvoke;
-import me.flyray.bsin.exception.BusinessException;
 import me.flyray.bsin.facade.service.MerchantConfigService;
-import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.infrastructure.mapper.TransactionJournalMapper;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
 import me.flyray.bsin.server.service.ProfitSharingService;
 import me.flyray.bsin.thirdauth.wx.utils.WxRedisConfig;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shenyu.client.apidocs.annotations.ApiDoc;
 import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.apache.shenyu.client.springmvc.annotation.ShenyuSpringMvcClient;
@@ -31,10 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/payCallback")
@@ -64,9 +58,6 @@ public class PayCallbackController {
 
   private static WxRedisConfig wxRedisConfig;
 
-  // 依赖注入
-  @Autowired
-  private MerchantPayService merchantPayService;
   @Autowired
   BsinWxPayServiceUtil bsinWxPayServiceUtil;
   @Autowired

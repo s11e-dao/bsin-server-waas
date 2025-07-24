@@ -2,11 +2,9 @@ package me.flyray.bsin.server.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import me.flyray.bsin.domain.entity.Platform;
-import me.flyray.bsin.domain.entity.ProfitSharingConfig;
 import me.flyray.bsin.domain.entity.Transaction;
 import me.flyray.bsin.domain.enums.EcologicalValueAllocationModel;
 import me.flyray.bsin.facade.engine.RevenueShareServiceEngine;
-import me.flyray.bsin.facade.service.MerchantPayService;
 import me.flyray.bsin.facade.service.PlatformService;
 import me.flyray.bsin.infrastructure.mapper.TransactionMapper;
 import me.flyray.bsin.payment.BsinWxPayServiceUtil;
@@ -17,7 +15,6 @@ import org.apache.shenyu.client.apidocs.annotations.ApiModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +29,6 @@ import java.util.Optional;
 public class RevenueShareServiceEngineImpl implements RevenueShareServiceEngine {
     
     // 依赖注入
-    @Autowired
-    private MerchantPayService merchantPayService;
     @Autowired
     private BsinWxPayServiceUtil bsinWxPayServiceUtil;
     @Autowired
